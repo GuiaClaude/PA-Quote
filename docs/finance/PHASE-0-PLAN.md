@@ -410,6 +410,15 @@ Every rule has a unit test that asserts the entry balances and the account total
 
 ## 10. Questions & assumptions (please answer before Phase 1)
 
+### Decisions made (10/05/2026)
+
+| # | Decision | What it means in the app |
+|---|---|---|
+| D1 | **Books start on 01/01/2023.** | Opening balances are **as of 12/31/2022**, from your accountant (cash, AR, AP, fixed assets, loans, equity, unused input VAT and CWT credits). The handful of 2022 rows in the AP and Billing files are not posted as 2022 transactions: if still unpaid on 12/31/2022 they become **opening open items** (they make up the opening AR/AP balance), otherwise they are kept as reference only. Full history from 2023 is imported and posted. Periods before the start date are locked. |
+| D2 | **VAT basis for 2023.** Follows D1 and your OUTPUT file: **collected** basis from 01/01/2023 up to the cut-over in Q10, then **billed**. | 2023 billings post output VAT to 2105 Deferred Output VAT and move it to 2100 when collected. |
+| D3 | **Withholding tax on compensation is handled by your accountant.** | The app does **not** compute payroll withholding tax. Each payroll run gets a **"WTax (from accountant)"** amount, entered or imported per employee or as one total for the month. It posts to 2200 Withholding Tax Payable – Compensation and is tracked against the 1601-C remittance. Payroll reports show it as "per accountant". Rate tables for compensation tax are left out of Phase 5. |
+
+
 **Q1. BPI BizLink report.** Please upload one "Pay BPI Accounts Report" (.xls) the same way; a single month is enough. Also, do you get full BPI **account statements** (Excel/CSV), and from which channel (BizLink download, BPI online)? Reconciliation needs the full statement, not only the outgoing payment report.
 
 **Q2. System of record.** Which file is the master when they overlap?
@@ -424,7 +433,7 @@ Every rule has a unit test that asserts the entry balances and the account total
 
 **Q6. Hosting budget.** OK with Supabase Pro (US$25) + Vercel Pro (US$20) per month? (Free tiers are workable for staging only.)
 
-**Q7. Opening balances.** From which date should the books start (e.g. 01/01/2024)? Will your accountant give a trial balance as of that date (cash, AR, AP, fixed assets, equity)? Without one, the balance sheet will be incomplete.
+**Q7. Opening balances (12/31/2022).** Can your accountant give a **trial balance as of 12/31/2022**, ideally the audited FS figures for 2022, plus lists of AR and AP still open on that date? Until it arrives, the app runs with zero opening balances and shows a banner saying the balance sheet is provisional. The P&L and tax reports for 2023 onward are unaffected.
 
 **Q8. Fiscal year.** Calendar year (Jan–Dec)? *Assumed yes.*
 
@@ -446,9 +455,11 @@ Every rule has a unit test that asserts the entry balances and the account total
 
 **Q17. Staging deploy.** I can't create accounts or log into Supabase, Vercel, Google Cloud, Dropbox, Inngest, Resend or Anthropic for you. In Phase 1 I'll write click-by-click setup steps; you create the accounts and paste the keys into the environment's secrets (or the Vercel dashboard), and then I can deploy and migrate. Until then I'll develop and test against a local Postgres in this environment.
 
-**Q18. Opening date vs history.** Your AP and Billing files go back to 2022. Should the app import **all history from 2022** (more history for insights, but older years need opening balances from 2022), or start the books on **01/01/2024**, with older rows imported only as reference?
+~~**Q18. Opening date vs history.**~~ Answered: D1, books start 01/01/2023.
 
-**Q19. Payroll withholding tax.** The register has no withholding-tax column. Are all employees currently below the taxable threshold, or is tax computed elsewhere? Should the app compute it from the tax table and show it as a suggestion?
+~~**Q19. Payroll withholding tax.**~~ Answered: D3, handled by your accountant.
+
+**Q19b. How is the accountant's withholding tax deducted?** The register's NET PAY doesn't subtract any withholding tax. So, when tax applies, is it (a) deducted from employees' pay outside the register (another adjustment), (b) shouldered by the company (it then becomes an expense, and may count as extra taxable pay), or (c) currently zero for all employees? This changes the payroll journal entry, so please ask your accountant which one applies.
 
 **Q20. Payroll formulas.** I found inconsistent OT, holiday-OT and night-differential formulas in the first rows of the register (details in §5.2-F). Do you want the app to only **flag** differences (my assumption) or to **recompute** pay from hours and replace the register's figures?
 
@@ -472,8 +483,9 @@ Every rule has a unit test that asserts the entry balances and the account total
 8. Manual entry: billings (with lines), collections (partial, CWT, 2307 upload), purchases (category lines, attachments), AP payments; status workflow; automatic journal posting with reverse-and-repost on edit.
 9. Manual journal entries + chart of accounts editor.
 10. Dashboard (KPIs, period picker, comparison, charts, overdue, bills due).
-11. Synthetic seed: about 12 months of made-up clients (fake TINs), suppliers, jobs, billings, collections with CWT, purchases across all categories, AP payments.
-12. Tests: unit (VAT, dates, posting balanced, aging) + RLS role tests + a Playwright smoke test (login → create billing → collect → dashboard updates).
-13. README (non-programmer setup) + staging deploy once you've created the accounts (Q17).
+11. **Opening balances & books start date:** organisation setting `books_start_date = 2023-01-01`, an opening-balance entry screen (trial balance plus open AR/AP items as of 12/31/2022), a lock on everything before the start date, and VAT-basis periods (collected → billed).
+12. Synthetic seed: about 12 months of made-up clients (fake TINs), suppliers, jobs, billings, collections with CWT, purchases across all categories, AP payments, and a made-up opening balance.
+13. Tests: unit (VAT, dates, posting balanced, aging) + RLS role tests + a Playwright smoke test (login → create billing → collect → dashboard updates).
+14. README (non-programmer setup) + staging deploy once you've created the accounts (Q17).
 
 **Phase 1 deliverable:** a staging URL where you can log in, add clients, bill, collect, record purchases and see the dashboard and journal update, using synthetic data only.
