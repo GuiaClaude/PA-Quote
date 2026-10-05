@@ -1,2 +1,10 @@
-node_modules 
-dist 
+node_modules
+dist
+
+# Real sample workbooks contain client TINs and salaries; never commit them
+samples/
+
+# Secrets
+.env
+.env.*
+!.env.example
