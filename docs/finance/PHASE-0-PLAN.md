@@ -3,9 +3,7 @@
 Status: **draft for owner approval**. No application code has been written yet.
 Prepared 10/05/2026.
 
-> **Important:** there is no `samples/` folder in this repository or anywhere in the build environment, so I could **not** read the sample workbooks. The mapping strategy in §5 is based on the format descriptions in the spec. The importer is designed to match columns by header text, not position, so it should handle layout drift. Before Phase 2 I still need to see the real headers. See question Q1 for a safe way to share them.
->
-> `samples/` has already been added to `.gitignore`, so real files dropped there will never be committed.
+> **Sample files.** Five of the six workbooks were provided on 10/05/2026 (Sales "OUTPUT 2024", Purchases "INPUT 2024", Accounts Payable, Billing-Collection-SOA, and the Payroll Register for 09/01–09/15/2026). They were read for **structure only**: sheet names, title and header rows, merged cells, colours, formulas, and the *shape* of values (letters → `a`, digits → `9`). They are stored only in the git-ignored `samples/` folder and are not copied into this document, tests or seed data. **Still missing: the BPI BizLink "Pay BPI Accounts" report (.xls).** §5.2 describes what was found.
 
 ---
 
@@ -93,7 +91,7 @@ Policies: **viewer** can select only; **bookkeeper** can select, insert and upda
 |---|---|
 | `clients` | name, display_name, tin (9 digits), tin_branch (3–5 digits), address, contact_person, email, phone, terms_days (default 30), vat_status `vat/non_vat/zero_rated/exempt`, cwt_rate_bp (basis points, e.g. 200 = 2%), is_twa (top withholding agent), notes, merged_into_id |
 | `suppliers` | same as clients + payee_account_name, bank_details, default_expense_account_id, default_category, ewt_rate_bp, supplier_type `goods/services/professional/rental/…` |
-| `party_aliases` | org_id, party_type, party_id, alias_normalized, source, approved_by. Remembers "AP Bluewahle Corp" → AP BLUE WHALE CORP. so future imports auto-resolve. |
+| `party_aliases` | org_id, party_type, party_id, alias_normalized, source, approved_by. Remembers e.g. "Acme Prntng Corp" → ACME PRINTING CORP. so future imports auto-resolve. |
 | `merge_candidates` | party_type, a_id, b_id, score, reason (`tin_match`, `name_similarity 0.93`), status `pending/merged/dismissed` |
 | `projects` | ce_number (unique per org, normalised), po_number, client_id, name/description, job_type (offset, digital, large format, …), quoted_amount, status `quoted/ongoing/completed/billed/cancelled`, start_date, end_date |
 
@@ -101,9 +99,9 @@ Policies: **viewer** can select only; **bookkeeper** can select, insert and upda
 
 | Table | Key columns |
 |---|---|
-| `billings` | doc_type `sales_invoice/billing_invoice/billing_statement`, invoice_no, billing_statement_no, series_id, client_id, project_id, billing_date, terms_days, due_date, po_number, vat_treatment `vat/zero_rated/exempt/non_vat`, gross_amount, net_of_vat, output_vat, cwt_expected, status `draft/billed/for_collection/due_follow_up/paid/rejected/void`, rejected_reason, remarks, journal_entry_id |
+| `billings` | doc_type `sales_invoice/billing_invoice/billing_statement/or_converted_invoice`, invoice_nos text[] (one row can carry several numbers), invoice_no, billing_statement_no, series_id, client_id, project_id, billing_date, terms_days, due_date, po_number, job_type (Business Cards, Stickers, Flyers…), delivery_date, terms_text (COD, 30 DAYS PDC, 50% DP 50% FP), vat_treatment `vat/zero_rated/exempt/non_vat`, gross_amount, net_of_vat, output_vat, cwt_expected, status `draft/billed/for_collection/due_follow_up/paid/rejected/void`, rejected_reason, remarks, journal_entry_id |
 | `billing_lines` | billing_id, description, qty, unit_price, amount, revenue_account_id, project_id |
-| `collections` | receipt_type `sales_invoice/official_receipt/collection_receipt/acknowledgment/none`, receipt_no (OR# for legacy data, CR#, AR#), client_id, collection_date, payment_mode `cash/cheque_deposit/cheque_pickup/online_bank/gcash/bank_wire`, cheque_no, cheque_date, bank_account_id, amount_received, cwt_amount, form_2307_received bool, form_2307_received_date, form_2307_attachment_id, deposited_date, journal_entry_id |
+| `collections` | receipt_type `sales_invoice/official_receipt/collection_receipt/acknowledgement_receipt/none`, receipt_no (OR# for legacy data, CR#, AR#), client_id, collection_date, payment_mode `cash/bank_deposit/cheque_deposit/cheque_pickup/online_bank/bank_wire/gcash/offsetting`, payment_reference, cheque_no, cheque_date, bank_account_id, amount_received, cwt_amount, form_2307_status `not_required/pending/received/for_revision`, form_2307_received_date, form_2307_attachment_id, deposited_date, journal_entry_id |
 | `collection_allocations` | collection_id, billing_id, amount_applied, cwt_applied (partial payments; one collection can settle many billings) |
 | `follow_up_notes` | billing_id, note (Taglish OK), next_follow_up_date, by, at |
 | `doc_series` | doc_kind (sales_invoice, billing_statement, OR, CR…), prefix, start_no, end_no, atp_or_registration_no, valid_from. Used by the register's gap and duplicate check. |
@@ -113,10 +111,10 @@ Policies: **viewer** can select only; **bookkeeper** can select, insert and upda
 
 | Table | Key columns |
 |---|---|
-| `purchases` | doc_type `sales_invoice/official_receipt/collection_receipt/billing/acknowledgment/none`, reference_no, or_cr_no, ar_no, supplier_id, project_id (CE#), invoice_date, due_date, vat_treatment, total_amount, net_amount, input_vat, ewt_amount, description, status `open/partially_paid/paid/void`, journal_entry_id |
+| `purchases` | doc_type `sales_invoice/official_receipt/collection_receipt/billing_invoice/cash_invoice/delivery_receipt/acknowledgement/none`, reference_no, or_cr_no, ar_no, supplier_id, project_id (CE#), invoice_date, due_date, vat_treatment, total_amount, net_amount, input_vat, ewt_amount, description, expense_type `direct_materials/overhead_fixed/overhead_non_fixed`, terms_text, approval_status `to_be_processed/for_revision/approved_in_process/paid/unpaid`, payment_status `open/partially_paid/paid/void`, sent_to_platform (Spenmo/BizLink), with_2307 bool, no_receipt bool (no input VAT claimed), journal_entry_id |
 | `purchase_lines` | purchase_id, expense_category_id, account_id, class `goods/services/capital_goods`, amount, input_vat, project_id |
-| `expense_categories` | name (Printing Supplies, Office Supplies, Meals, Representation, Fuel, Repair & Maintenance, Misc Goods, Transportation, Fare/Terminal Fee, Electricity, Professional Fees, Security, …), class goods/services/assets, default_account_id, header_synonyms text[] (used by the importer) |
-| `ap_payments` | supplier_id, payment_date, payment_mode `bank_transfer/gcash/spenmo_bank/spenmo_gcash/cheque/cash`, via_platform (Spenmo), bank_account_id, cheque_no, amount, ewt_withheld, reference_no, journal_entry_id |
+| `expense_categories` | name: your 34 AP categories (Paper, CTP/Negatives, Finish, Postpress, Bindery, Job-Out, Supplies – Press/Office/Cleaning/…, Repairs – Main Machine/Office/Vehicle, …), default expense_type, default_account_id, **bir_summary_column** (one of the 26 INPUT-summary columns), class goods/services/capital_goods, header_synonyms text[] (used by the importer) |
+| `ap_payments` | supplier_id, payment_date, payment_mode `bizlink/bank_transfer_spenmo/gcash_spenmo/gcash_reimbursement/cheque/bpi_check/cash/lalamove_wallet/paymaya/credit_card/project_offsetting`, via_platform, bizlink_reference, check_date, check_status `posted/unposted`, bank_account_id, cheque_no, amount, ewt_withheld, reference_no, journal_entry_id |
 | `ap_payment_allocations` | ap_payment_id, purchase_id, amount_applied |
 
 ### 2.5 Bank
@@ -200,11 +198,11 @@ Fixed codes so the posting rules can find accounts. Names can be renamed.
 | 2600 / 2700 / 2800 | Income Tax Payable / Loans Payable / Due to Stockholder (OPC owner advances) |
 | **3000 Equity** | 3010 Share Capital, 3100 Retained Earnings, 3200 Current Year Earnings (computed), 3300 Dividends |
 | **4000 Revenue** | 4010 Printing Revenue – Offset, 4020 – Digital, 4030 – Large Format, 4040 Design & Pre-press, 4090 Other Services, 4100 Sales Returns & Discounts (contra), 4900 Other Income |
-| **5000 Cost of Sales** | 5010 Printing Supplies (paper, ink, plates), 5020 Outsourced/Subcontracted Printing, 5030 Direct Labor, 5040 Finishing & Binding, 5050 Delivery on Jobs |
-| **6000 Operating Expenses** | 6010 Salaries & Wages, 6020 SSS/PHIC/HDMF – Employer, 6030 13th Month & Bonuses, 6040 Allowances & De Minimis, 6100 Office Supplies, 6110 Meals, 6120 Representation, 6130 Fuel & Oil, 6140 Repairs & Maintenance, 6150 Transportation & Travel, 6155 Fare / Terminal Fees, 6160 Light & Power (Electricity), 6165 Water, 6170 Communication & Internet, 6180 Rent, 6190 Professional Fees, 6200 Security Services, 6210 Janitorial, 6220 Taxes & Licenses, 6230 Insurance, 6240 Depreciation, 6250 Bank & Spenmo Charges, 6260 Bad Debts, 6290 Miscellaneous |
+| **5000 Cost of Sales** (your "Direct Materials" type) | 5010 Paper, 5015 CTP / Plates / Negatives, 5020 Job-Out (outsourced printing), 5030 Finishing, 5035 Postpress, 5040 Bindery, 5045 Supplies – Press, 5046 Supplies – Postpress/Bindery/Finish, 5050 Direct Labor, 5060 Delivery on Jobs |
+| **6000 Operating Expenses** | 6010 Salaries & Wages, 6020 SSS/PHIC/HDMF – Employer, 6030 13th Month & Bonuses, 6040 Allowances & De Minimis, 6100 Office Supplies, 6110 Meals, 6120 Representation, 6130 Fuel & Oil, 6140 Repairs – Main Machine, 6141 Repairs – Office/Press Area, 6142 Repairs – Vehicle, 6145 Supplies – Cleaning, 6148 Management Expenses, 6150 Transportation & Travel, 6155 Fare / Terminal Fees, 6160 Light & Power (Electricity), 6165 Water, 6170 Communication & Internet, 6175 Courier & Freight, 6180 Rent, 6185 Hotel & Accommodation, 6190 Professional Fees, 6200 Security Services, 6210 Janitorial, 6220 Taxes & Licenses, 6230 Insurance, 6240 Depreciation, 6250 Bank & Spenmo Charges, 6260 Bad Debts, 6290 Miscellaneous |
 | **7000 Other / Tax** | 7010 Interest Expense, 7090 Income Tax Expense |
 
-The purchase importer's category columns map to these accounts through `expense_categories`. You decide whether Printing Supplies is cost of sales (5010, my recommendation) or an operating expense (Q9).
+Each of your 34 AP categories maps to one account above, and each account is tagged with (a) its **INPUT-summary column** (Printing Supplies, Office Supplies, Meals… the 26 columns in your BIR summary) and (b) goods/services/capital goods. Both your operational expense report and the BIR purchases summary then come from the same entries. Your Expense Type (Direct Materials / Overhead Fixed / Overhead Non-Fixed) is kept as a reporting dimension. You decide whether paper and press supplies are cost of sales (my recommendation) or carried as inventory (Q9).
 
 ---
 
@@ -251,18 +249,96 @@ Every rule has a unit test that asserts the entry balances and the account total
 
 **Cross-source overlap.** The Sales Summary (A) and the Billing workbook (C) describe the **same invoices**, and the Purchases Summary (B) overlaps the AP workbook (D). To avoid double-counting, each record type has one *system of record* (Q2). The other file only **enriches** matching records (adds OR#, PO#, CE#, 2307 flag) and reports mismatches in a reconciliation view.
 
-### 5.2 Per-format mapping (from the spec descriptions; to be confirmed against the real files)
+### 5.2 Per-format mapping (confirmed against your files, structure only)
 
-| Format | Detect by | Target | Natural row key | Notes |
-|---|---|---|---|---|
-| **A. Sales summary ("OUTPUT")** | title "SUMMARY OF SALES"; headers Gross Billings / Net of VAT / Output VAT | `billings` (+ `collections` when Remarks = PAID and OR#, Cash or WHT columns exist) | invoice no. → else billing statement no. → else OR no. → else hash(date, client, gross) + occurrence no. | Remarks PAID/UNPAID sets status. The Cash / Withholding Tax / 2307 columns, when present, create the collection with CWT and the 2307 flag. Historic data defaults to VAT basis = collected (per your note). |
-| **B. Purchases summary ("INPUT")** | title "SUMMARY OF PURCHASES"; headers Particulars / Input Tax + category columns | `purchases` + one `purchase_lines` row per non-zero category column | supplier TIN-or-normalised-name + Ref # + date | Category columns are found by synonyms under the goods/services/assets parent header. Input tax is checked against Total ÷ 1.12 × 0.12 for VAT rows; a blank TIN or no input tax → non-VAT. |
-| **C. Billing & Collection workbook** | sheet names BILLING + COLLECTION | BILLING → `billings` + `projects` (CE#, PO#); COLLECTION → `collections` + allocations; COLLECTION LIST SUMMARY → status + `follow_up_notes`; ON GOING PROJECT → `projects` | Billing Ref # ; collection: OR#/CR#/AR# + billing ref | The status legend maps to the status workflow. Monthly sales-vs-collection, VAT estimate and SOA sheets are **skipped** (the app recomputes them) but kept as a check-sum. |
-| **D. Accounts Payable workbook** | SUMMARY SHEET with Payee Account Name / Document Type / Due Date | `purchases`; "Addl Expenses" → `purchases`; "Cash & Check Disbursement" → `ap_payments` | supplier + Reference # (+ OR/CR#) | VAT/Non-VAT column sets the treatment. "Bank Transfer via Spenmo" → mode bank_transfer, via Spenmo. CE# links to the project. |
-| **E. BPI BizLink "Pay BPI Accounts Report"** (.xls) | title text "Pay BPI Accounts Report" | `bank_transactions` | BPI Reference Number | Amount text "PHP 2,130.76" → 213076 centavos. **Rejected rows are ignored** (logged as skipped). The funding account selects `bank_account`. |
-| **F. Payroll register** (semi-monthly) | headers SSS / PHIC / HDMF / Net Pay + employee # | `payroll_runs` + `payroll_lines` (+ `employees` upsert) | pay period + employee no. | The period comes from the title. A run is checked: gross − deductions = net per employee, and contributions are compared to the rate tables (differences are flagged, not changed). |
+#### What all the files have in common
 
-Each built-in format ships as a **read-only template**. Saving a modified copy creates your own template, and templates are versioned.
+| Problem found | How the importer handles it |
+|---|---|
+| **Phantom columns**: sheets report up to 16,000+ used columns (stray cells far to the right, e.g. column `GNN`) | Read only as far as the last header column; anything beyond is ignored and logged. |
+| **Formulas everywhere**: totals typed as `=350+417`, VAT as `=H6/1.12`, input tax as `=Total−SUM(categories)`, and some `#REF!` | Use the value Excel saved for each formula (the cached value). If it is missing or an error, the row goes to review with the formula shown. The app recomputes VAT itself and flags differences over ₱1. |
+| **Dates in many forms**: real dates, unformatted Excel serials (e.g. 45,470), `02.16.2023`, `4.15.23`, `2-23-2023`, `6/19/2023`, `9/15/2026`, `February 20, 2024`, `AUGUST , 2026` (no day), and in COLLECTION the day number in one column and the month/year in others | One date parser covering all of these (unit-tested on each shape found), month/day order by default, plus a check that the date falls in the sheet's period, the YEAR/MONTH columns, or the payment date. A date that conflicts or is incomplete goes to review. |
+| **Amounts as text**: `99, 999.99` and `99.999.99` (a period used as the thousands separator) | Parsed with the separator rules; anything ambiguous goes to review. |
+| **TINs**: `999-999-999`, `-999`, `-9999`, `-99999`, `999-999999999`, `999-999-999-0000` | Normalise to 9 digits + branch code (`000`/`0000`/`00000` all mean head office). |
+| **Several documents in one cell**: `#0273/#0274`, `#301, #302 and # 303`, `97 - 98`, `#0212 & #0237`, `435/294` | Split into multiple document numbers linked to one row; the amount isn't split (it stays as one billing with several numbers) unless you split it in review. |
+| **Notes inside number cells**: e.g. `#0272 (CANCELS & SUPERSEDES BI#0271)`, `- cancelled` after a client name | Recognised patterns: *cancels & supersedes X* marks X as **void** in the invoice register; *cancelled* sets the status. Everything else is kept in remarks. |
+| **Mislabelled headers** (see C below) | The built-in templates map by **position within the recognised header block + header text + content checks**, so a column headed "30 DAYS" is still read as Terms. |
+| **Status shown by row colour** (green / yellow / red legend in BILLING) | Fill colour is read and mapped to For Collection / Due for Follow-up / Rejected, and the text status (PAID/UNPAID) wins if both exist. |
+| Many spellings of the same value (`NON-VAT`, `NON - VAT`, `Non-vat`, `VATABLE`, `VAT INC.`, `VAT.INC`; `Paid/PAID/PAid`; `BIZLINK/BIZ LINK/BPI BIZLINK`; `W/O 2307`, `W/0 2307`) | Value dictionaries (editable in Settings) map each spelling to one code. |
+
+#### A. Sales summary: `OUTPUT 2024` (12 sheets)
+
+- **Sheets:** monthly (`Jan2024` … `Sept2024`, inconsistent case e.g. `jun2024`) and quarterly (`Apr-jun2024`, `Jul - Sept 2024`, plus a copy `Jul - Sept 2024 (2)`). Quarterly sheets are skipped and used only as check-sums.
+- **Title rows 1–3** (merged): company, "SUMMARY OF SALES", "FOR THE MONTH OF …". The title is **not trusted** for the period (e.g. `Sept2024` still says "JULY - SEPT 2024"); the period comes from the sheet name and the dates.
+- **Two layouts**, which match the VAT-basis change:
+  - **Jan–Mar 2024 (collected basis).** Block 1 header in rows 4–5: `INVOICE NUMBER · GROSS BILLINGS · NET OF VAT · OUTPUT VAT`. Then a **second block** further down with its own header: `CLIENTS NAME · TIN · ADDRESS · OR# · Cash · W/holding Tx · GROSS · BI # · 2307` → collections with CWT and 2307 status. A footer calculates VAT payable from collections.
+  - **Apr 2024 onward (billed basis).** One block with a 2-row header: `BILLING INVOICE · BILLING STATEMENT NUMBER · OFFICIAL RECEIPT · GROSS BILLINGS · NET OF VAT · OUTPUT VAT · REMARKS` (PAID/UNPAID). Some sheets (Apr–Jun) have an extra blank column B, which shifts every column right by one; mapping by header text handles this.
+- **Collection-style sheet** `Jul - Sept 2024 (2)`: single-row header `OR# · Cash · W/holding Tx · GROSS · BI # · BS # · Note`, with CWT computed as gross ÷ 1.12 × 1% or 2%.
+- **Date column A** is sometimes a real date and sometimes an unformatted serial number.
+- **Footers** (totals, "VAT payable", signature lines) → detected and skipped.
+- **Row key:** invoice no. → billing statement no. → OR no. → hash(date, TIN-or-name, gross) + occurrence.
+
+#### B. Purchases summary: `INPUT 2024` (12 sheets)
+
+- **Sheets:** monthly, quarterly (`Jan-Mar2024`, `Apr-Jun2024 ` with a trailing space), and **`purchase wo ref#`** (purchases with no receipt reference: recorded as expenses, but **no input VAT claimed** unless you say otherwise).
+- **Rows 1–2:** a colour legend: **green = goods, yellow = services, red = assets (capital goods)**. **Rows 3–4:** a two-part header, e.g. `Printing / Supplies`, `Repair and / Maintenance`, `Furniture and / Fixtures`.
+- **Fixed columns:** `Date · Particulars · Ref. # · TIN · Address · Total · Input Tax` (`Input Tax` = Total − SUM(categories)). Some months have an extra column B.
+- **26 category columns** in this order: Printing Supplies, Office Supplies, Meals, Representation, Fuel, Repair & Maintenance, Misc Goods, Transportation Fee, Fare/Terminal Fee/Parking/Toll, Rental, Elec/Water, Telephone, Courier, R&M Services, Misc (services), Freight, Insurance, Representation Services, Professional Fees, Security Guards, Agency Security, Hotel Accommodation, Transportation Equipment, Office Equipment, Furniture & Fixtures, Office Improvements. Goods/services/assets class comes from the **header fill colour** and is stored per category.
+- **One row can split across several categories** (e.g. Rental + Elec/Water) → one purchase with several lines.
+- **Footer blocks:** VAT working (VAT-exempt sales, input carry-over, **input VAT amortisation 3/60** on capital goods, input current, VAT payable, VAT payments, VAT still due) and an **income-tax working** (total net sales, taxable income to date, prior-year excess, tax credits, income tax payable). These are skipped on import, but the app will reproduce both calculations (§6), including carry-over and capital-goods amortisation.
+- **Row key:** supplier TIN-or-name + Ref # + date (+ occurrence).
+
+#### C. Billing & Collection workbook: `BILLING-COLLECTION-SOA` (10 sheets)
+
+- **BILLING** (≈1,200 rows, 2022–2026). Title and colour legend in rows 1–5; **header at row 6**: `YEAR · Month · Date · BILLING TYPE · [Terms, but headed "30 DAYS"] · BILLING REF. # · COMPANY NAME · T. Amount · Project (CE#) · [job type, no header: Business Cards, Stickers, Flyers…] · PO# · CR# · AR# · [PAID/UNPAID, no header] · PAYMENT MODE · PAYMENT REF# · Sales (net) · Output Taxes · AMOUNT PAID · EWT % · EWT AMT · [2307, header is the number 2307] · DELIVERY DATE · REMARKS`.
+  - Billing types: `BILLING INVOICE`, `BILLING STATEMENT`, **`OR CONVERTED INVOICE`** (EOPT transition).
+  - Terms: COD, 15/30/60/90 days, "30 DAYS PDC", "50% DP 50% FP" (down payment + final payment).
+  - EWT %: 1%, 2%, N/A (stored as 0.01/0.02, sometimes as text like "1%%").
+  - Billing ref formats: `#9999`, `#999`, `# 999`, a bare number.
+- **ON GOING PROJECT**: same columns, header at row 7 → `projects` (status *ongoing / prepare billing*), not billings.
+- **COLLECTION** (≈1,100 rows). Header at row 6: `YEAR · [month, but headed "JANUARY"] · Date (day number only) · MONTH (full date text) · COMPANY · TIN NO. · ADDRESS · Project · BILLING TYPE · BILLING # · BILLING / INVOICE AMOUNT · OR CONVERTED INVOICE # · AMOUNT · RECEIPT TYPE · RECEIPT # · AMOUNT PAID · ACCOUNT REFERENCE · WH TAX · [2307 status] · PAYMENT TYPE · DATE OF PAYMENT · DROPDOWN LIST (notes)`.
+  - Receipt types: Acknowledgement Receipt, Official Receipt, Collection Receipt.
+  - Payment types: Bank Deposit Slip, Cheque Pick-up, Bank Transfer, Bank Wire Transfer, GCash, Cheque Deposit, Cash, Online Bank, Offsetting.
+  - 2307 status: OK, W/2307, W/O 2307, FF UP, FOR REVISION, N/A → received / not required / missing (follow up).
+  - Notes like "(1st partial)", "(Full Payment)", "CANCELLED", "AR#… CANCELLED SUPERSEDED OR#…" → partial-payment flags and void links.
+- **COLLECTION LIST SUMMARY**: header at row 4 (`Month · [date] · COMPANY NAME · PROJECT · BILLING TYPE · BILLING REF. # · T. Amount · TERMS · STATUS · REMARKS`), with Taglish follow-up remarks → `follow_up_notes`.
+- **SOA, Sheet7** (per-client statements), **Total Sales & Collection per Mo** (pivot), **Qtrly VAT Payable Estimate**, **Detail2, Sheet2** → skipped; the app generates these itself.
+- **CE# format in your data:** `CE#<client code><year>-<nnn>[letter] - <description>` (e.g. shape `CE# ABC2024-001A (…)`), which differs from the PA-Quote app's `PA-CE-2026-0001`. The parser extracts the code part and keeps the description as the project name. Both formats are supported.
+- **Row keys:** billing type + billing ref #; collection: receipt type + receipt # (+ billing #).
+
+#### D. Accounts Payable workbook: `PRINT AMPLIFIED AP` (7 sheets)
+
+- **SUMMARY SHEET** (≈4,300 rows, 2022–2026). Header at row 1: `YEAR · MONTH · SUPPLIER · PAYEE ACCOUNT NAME · TIN NO# · REFERENCE # · OR/CR# · AR# · NON-VAT/VAT · INV.DATE · CE# · DESCRIPTION/PROJECT/CE# · Document Type · INV AMOUNT · TERMS · DUE DATE · ADDRESS · MODE OF PAYMENT · REFERENCE (payment ref, e.g. Spenmo bill ID) · DATE OF PAYMENT · STATUS · BIZLINK · CHECK DATE · CHECK STATUS · 2307 (w/ or w/o) · EXPENSE CATEGORY · EXPENSE TYPE · REMARKS · DATE ENCODED`.
+  - **VAT column** also encodes the document type (`VAT - SALES INV.`, `VAT - OR`, `VAT - C.R`, `NON-VAT - D.R`…) → split into VAT treatment + document type.
+  - **Payment modes:** BPI BizLink (most common), Check Payment, Bank Transfer via Spenmo, GCash via Spenmo, Cash, GCash for Reimbursement, Lalamove wallet, PayMaya, BPI check, credit card, Project Offsetting. Each maps to a **payment account** (BPI, Spenmo wallet, GCash, petty cash, employee reimbursement payable, offset against a client's AR).
+  - **Status workflow:** To be processed → Approved – In Process → Paid, plus For revision and Unpaid. This becomes the bill approval workflow in the app.
+  - The TERMS column sometimes contains amounts (data entered in the wrong column) → review.
+- **Addl Expenses** (≈1,500 rows): same idea with slightly different headers (`COMPANY / SUPPLIER NAME`, `INV #`, `PAYMENT MODE OF D&P`, `Sent to Spenmo/BPI BIZLINK`) → `purchases`.
+- **Cash & Check Disbursement**: only a % of total expenses summary (the data was removed) → skipped. **Pivot / Monthly Summary sheets** are empty → skipped.
+- **Dropdown Source (DO NOT EDIT)** → seeded as the app's lists:
+  - **34 expense categories:** Paper, CTP/Negatives, Finish, Postpress, Bindery, Job-Out, Supplies (Postpress/Bindery/Finish, Office, Cleaning, Press), Salaries & Wages, Management Expenses, Taxes, Licenses, SSS/HDMF contributions and loans, PHIC, Rental, Professional Fees/Commissions, Electricity, Tel./Comm., Insurance, Water (Drinking/Service), Transpo, Representations, Repairs (Main Machine / Main Office-Press Area / Main Vehicle), Loans & Amortizations (Interest), Miscellaneous.
+  - **3 expense types:** Direct Materials, Overhead Fixed, Overhead Non-Fixed.
+- **Two category systems.** The AP workbook uses *operational* categories (Paper, CTP, Job-Out…) and the INPUT summary uses *BIR summary* categories (Printing Supplies, Office Supplies…). The chart of accounts in §3 is extended so each AP category has its own account, and each account is tagged with its BIR summary column and goods/services/assets class. Both reports then come from the same data.
+- **Row key:** supplier TIN-or-name + Reference # (+ OR/CR#).
+
+#### E. BPI BizLink "Pay BPI Accounts Report": **file not yet provided**
+
+- The design is unchanged. Two links are now visible from your other files: the **BIZLINK column** in AP and the **BIZLINK REFERENCE column** in payroll. Together with the BPI reference numbers, these let bank matching link payments to bills and payroll automatically.
+
+#### F. Payroll register: `PAYROLL PERIOD SEPTEMBER 1-15 2026` (4 sheets)
+
+- **PAYROLL REGISTER.** Title rows 1–6 (company, "Payroll Register", `Cut-Off Date: 9/15/2026`, "Payroll for the period covered SEPTEMBER", `HOLIDAYS: N/A`). **Header in rows 7–8, merged:**
+  - Hours and inputs: `Name · employee # · Basic Rate per month · STANDARD HOURLY RATE (= monthly ÷ 26 ÷ 8) · TOTAL # OF HRS · Night (hrs) · Regular OT · Regular Holiday · Regular Holiday OT · Special Holiday · Special Holiday OT · Rest Day Sunday · Adjustment · Lates (mins) · Absences · Undertime`.
+  - **GROSS PAY:** `Basic, Allowance, De minimis, Night Diff, Regular OT, Regular Holiday, Regular Holiday OT, Special Holiday, Special Holiday OT, Rest Day-Sunday, Reimbursement, Adjustment/Leave Credit, Total`.
+  - **DEDUCTIONS:** `Lates, Absences, Undertime, SSS, PHIC, HDMF, SSS Salary Loan, SSS Calamity Loan, HDMF Short-term Loan, HDMF Calamity, Company Loan, Cash Advance, Total Deductions`.
+  - Then: `NET PAY · ACCOUNT # · PAYMENT MODE · EMAIL · REMARKS · BIZLINK REFERENCE`.
+- **WORKSHEET:** daily time records (IN/OUT/TOTAL HR/OT/HOLIDAY/LEAVE/NS per day) feeding the register. **PAYSLIPS:** per-employee payslips (references the register). **1601-C** (hidden): an old template from another company with `#REF!` errors → skipped.
+- **Findings to confirm with you and your accountant.** These are about formulas only; no amounts were read.
+  1. **There is no withholding tax on compensation column.** Either all employees are below the taxable threshold, or tax is handled elsewhere. 1601-C needs this (Q19).
+  2. **Employer shares (SSS ER/EC, PHIC ER, HDMF ER) are not in the register.** The app will compute them from the rate tables to post the expense and payable correctly.
+  3. **PHIC** is computed as monthly basic × 2.5% ÷ 2 per cut-off (the employee half of 5%), which matches the current rate. SSS and HDMF are typed in, so the app will check them against the tables.
+  4. **Inconsistent formulas in the first rows** of the register: Regular OT uses `hourly ÷ 8 × 1.25` in some rows but `hourly × 1.25` in others, Holiday OT in one row references the *employee #* column, and Night Diff uses `hourly × 125% × 110%` (the night-shift rate on overtime) for all night hours. These may be harmless (zero hours), but the importer will **recompute and flag** any line where the register's figure differs from the rule.
+- **Row key:** cut-off date + employee #. Employees are upserted by employee #.
 
 ### 5.3 Live sources
 
@@ -278,11 +354,12 @@ Each built-in format ships as a **read-only template**. Saving a modified copy c
 
 | Item | Approach |
 |---|---|
-| VAT 12% | Output on sales, input on VAT-registered purchases. Monthly and quarterly VAT summaries; **2550Q** reference (monthly figures are internal only, since 2550M is no longer required from 2023). |
+| VAT 12% | Output on sales, input on VAT-registered purchases. The app reproduces the VAT working at the bottom of your INPUT sheets: **input VAT carry-over**, **3/60 amortisation of input VAT on capital goods**, VAT-exempt sales, VAT payments, and VAT still due. Monthly and quarterly VAT summaries; **2550Q** reference (monthly figures are internal only, since 2550M is no longer required from 2023). |
 | EOPT Act (RA 11976, RR 3-2024) | The sales invoice is the primary document for goods **and** services, and the OR is supplementary. Both are stored: `invoice_no` on billings, legacy `OR#` on collections. **VAT basis is set per date range**: *collected* for historic periods (uses 2105 Deferred Output VAT), *billed* from the date you set (default: EOPT effectivity, 04/27/2024). Transitional rules for pre-EOPT receivables of services → the accountant confirms the cut-over date. |
 | CWT / BIR 2307 | Expected CWT per client (rate × net of VAT), actual CWT on collection, a **missing-2307 tracker** (collected with CWT but 2307 not received), and file upload of the 2307. |
 | EWT we withhold | Off by default. Per-supplier rates (e.g. professional fees, rentals) from editable tables; reports for 0619-E / 1601-EQ and our 2307 issuance list. |
 | Payroll | SSS, PhilHealth and Pag-IBIG tables and the withholding tax table on compensation stored with **effective dates** (seeded with the current published tables, flagged "verify"); 1601-C reference; 13th month and de minimis caps editable. |
+| Income tax (estimate) | The income-tax working from your INPUT sheets (taxable income to date, prior-year excess credits, CWT and quarterly payments, income tax payable) becomes a **1702Q estimate** report. RCIT rate is configurable (e.g. 20% or 25% depending on net taxable income and total assets). |
 | Deadlines | Editable rules table seeded with the usual due dates (1601-C and 0619-E monthly, 2550Q and 1601-EQ quarterly, SSS/PHIC/HDMF monthly) with reminder emails. |
 | Summary lists | Sales and purchases summaries in the **same layout as your Excel** (with TIN and address), exportable to Excel. A BIR RELIEF/SLSP data-file export can be added later (Q11). |
 | Disclaimer | Shown on the tax pages and insights: *"Informational only; confirm with your accountant / BIR."* |
@@ -333,11 +410,11 @@ Each built-in format ships as a **read-only template**. Saving a modified copy c
 
 ## 10. Questions & assumptions (please answer before Phase 1)
 
-**Q1. Sample files.** They are not in the repo or this environment. Safest option: for each of the 6 workbooks, make a copy, **replace the data rows with 3–5 fake rows** (keep every title row, header row, sheet name, total row and quirk exactly as is), and attach or commit those copies in `samples-structure/`. Real files can stay out of git (`samples/` is ignored). *Needed before Phase 2, not Phase 1.*
+**Q1. BPI BizLink report.** Please upload one "Pay BPI Accounts Report" (.xls) the same way; a single month is enough. Also, do you get full BPI **account statements** (Excel/CSV), and from which channel (BizLink download, BPI online)? Reconciliation needs the full statement, not only the outgoing payment report.
 
 **Q2. System of record.** Which file is the master when they overlap?
-  (a) Billings: **Billing & Collection workbook (C)** or the **Sales Summary (A)**? *I assume C is the master and A is the cross-check.*
-  (b) Purchases: **AP workbook (D)** or the **Purchases Summary (B)**? *I assume B is the master for expenses and VAT, and D for due dates and payments.*
+  (a) Billings: the **Billing & Collection workbook (C)** covers 2022–2026 and has CE#, PO#, terms and payments, while the **OUTPUT summary (A)** is the 2024 BIR summary. *Recommendation: C is the master; A is imported only to cross-check (it reports matches and differences, and creates nothing).*
+  (b) Purchases: the **AP workbook (D)** covers 2022–2026 with payments, CE# and categories, while the **INPUT summary (B)** has the BIR category split and input tax, and probably includes small cash purchases (meals, fuel, parking) that never go through AP. *Recommendation: D is the master for supplier bills and payments; B rows that match a D bill (supplier + ref# + amount) only add the category split, and **B rows with no match become cash/petty-cash purchases**.* Is that how your bookkeeping actually works?
 
 **Q3. CE builder.** Should PA-Quote CEs flow into Projects automatically later (needs PA-Quote to save to the database instead of the browser)? For now I'll accept CE# typed in or imported.
 
@@ -353,7 +430,7 @@ Each built-in format ships as a **read-only template**. Saving a modified copy c
 
 **Q9. Printing supplies.** Expense them as cost of sales (recommended) or carry them as inventory with month-end counts?
 
-**Q10. VAT basis cut-over date.** Use "collected" before 04/27/2024 and "billed" after, unless your accountant says otherwise?
+**Q10. VAT basis cut-over date.** Your OUTPUT file switches from the collected-basis layout (Jan–Mar 2024) to the billed-basis layout from April 2024. Should the app use "collected" up to 03/31/2024 and "billed" from 04/01/2024, or switch at the EOPT effectivity date (04/27/2024)? Your accountant should confirm.
 
 **Q11. BIR filings.** Is this app for **management books only**, or do you intend it to become your BIR-registered computerized books (that needs a separate BIR application)? Do you need RELIEF/SLSP `.dat` export?
 
@@ -368,6 +445,16 @@ Each built-in format ships as a **read-only template**. Saving a modified copy c
 **Q16. Invoice numbering.** What are your current sales invoice / billing statement / OR / CR series (prefixes and ranges)? Should the app **issue** new invoice numbers, or only record numbers from your printed/registered booklets?
 
 **Q17. Staging deploy.** I can't create accounts or log into Supabase, Vercel, Google Cloud, Dropbox, Inngest, Resend or Anthropic for you. In Phase 1 I'll write click-by-click setup steps; you create the accounts and paste the keys into the environment's secrets (or the Vercel dashboard), and then I can deploy and migrate. Until then I'll develop and test against a local Postgres in this environment.
+
+**Q18. Opening date vs history.** Your AP and Billing files go back to 2022. Should the app import **all history from 2022** (more history for insights, but older years need opening balances from 2022), or start the books on **01/01/2024**, with older rows imported only as reference?
+
+**Q19. Payroll withholding tax.** The register has no withholding-tax column. Are all employees currently below the taxable threshold, or is tax computed elsewhere? Should the app compute it from the tax table and show it as a suggestion?
+
+**Q20. Payroll formulas.** I found inconsistent OT, holiday-OT and night-differential formulas in the first rows of the register (details in §5.2-F). Do you want the app to only **flag** differences (my assumption) or to **recompute** pay from hours and replace the register's figures?
+
+**Q21. "Project Offsetting" / "Account Offsetting".** These appear in both AP and collections. Do they mean a client's payable to you was settled by netting against something you owed them (or the reverse)? The app would record them as an AR↔AP offset entry.
+
+**Q22. GCash for Reimbursement / Lalamove wallet / credit card.** Who pays first (employee, owner, or a company card)? This decides whether those post to *Due to Employee*, *Due to Stockholder*, or a *Credit Card Payable* account.
 
 **Assumptions** (tell me if any is wrong): single company (but schema is multi-org ready); PHP only; weeks Mon–Sun; MM/DD/YYYY everywhere; zero-rated/exempt sales are rare but supported; historic data before the opening date is imported for reports and comparisons but posts to an "opening balance" equity cut-off; Taglish free-text remarks are kept as written.
 
