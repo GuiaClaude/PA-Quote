@@ -3,7 +3,7 @@
 Status: **draft for owner approval**. No application code has been written yet.
 Prepared 10/05/2026.
 
-> **Sample files.** Five of the six workbooks were provided on 10/05/2026 (Sales "OUTPUT 2024", Purchases "INPUT 2024", Accounts Payable, Billing-Collection-SOA, and the Payroll Register for 09/01–09/15/2026). They were read for **structure only**: sheet names, title and header rows, merged cells, colours, formulas, and the *shape* of values (letters → `a`, digits → `9`). They are stored only in the git-ignored `samples/` folder and are not copied into this document, tests or seed data. **Still missing: the BPI BizLink "Pay BPI Accounts" report (.xls).** §5.2 describes what was found.
+> **Sample files.** Five of the six workbooks were provided on 10/05/2026 (Sales "OUTPUT 2024", Purchases "INPUT 2024", Accounts Payable, Billing-Collection-SOA, and the Payroll Register for 09/01–09/15/2026). They were read for **structure only**: sheet names, title and header rows, merged cells, colours, formulas, and the *shape* of values (letters → `a`, digits → `9`). They are stored only in the git-ignored `samples/` folder and are not copied into this document, tests or seed data. The BPI BizLink Transaction History Report (.xls) was provided the same day and is described in §5.2-E. §5.2 describes what was found.
 
 ---
 
@@ -321,9 +321,23 @@ Every rule has a unit test that asserts the entry balances and the account total
 - **Two category systems.** The AP workbook uses *operational* categories (Paper, CTP, Job-Out…) and the INPUT summary uses *BIR summary* categories (Printing Supplies, Office Supplies…). The chart of accounts in §3 is extended so each AP category has its own account, and each account is tagged with its BIR summary column and goods/services/assets class. Both reports then come from the same data.
 - **Row key:** supplier TIN-or-name + Reference # (+ OR/CR#).
 
-#### E. BPI BizLink "Pay BPI Accounts Report": **file not yet provided**
+#### E. BPI BizLink **Transaction History Report** (`.xls`, uploaded monthly), confirmed 10/05/2026
 
-- The design is unchanged. Two links are now visible from your other files: the **BIZLINK column** in AP and the **BIZLINK REFERENCE column** in payroll. Together with the BPI reference numbers, these let bank matching link payments to bills and payroll automatically.
+*This is a full account statement (money in, money out, running balance), not the "Pay BPI Accounts" payments report the original spec described. That's better for reconciliation.*
+
+- **File:** genuine legacy Excel 97–2003 (`.xls`, BIFF8), one sheet with an auto-generated name (e.g. `DJR_2329`, which changes every download, so it's not used for detection). Data starts in **column B** (column A is empty).
+- **Title block, rows 2–11:** `BPI BizLink` · `TRANSACTION HISTORY REPORT` · company name · `Requested Date:` (MM/DD/YYYY hh:mm:ss) · `Printed By:` · `Account Name:` · `Preferred Nickname:` · `Account Number:` · `Currency:` (PHP) · `Period Covered:` (e.g. "Last 30 Days"). Detection uses the first two title lines. **The account number picks which bank account the lines belong to.** The app stores it to match uploads, and shows only the last 4 digits.
+- **Header, row 12:** `Date · Check Number · SBA Reference No. · Branch · Transaction Code · Transaction Description · Debit · Credit · Running Balance`.
+- **Values are all text:** dates `MM/DD/YYYY`; amounts `99,999.99` with commas; an empty cell means the other side (each row has either Debit or Credit). Check Number is rarely filled; **SBA Reference No. was empty in the sample.** No total row at the bottom.
+- **Rows are newest-first.** The importer reverses them. **The running balance is verified row by row** (in the sample, all 111 steps matched to the centavo); a break means a missing or edited row, and the file goes to review.
+- **Overlapping uploads.** "Last 30 Days" downloads overlap from month to month, and there is no unique transaction ID, so each row's key is *account + date + transaction code + description + debit + credit + running balance (+ check no.)*. Re-uploading the same days adds nothing. The app also checks continuity: the first new row's running balance must follow on from the last imported one, or a **gap warning** appears ("transactions between MM/DD and MM/DD are missing").
+- **Transaction codes** (bank codes, editable mapping table). In the sample: `4445` debits whose description mentions BizLink, which are supplier/payroll payments (the most common row); `0311–0314` credits (deposits / check deposits, some with `CK# 9999999999`); `4348` credits ("INTER BANK FUND TRANSFER", "REMITTANCE"); `3345` credits; `0453`, `4448`, `6454` debits (probably bank charges and other debits, to be confirmed). Unknown codes are listed once for you to label, and the app then remembers them.
+- **Automatic matching** (Phase 5 bank reconciliation):
+  - *Debits, code 4445 / BizLink* → AP payments marked BizLink and payroll payouts: same amount, date within ±3 days. Payroll is matched by the batch total.
+  - *Credits* → collections deposited to that account: same cash amount, date within ±5 days. Cheque deposits match on the check number when it is present.
+  - *Bank charges / interest* → posted automatically once their code is labelled.
+  - Several candidates or no candidate → manual match screen. Nothing is posted twice: a matched line confirms an existing entry and creates no new one.
+- **Sheet library note.** This session's network blocks the official SheetJS download site, so the `.xls` structure was read with a read-only Python reader. In Phase 2 the app needs an `.xls` parser: either allow `cdn.sheetjs.com` in this environment's network settings, or keep a copy of the SheetJS package in the repo. (The plain npm `xlsx` package is outdated and has known security advisories, so it won't be used.)
 
 #### F. Payroll register: `PAYROLL PERIOD SEPTEMBER 1-15 2026` (4 sheets)
 
@@ -419,7 +433,7 @@ Every rule has a unit test that asserts the entry balances and the account total
 | D3 | **Withholding tax on compensation is handled by your accountant.** | The app does **not** compute payroll withholding tax. Each payroll run gets a **"WTax (from accountant)"** amount, entered or imported per employee or as one total for the month. It posts to 2200 Withholding Tax Payable – Compensation and is tracked against the 1601-C remittance. Payroll reports show it as "per accountant". Rate tables for compensation tax are left out of Phase 5. |
 
 
-**Q1. BPI BizLink report.** Please upload one "Pay BPI Accounts Report" (.xls) the same way; a single month is enough. Also, do you get full BPI **account statements** (Excel/CSV), and from which channel (BizLink download, BPI online)? Reconciliation needs the full statement, not only the outgoing payment report.
+~~**Q1. BPI BizLink report.**~~ Received: Transaction History Report (§5.2-E). *Optional:* if BizLink can also export the **"Pay BPI Accounts" / payments report with reference numbers**, matching supplier payments gets more precise, but it isn't required.
 
 **Q2. System of record.** Which file is the master when they overlap?
   (a) Billings: the **Billing & Collection workbook (C)** covers 2022–2026 and has CE#, PO#, terms and payments, while the **OUTPUT summary (A)** is the 2024 BIR summary. *Recommendation: C is the master; A is imported only to cross-check (it reports matches and differences, and creates nothing).*
