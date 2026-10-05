@@ -27,8 +27,10 @@ async function main() {
   }
   const sql = postgres(url!, { onnotice: () => {} });
   await sql`create table if not exists public._migrations (name text primary key, applied_at timestamptz not null default now())`;
-  const isLocal = ["localhost", "127.0.0.1"].includes(u.hostname);
-  if (isLocal) {
+  // A plain Postgres (local or the Docker preview) lacks Supabase's auth schema: add the small stand-in.
+  // On Supabase auth.uid() already exists, so the shim is never applied there.
+  const [authCheck] = await sql<{ has_auth: boolean }[]>`select to_regprocedure('auth.uid()') is not null as has_auth`;
+  if (!authCheck?.has_auth) {
     await sql.unsafe(readFileSync(path.join(root, "db/local-supabase-shim.sql"), "utf8"));
   }
   const files = readdirSync(path.join(root, "supabase/migrations")).filter((f) => f.endsWith(".sql")).sort();

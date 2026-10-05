@@ -1,0 +1,35 @@
+# Local preview: database + app on your own computer, with made-up demo data.
+#   Start:  docker compose up -d --build      (or double-click start-preview.bat on Windows)
+#   Open:   http://localhost:3000
+#   Stop:   docker compose down               (data is kept)
+#   Fresh demo data:  docker compose down -v, then start again
+name: pa-finance-preview
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_PASSWORD: preview-only
+      POSTGRES_DB: pa_finance
+      TZ: Asia/Manila
+    volumes:
+      - pa_finance_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d pa_finance"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+  app:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://postgres:preview-only@db:5432/pa_finance
+      AUTH_MODE: dev
+      # Local preview only. A real deployment uses its own long random secret.
+      SESSION_SECRET: local-preview-only-not-for-production-use-0123456789
+      TZ: Asia/Manila
+    ports:
+      - "127.0.0.1:3000:3000"
+volumes:
+  pa_finance_data:

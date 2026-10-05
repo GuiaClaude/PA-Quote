@@ -80,6 +80,14 @@ const JOBS = [
 ] as const;
 
 async function main() {
+  if (process.argv.includes("--if-empty")) {
+    const [o] = await sql<{ n: number }[]>`select count(*)::int as n from organizations`;
+    if (o!.n > 0) {
+      console.log("Demo data already present; keeping it.");
+      await sql.end();
+      return;
+    }
+  }
   const today = manilaToday();
   const firstMonth = addMonths(today.slice(0, 8) + "01", -12);
 

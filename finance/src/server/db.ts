@@ -20,8 +20,22 @@ function createPool() {
   });
 }
 
-const g = globalThis as unknown as { __paSql?: ReturnType<typeof createPool> };
-export const sql = g.__paSql ?? (g.__paSql = createPool());
+type Pool = ReturnType<typeof createPool>;
+const g = globalThis as unknown as { __paSql?: Pool };
+const pool = (): Pool => (g.__paSql ??= createPool());
+
+/**
+ * The pool is created on first use, not at import time, so `next build` works
+ * without a database (DATABASE_URL is only needed when the app runs).
+ */
+export const sql = new Proxy(function () {} as unknown as Pool, {
+  apply: (_t, thisArg, args) => Reflect.apply(pool() as unknown as (...a: unknown[]) => unknown, thisArg, args),
+  get: (_t, prop) => {
+    const p = pool() as unknown as Record<PropertyKey, unknown>;
+    const v = p[prop];
+    return typeof v === "function" ? (v as (...a: unknown[]) => unknown).bind(p) : v;
+  },
+}) as Pool;
 
 export type Tx = postgres.TransactionSql<Record<string, unknown>>;
 
