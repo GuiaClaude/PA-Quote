@@ -77,7 +77,7 @@ export function createApp() {
     res.json({ user: r.user });
   }));
   api.post('/auth/logout', ah(async (req, res) => { await auth.logout(req.cookies[COOKIE]); res.clearCookie(COOKIE, { path: '/' }); res.json({ ok: true }); }));
-  api.get('/auth/me', requireAuth, (req, res) => res.json({ user: req.user }));
+  api.get('/auth/me', requireAuth, (req, res) => res.json({ user: req.user, sampleMode: config.sampleMode }));
 
   // External scheduler hook (e.g. Cloud Scheduler) — shared secret, constant-time compare.
   api.post('/cron/monday', ah(async (req, res) => {

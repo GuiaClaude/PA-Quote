@@ -19,6 +19,8 @@ export const config = {
   // Run the in-process Monday scheduler. Disable when an external scheduler is used.
   enableInternalScheduler: env.ENABLE_INTERNAL_SCHEDULER !== 'false',
   timezone: 'Asia/Manila',
+  // Demo/training databases only: include records flagged is_sample in views and reports.
+  sampleMode: env.SAMPLE_MODE === 'true',
 };
 
 export const ROLES = ['accounting', 'approver', 'sender', 'management', 'sysadmin'];

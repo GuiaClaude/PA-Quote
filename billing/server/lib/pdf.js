@@ -24,9 +24,10 @@ export function table(doc, cols, rows, { fontSize = 8 } = {}) {
     let x = x0;
     const y = doc.y;
     doc.font('Helvetica-Bold').fontSize(fontSize);
-    doc.rect(x0, y - 2, cols.reduce((s, c) => s + c.width, 0), fontSize + 8).fill('#e8f6f7').fillColor('#000');
-    for (const c of cols) { doc.text(c.label, x + 2, y + 1, { width: c.width - 4, align: c.align || 'left' }); x += c.width; }
-    doc.y = y + fontSize + 8;
+    const hh = Math.max(...cols.map((c) => doc.heightOfString(c.label, { width: c.width - 4 }))) + 6;
+    doc.rect(x0, y - 2, cols.reduce((s, c) => s + c.width, 0), hh).fill('#e8f6f7').fillColor('#000');
+    for (const c of cols) { doc.text(c.label, x + 2, y + 1, { width: c.width - 4, align: c.align || (c.money ? 'right' : 'left') }); x += c.width; }
+    doc.y = y + hh;
     doc.font('Helvetica').fontSize(fontSize);
   };
   drawHeader();

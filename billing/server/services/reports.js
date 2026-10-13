@@ -9,12 +9,15 @@ import { toCents } from '../lib/money.js';
 import { manilaDate, addDays, mondayOf, manilaDayStart, manilaDayEnd } from '../lib/dates.js';
 import { currentRunKey } from './collection.js';
 import { badRequest } from '../lib/errors.js';
+import { config } from '../config.js';
+
+const SAMPLE = () => config.sampleMode;
 
 const M = (key, label) => ({ key, label, money: true });
 const C = (key, label) => ({ key, label });
 
 /** Every job order with ledger balance + derived tracking, computed in bulk (each invoice counted once). */
-export async function jobOrderOverview(asOf = manilaDate(), { includeSample = false } = {}) {
+export async function jobOrderOverview(asOf = manilaDate(), { includeSample = SAMPLE() } = {}) {
   const sheetCfg = await getSetting('sheet');
   const ledgers = await allLedgers(asOf);
   const lineByInvoice = new Map();
@@ -87,11 +90,11 @@ export async function dashboard(asOf = manilaDate()) {
   const ledgers = await allLedgers(asOf);
   let billed = 0, overdue = 0, unapplied = 0;
   for (const l of ledgers.values()) { billed += l.totals.outstanding; overdue += l.totals.overdue; unapplied += l.totals.unapplied; }
-  const { rows: [{ s: pendingRecon }] } = await query(`SELECT COALESCE(sum(amount),0) s FROM invoices WHERE status='unreconciled' AND NOT is_sample`);
+  const { rows: [{ s: pendingRecon }] } = await query(`SELECT COALESCE(sum(amount),0) s FROM invoices WHERE status='unreconciled' AND ($1 OR NOT is_sample)`, [SAMPLE()]);
   const monthStart = `${asOf.slice(0, 7)}-01`;
   const { rows: [{ s: collected }] } = await query(
-    `SELECT COALESCE(sum(amount),0) s FROM payments WHERE status IN ('verified','reversed') AND payment_date BETWEEN $1 AND $2 AND verified_at <= $3 AND (reversed_at IS NULL OR reversed_at > $3) AND NOT is_sample`,
-    [monthStart, asOf, manilaDayEnd(asOf)]);
+    `SELECT COALESCE(sum(amount),0) s FROM payments WHERE status IN ('verified','reversed') AND payment_date BETWEEN $1 AND $2 AND verified_at <= $3 AND (reversed_at IS NULL OR reversed_at > $3) AND ($4 OR NOT is_sample)`,
+    [monthStart, asOf, manilaDayEnd(asOf), SAMPLE()]);
   const runKey = currentRunKey();
   const { rows: [run] } = await query('SELECT * FROM collection_runs WHERE run_key=$1', [runKey]);
   const { rows: ds } = await query(`SELECT status, count(*)::int n FROM email_drafts GROUP BY status`);
@@ -197,7 +200,7 @@ function sumLedgers(ledgers) {
 /** Roll-forward with a built-in reconciliation check: opening + billings + debits − allocations − credits = closing. */
 async function rollForward(from, to) {
   const data = await loadLedgerData(null, null);
-  const live = { ...data, invoices: data.invoices.filter((i) => !i.is_sample) };
+  const live = { ...data, invoices: data.invoices.filter((i) => SAMPLE() || !i.is_sample) };
   const opening = computeLedger(live, addDays(from, -1), 'restated');
   const closing = computeLedger(live, to, 'restated');
   const sumOut = (l) => l.invoices.reduce((s, i) => s + i.outstanding, 0);
@@ -211,7 +214,7 @@ async function rollForward(from, to) {
   const pay = new Map(data.payments.map((p) => [p.id, p]));
   const allocs = data.allocations.filter((a) => invIds.has(a.invoice_id) && a.status === 'active' && pay.get(a.payment_id)?.status === 'verified' && inPeriod(a.effective_date));
   const applied = allocs.reduce((s, a) => s + toCents(a.amount), 0);
-  const collections = data.payments.filter((p) => p.status === 'verified' && !p.is_sample && inPeriod(p.payment_date)).reduce((s, p) => s + toCents(p.amount), 0);
+  const collections = data.payments.filter((p) => p.status === 'verified' && (SAMPLE() || !p.is_sample) && inPeriod(p.payment_date)).reduce((s, p) => s + toCents(p.amount), 0);
   const openingAmt = sumOut(opening);
   const closingAmt = sumOut(closing);
   const expected = openingAmt + newBillings + debits - applied - credits;
