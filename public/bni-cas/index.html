@@ -215,7 +215,7 @@
     <button data-nav="wins"><span class="ndot"></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8.5 20h7M10 17h4"/></svg>Wins</button>
     <button data-nav="scan" aria-label="Present the team"><span class="center"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2M7 12h10"/></svg></span></button>
     <button data-nav="refs"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3.5H6.5a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2H11M8 8h7M8 11.5h4"/><circle cx="17" cy="16.5" r="4"/><path d="M17 14.8v1.9l1.2.8"/></svg>Referrals</button>
-    <button data-nav="msgs"><span class="dot">24</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5h14a1.5 1.5 0 0 1 1.5 1.5v9a1.5 1.5 0 0 1-1.5 1.5h-6l-4.5 3.5V16.5H5A1.5 1.5 0 0 1 3.5 15V6A1.5 1.5 0 0 1 5 4.5z"/><path d="M8 9h8M8 12h5"/></svg>Contact</button>
+    <button data-nav="msgs"><span class="dot">25</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5h14a1.5 1.5 0 0 1 1.5 1.5v9a1.5 1.5 0 0 1-1.5 1.5h-6l-4.5 3.5V16.5H5A1.5 1.5 0 0 1 3.5 15V6A1.5 1.5 0 0 1 5 4.5z"/><path d="M8 9h8M8 12h5"/></svg>Contact</button>
   </nav>
 
   <section class="viewer" id="viewer" aria-modal="true" role="dialog" aria-labelledby="vTitle">
@@ -285,6 +285,9 @@ const MEMBERS = [
   { id:"botsatwork", label:"AI Bots", icon:"🤖", cat:"digital", business:"Bots at Work", title:"AI Chatbots / AI Agents", slide:20,
     services:["AI chatbots","AI agents","Messenger","Instagram","Viber","WhatsApp","Telegram","TikTok"],
     email:"dominic@botsatwork.ph", phone:"+63 918 903 2073", web:"botsatwork.ph" },
+  { id:"optogrow", label:"CRM", icon:"📇", cat:"digital", business:"Optogrow Operations Management Services", title:"CRM (Client Relationship Management)",
+    services:["CRM & pipeline setup","Lead follow-up","Conversation & voice AI","Technical integrations"],
+    email:"cody@optogrow.com", phone:"+63 956 593 5812", web:"www.optogrow.com" },
   { id:"madkon", label:"Video", icon:"🎬", cat:"content", business:"Madkon Productions", title:"Video Production", slide:21,
     services:["Digital video content","Company AVPs","Event highlights"],
     email:"kam@madkonprod.com", phone:"+63 917 728 0408", web:"madkonprod.com" },
@@ -335,7 +338,7 @@ const MEMBERS = [
     email:"kristinelim@outlook.ph", phone:"+63 997 559 0927", web:"dolcefruttamnl.com" },
 ];
 // Members whose slide has no separate logo graphic
-const NO_LOGO = new Set(["cbb","risingdesigns","joelle"]);
+const NO_LOGO = new Set(["cbb","risingdesigns","joelle","optogrow"]);
 /* ========================================================== */
 
 const $ = s => document.querySelector(s);
