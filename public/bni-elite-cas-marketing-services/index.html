@@ -250,6 +250,10 @@
 </div>
 
 <script>
+// The app's own address is https://bni-elite-cas-marketing.vercel.app/ — send visitors of the old PA-Quote path there.
+if (location.hostname === "pa-quote.vercel.app" && navigator.onLine) location.replace("https://bni-elite-cas-marketing.vercel.app/");
+</script>
+<script>
 /* ==========================================================
    Power Team members — taken from the BNI Creative & Advertising
    Services pitch deck. Slide images live in slides/, logos in logos/.
