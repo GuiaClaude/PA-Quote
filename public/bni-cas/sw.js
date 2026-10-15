@@ -4,6 +4,6 @@ self.addEventListener("activate", e => {
   e.waitUntil((async () => {
     for (const k of await caches.keys()) if (k.startsWith("bni-cas-")) await caches.delete(k);
     await self.registration.unregister();
-    for (const c of await self.clients.matchAll({ type: "window" })) c.navigate("../bni-elite-cas-marketing-services/");
+    for (const c of await self.clients.matchAll({ type: "window" })) c.navigate("https://bni-elite-cas-marketing.vercel.app/");
   })());
 });

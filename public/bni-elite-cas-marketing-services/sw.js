@@ -1,6 +1,6 @@
 // Offline support: saves the whole app on first visit, then serves it from the phone.
 // Bump VERSION whenever any file in this folder changes so phones fetch the update.
-const VERSION = "bni-elite-cas-v1";
+const VERSION = "bni-elite-cas-v2";
 const FILES = [
   "./",
   "index.html",
