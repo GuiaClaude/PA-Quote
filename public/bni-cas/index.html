@@ -132,11 +132,14 @@
   .sec h4{font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--ink2);margin:0 0 8px}
   .chips{display:flex;flex-wrap:wrap;gap:8px}
   .chips span,.chips button{background:var(--bg2);border:1px solid var(--line);padding:6px 12px;border-radius:16px;font-size:14px}
-  .actions{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-  .actions a{display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 6px;border:1px solid var(--line);border-radius:14px;color:var(--ink);text-decoration:none;font-size:13px;font-weight:600}
-  .actions a span{font-size:22px}
-  .actions a.off{opacity:.35;pointer-events:none}
-  .contact-lines{margin-top:10px;font-size:14px;color:var(--ink2);line-height:1.7;word-break:break-word}
+  .clist{display:flex;flex-direction:column;gap:8px}
+  .crow{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;padding:10px 12px;border:1px solid var(--line);border-radius:12px}
+  .crow .ci{font-size:18px;flex:none}
+  .crow .cv{flex:1 1 150px;min-width:0;font-size:15px;word-break:break-all;user-select:text;-webkit-user-select:text}
+  .crow .cb{display:flex;gap:6px;flex-wrap:wrap}
+  .crow .cb a,.crow .cb button{padding:7px 12px;border-radius:16px;background:var(--bg2);border:1px solid var(--line);font-size:13px;font-weight:600;color:var(--ink);text-decoration:none;white-space:nowrap}
+  .crow .cb a.go2{background:var(--brand2);border-color:var(--brand2);color:#fff}
+  .crow .cb :focus-visible{outline:2px solid var(--brand2);outline-offset:2px}
   .vfoot{display:flex;gap:10px;padding:12px 16px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--line)}
   .vfoot button,.vfoot a{flex:1;padding:13px;border-radius:24px;font-weight:700;text-align:center;font-size:15px;text-decoration:none}
   .vfoot .nav-btn{background:var(--bg2);color:var(--ink);flex:0 0 52px;font-size:20px}
@@ -372,6 +375,27 @@ $("#memberCount").textContent = `${MEMBERS.length} members`;
 /* ---- Slide viewer ---- */
 let cur = 0; // -1 = team overview
 const webURL = w => /^https?:/i.test(w) ? w : "https://" + w;
+// Philippine number in international form for wa.me links: "0917 …" / "+63 917 …" → "63917…"
+const intlNumber = p => { const d = p.replace(/\D/g,""); return d.startsWith("0") ? "63" + d.slice(1) : d; };
+// One contact line: the value as selectable text, link buttons, and a Copy button.
+// https links (WhatsApp, Gmail, website) work for every viewer of a shared page;
+// tel:/mailto: may do nothing for some viewers, so Copy is always offered.
+function contactRow(icon, value, links){
+  const btns = links.map(([href,label,web]) =>
+    `<a href="${esc(href)}"${web?' class="go2" target="_blank" rel="noopener"':""}>${esc(label)}</a>`).join("");
+  return `<div class="crow"><span class="ci" aria-hidden="true">${icon}</span><span class="cv">${esc(value)}</span>
+    <div class="cb">${btns}<button type="button" data-copy="${esc(value)}">Copy</button></div></div>`;
+}
+async function copyText(btn){
+  const text = btn.dataset.copy;
+  try { await navigator.clipboard.writeText(text); toast(`Copied ${text}`); }
+  catch {
+    const el = btn.closest(".crow").querySelector(".cv");
+    const r = document.createRange(); r.selectNodeContents(el);
+    const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+    toast("Selected — long-press to copy");
+  }
+}
 
 function openViewer(idx){ cur = idx; drawSlide(); $("#viewer").classList.add("open"); $("#vClose").focus({preventScroll:true}); }
 function closeViewer(){ $("#viewer").classList.remove("open"); }
@@ -403,12 +427,11 @@ function drawSlide(){
     </div>
     <div class="sec"><h4>Services</h4><div class="chips">${m.services.map(s=>`<span>${esc(s)}</span>`).join("")}</div></div>
     <div class="sec"><h4>Contact</h4>
-      <div class="actions">
-        <a href="tel:${esc(tel)}"><span>📞</span>Call</a>
-        <a href="mailto:${esc(m.email)}"><span>✉️</span>Email</a>
-        <a ${m.web?`href="${esc(webURL(m.web))}" target="_blank" rel="noopener"`:'class="off" aria-disabled="true"'}><span>🌐</span>Website</a>
+      <div class="clist">
+        ${contactRow("📞", m.phone, [[`https://wa.me/${intlNumber(m.phone)}`,"WhatsApp",true],[`tel:${tel}`,"Call"]])}
+        ${contactRow("✉️", m.email, [[`https://mail.google.com/mail/?view=cm&to=${encodeURIComponent(m.email)}`,"Gmail",true],[`mailto:${m.email}`,"Email"]])}
+        ${m.web ? contactRow("🌐", m.web, [[webURL(m.web),"Visit",true]]) : ""}
       </div>
-      <div class="contact-lines">${esc(m.phone)}<br>${esc(m.email)}${m.web?`<br>${esc(m.web)}`:""}</div>
     </div>`;
   $("#vBody").scrollTop = 0;
 }
@@ -418,9 +441,10 @@ function openLightbox(src){ $("#lbImg").src = src; $("#lightbox").classList.add(
 $("#lightbox").addEventListener("click", () => $("#lightbox").classList.remove("open"));
 
 document.addEventListener("click", e => {
-  const t = e.target.closest("[data-id],[data-jump],[data-act],[data-nav],[data-cat],[data-zoom]");
+  const t = e.target.closest("[data-copy],[data-id],[data-jump],[data-act],[data-nav],[data-cat],[data-zoom]");
   if (!t) return;
-  if (t.dataset.zoom) openLightbox(t.dataset.zoom);
+  if (t.dataset.copy) copyText(t);
+  else if (t.dataset.zoom) openLightbox(t.dataset.zoom);
   else if (t.dataset.id) openViewer(MEMBERS.findIndex(m=>m.id===t.dataset.id));
   else if (t.dataset.jump) { cur = +t.dataset.jump; drawSlide(); }
   else if (t.dataset.cat) { cat = t.dataset.cat; filter(); }
