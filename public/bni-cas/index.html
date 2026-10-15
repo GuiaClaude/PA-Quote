@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#0b5d3b" />
+<title>BNI CAS Power Team</title>
+<style>
+  :root{
+    --brand:#0b5d3b; --brand2:#0f7a4d; --brand-ink:#0a3d28;
+    --bni:#cf2030; --bg:#ffffff; --bg2:#f4f6f5; --line:#e6e9e8;
+    --ink:#1b1f1d; --ink2:#5e6763; --chip:#ffffff; --shadow:0 2px 10px rgba(0,0,0,.08);
+    --slide-bg:#ffffff; --frame:#d9dedc;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#121614; --bg2:#1a201d; --line:#26302b; --ink:#eef2f0; --ink2:#9aa6a0;
+      --chip:#1d2420; --shadow:0 2px 10px rgba(0,0,0,.4); --slide-bg:#1a201d; --frame:#0b0e0c;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#121614; --bg2:#1a201d; --line:#26302b; --ink:#eef2f0; --ink2:#9aa6a0;
+    --chip:#1d2420; --shadow:0 2px 10px rgba(0,0,0,.4); --slide-bg:#1a201d; --frame:#0b0e0c;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;height:100%}
+  body{background:var(--frame);font-family:-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;color:var(--ink);display:flex;justify-content:center}
+  button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
+
+  /* Phone shell: full screen on mobile, framed on desktop */
+  .phone{position:relative;width:100%;max-width:430px;height:100vh;height:100dvh;background:var(--bg);overflow:hidden;display:flex;flex-direction:column}
+  @media (min-width:600px){
+    body{align-items:center;padding:24px 0}
+    .phone{height:min(900px,calc(100vh - 48px));border-radius:36px;box-shadow:0 20px 60px rgba(0,0,0,.35);border:10px solid #111}
+  }
+
+  /* Header */
+  header{background:linear-gradient(180deg,var(--brand-ink),var(--brand));color:#fff;padding:10px 16px 18px;flex:none}
+  .status{display:flex;justify-content:space-between;font-size:13px;font-weight:600;opacity:.95;margin-bottom:12px}
+  .head-row{display:flex;gap:10px;align-items:center}
+  .search{flex:1;display:flex;align-items:center;gap:8px;background:#fff;border-radius:14px;padding:11px 14px;color:#555}
+  .search input{border:0;outline:0;flex:1;font-size:16px;background:transparent;color:#222;min-width:0}
+  .badge{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-weight:800;flex:none}
+  .badge.bni{background:var(--bni);color:#fff;font-size:12px;letter-spacing:.5px}
+  .badge.me{background:#e8f5ee;color:var(--brand)}
+
+  main{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:12px}
+  main::-webkit-scrollbar{display:none}
+
+  /* Service grid */
+  .grid-wrap{overflow-x:auto;scroll-snap-type:x mandatory;display:flex;scrollbar-width:none;padding-top:16px}
+  .grid-wrap::-webkit-scrollbar{display:none}
+  .grid-page{flex:0 0 100%;scroll-snap-align:start;display:grid;grid-template-columns:repeat(4,1fr);row-gap:14px;padding:0 8px}
+  .svc{display:flex;flex-direction:column;align-items:center;gap:6px;padding:4px 2px;border-radius:14px}
+  .svc:active{background:var(--bg2)}
+  .svc .ic{width:62px;height:62px;display:grid;place-items:center;font-size:40px;line-height:1;position:relative}
+  .svc .ic img{width:56px;height:56px;object-fit:contain;border-radius:12px}
+  .svc .lbl{font-size:13px;color:var(--ink);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:84px}
+  .svc .tag{position:absolute;top:-2px;right:-6px;background:var(--bni);color:#fff;font-size:9px;font-weight:700;padding:2px 5px;border-radius:8px}
+  .dots{display:flex;justify-content:center;gap:5px;margin:10px 0 4px}
+  .dots i{width:6px;height:6px;border-radius:3px;background:var(--line);transition:.2s}
+  .dots i.on{width:18px;background:var(--ink)}
+
+  /* Quick cards */
+  .quick{display:flex;gap:10px;overflow-x:auto;padding:12px 16px 4px;scrollbar-width:none}
+  .quick::-webkit-scrollbar{display:none}
+  .qcard{flex:0 0 150px;border:1px solid var(--line);border-radius:16px;padding:12px 14px;text-align:left;background:var(--chip);display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .qcard small{display:block;color:var(--ink2);font-size:12px}
+  .qcard b{font-size:16px}
+  .qcard span.e{font-size:24px}
+
+  h2{font-size:22px;margin:22px 16px 12px;display:flex;align-items:center;gap:10px}
+  h2 .arrow{width:24px;height:24px;border-radius:50%;background:var(--line);display:grid;place-items:center;font-size:14px;color:var(--ink2)}
+
+  /* Hero banner */
+  .hero{margin:0 16px;border-radius:18px;overflow:hidden;position:relative;aspect-ratio:16/9;background:linear-gradient(135deg,#7a0f19,var(--bni) 55%,#f2604a);color:#fff;padding:18px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:var(--shadow);text-align:left;width:calc(100% - 32px)}
+  .hero .kicker{font-size:11px;letter-spacing:2px;font-weight:700;opacity:.9}
+  .hero .t{font-size:24px;font-weight:900;line-height:1.1;max-width:70%}
+  .hero .cta{align-self:flex-start;background:#fff;color:var(--bni);font-weight:800;padding:8px 16px;border-radius:20px;font-size:14px}
+  .hero .art{position:absolute;right:-10px;bottom:-10px;font-size:110px;opacity:.95;transform:rotate(-8deg)}
+  .hero-cap{margin:10px 16px 0;font-size:16px}
+  .hero-cap small{display:block;color:var(--ink2);font-size:13px;margin-top:2px}
+
+  /* Member list */
+  .list{padding:0 16px;display:flex;flex-direction:column;gap:10px}
+  .row{display:flex;gap:12px;align-items:center;padding:12px;border:1px solid var(--line);border-radius:16px;background:var(--chip);text-align:left;width:100%}
+  .row .ic{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;font-size:30px;flex:none}
+  .row .ic img{width:44px;height:44px;object-fit:contain}
+  .row .tx{flex:1;min-width:0}
+  .row b{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .row small{display:block;color:var(--ink2);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .row .go{color:var(--ink2);font-size:20px}
+  .empty{padding:30px 16px;text-align:center;color:var(--ink2)}
+
+  /* Floating pill */
+  .pill{position:absolute;left:50%;transform:translateX(-50%);bottom:86px;background:var(--brand-ink);color:#fff;padding:10px 20px;border-radius:24px;font-weight:600;font-size:15px;box-shadow:0 6px 16px rgba(0,0,0,.25);transition:opacity .25s;white-space:nowrap}
+  .pill.hide{opacity:0;pointer-events:none}
+
+  /* Bottom nav */
+  nav{flex:none;display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--line);background:var(--bg);padding:6px 0 calc(8px + env(safe-area-inset-bottom));align-items:end}
+  nav button{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:12px;color:var(--ink2);position:relative}
+  nav button .e{font-size:22px;filter:grayscale(1);opacity:.75}
+  nav button.on{color:var(--brand2)}
+  nav button.on .e{filter:none;opacity:1}
+  nav .center{width:62px;height:62px;border-radius:50%;background:var(--brand-ink);color:#fff;display:grid;place-items:center;font-size:26px;margin:-26px auto 0;box-shadow:0 4px 12px rgba(0,0,0,.25)}
+  nav .dot{position:absolute;top:-2px;right:calc(50% - 18px);background:var(--bni);color:#fff;font-size:10px;font-weight:700;border-radius:9px;min-width:16px;height:16px;display:grid;place-items:center;padding:0 4px}
+
+  /* Slide viewer */
+  .viewer{position:absolute;inset:0;background:var(--bg);z-index:20;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .3s cubic-bezier(.2,.8,.2,1)}
+  .viewer.open{transform:none}
+  .vbar{display:flex;align-items:center;gap:10px;padding:12px 12px 10px;border-bottom:1px solid var(--line)}
+  .vbar .x{width:38px;height:38px;border-radius:50%;background:var(--bg2);font-size:20px;display:grid;place-items:center}
+  .vbar .ttl{flex:1;font-weight:700;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .vbar .cnt{color:var(--ink2);font-size:13px}
+  .vbody{flex:1;overflow-y:auto;padding:16px}
+  .slide{aspect-ratio:16/9;border-radius:14px;overflow:hidden;position:relative;color:#fff;padding:16px 18px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:var(--shadow)}
+  .slide .k{font-size:10px;letter-spacing:2px;font-weight:700;opacity:.85}
+  .slide .biz{font-size:22px;font-weight:900;line-height:1.1;max-width:68%}
+  .slide .who{font-size:13px;opacity:.9;margin-top:4px}
+  .slide .tl{font-size:13px;font-style:italic;max-width:68%;opacity:.95}
+  .slide .big{position:absolute;right:12px;top:50%;transform:translateY(-50%);width:34%;aspect-ratio:1;border-radius:50%;background:rgba(255,255,255,.18);display:grid;place-items:center;font-size:64px}
+  .slide .big img{width:70%;height:70%;object-fit:contain;background:#fff;border-radius:50%;padding:8%}
+  .slide .foot{display:flex;justify-content:space-between;align-items:center;font-size:10px;opacity:.85}
+  .slide .foot b{background:#fff;color:var(--bni);padding:2px 6px;border-radius:4px;font-size:10px}
+  .sec{margin-top:18px}
+  .sec h3{font-size:13px;letter-spacing:1px;text-transform:uppercase;color:var(--ink2);margin:0 0 8px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chips span{background:var(--bg2);border:1px solid var(--line);padding:6px 12px;border-radius:16px;font-size:14px}
+  .sec p{margin:0;line-height:1.5;font-size:15px}
+  .contact{display:flex;flex-direction:column;gap:8px}
+  .contact a{display:flex;gap:10px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:12px;color:var(--ink);text-decoration:none;font-size:15px}
+  .vfoot{display:flex;gap:10px;padding:12px 16px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--line)}
+  .vfoot button,.vfoot a{flex:1;padding:13px;border-radius:24px;font-weight:700;text-align:center;font-size:15px;text-decoration:none}
+  .vfoot .sec-btn{background:var(--bg2);color:var(--ink);flex:0 0 52px}
+  .vfoot .pri{background:var(--brand2);color:#fff}
+
+  /* Toast / sheet */
+  .toast{position:absolute;left:16px;right:16px;bottom:96px;background:#222;color:#fff;padding:12px 16px;border-radius:12px;font-size:14px;opacity:0;transform:translateY(10px);transition:.25s;pointer-events:none;z-index:30;text-align:center}
+  .toast.on{opacity:1;transform:none}
+</style>
+</head>
+<body>
+<div class="phone" id="phone">
+  <header>
+    <div class="status"><span id="clock">8:04</span><span>BNI · laCAS</span><span>📶 66</span></div>
+    <div class="head-row">
+      <label class="search">
+        <span aria-hidden="true">🔍</span>
+        <input id="q" type="search" placeholder="Search members & services" autocomplete="off" aria-label="Search members and services" />
+      </label>
+      <button class="badge bni" id="bniBtn" aria-label="About BNI CAS">BNI</button>
+      <button class="badge me" id="themeBtn" aria-label="Toggle light or dark theme">☾</button>
+    </div>
+  </header>
+
+  <main id="main">
+    <div class="grid-wrap" id="grid"></div>
+    <div class="dots" id="dots"></div>
+
+    <div class="quick">
+      <button class="qcard" data-act="team"><div><small>Power Team</small><b id="memberCount">12 members</b></div><span class="e">🤝</span></button>
+      <button class="qcard" data-act="refer"><div><small>Pass a</small><b>Referral</b></div><span class="e">📨</span></button>
+      <button class="qcard" data-act="one21"><div><small>Book a</small><b>1-2-1</b></div><span class="e">☕</span></button>
+    </div>
+
+    <h2>Our Power Team <span class="arrow">›</span></h2>
+    <button class="hero" id="hero" aria-label="Open the Power Team overview slide">
+      <span class="kicker">BNI · CORPORATE &amp; ADVERTISING SERVICES</span>
+      <span class="t">One team for every brand need</span>
+      <span class="cta">MEET US →</span>
+      <span class="art" aria-hidden="true">🚀</span>
+    </button>
+    <div class="hero-cap">From print to pixels — one referral, a full campaign<small>Power Team · BNI laCAS</small></div>
+
+    <h2 id="listTitle">All members</h2>
+    <div class="list" id="list"></div>
+  </main>
+
+  <div class="pill" id="pill">↓ Scroll for more</div>
+
+  <nav>
+    <button class="on" data-nav="home"><span class="e">🏠</span>Home</button>
+    <button data-nav="wins"><span class="e">🏆</span>Wins</button>
+    <button data-nav="scan" aria-label="Connect"><span class="center">⌗</span></button>
+    <button data-nav="refs"><span class="e">🧾</span>Referrals</button>
+    <button data-nav="msgs"><span class="e">💬</span><span class="dot">2</span>Contact</button>
+  </nav>
+
+  <section class="viewer" id="viewer" aria-modal="true" role="dialog" aria-labelledby="vTitle">
+    <div class="vbar">
+      <button class="x" id="vClose" aria-label="Close">✕</button>
+      <div class="ttl" id="vTitle"></div>
+      <div class="cnt" id="vCount"></div>
+    </div>
+    <div class="vbody" id="vBody"></div>
+    <div class="vfoot">
+      <button class="sec-btn" id="vPrev" aria-label="Previous member">‹</button>
+      <a class="pri" id="vDeck" target="_blank" rel="noopener">Open slide in deck ↗</a>
+      <button class="sec-btn" id="vNext" aria-label="Next member">›</button>
+    </div>
+  </section>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+/* ==========================================================
+   EDIT HERE — Power Team members
+   - label:   short text under the icon (keep ≤ 10 chars)
+   - icon:    emoji that suggests the business (shown when no logo)
+   - logo:    optional image URL/path for the member's logo,
+              e.g. "logos/printamplified.png" (put files in public/bni-cas/logos/)
+   - slideId: the Google Slides slide id for this member. Open the deck,
+              go to the member's slide, and copy the part after
+              "#slide=id." from the address bar (e.g. "g38593bdabcb_1_169").
+   ========================================================== */
+const DECK_URL = "https://docs.google.com/presentation/d/1GMQC8ece6qk0y--jhTqVixnMc-xXgHMldSojmAZNz90";
+const TEAM_SLIDE_ID = "g38593bdabcb_1_169";
+
+const MEMBERS = [
+  { id:"print", label:"Print", icon:"🖨️", color:"#0aa3b3", business:"PrintAmplified", member:"",
+    tagline:"Print that amplifies your brand.",
+    services:["Offset & digital printing","Brochures & flyers","Business cards","Corporate collateral"],
+    referral:"Marketing and admin managers who order brochures, annual reports or event collateral.",
+    phone:"", email:"", web:"", logo:"", slideId:"" },
+  { id:"signage", label:"Signage", icon:"🪧", color:"#e2681f", business:"Signage & Large Format", member:"",
+    tagline:"Be seen from across the street.",
+    services:["Store signage","Tarpaulins & banners","Wall & vehicle wraps","Acrylic & 3D letters"],
+    referral:"Businesses opening a new branch or rebranding a storefront.",
+    phone:"", email:"", web:"", logo:"", slideId:"" },
+  { id:"ads", label:"Ad Agency", icon:"📣", color:"#cf2030", business:"Advertising Agency", member:"",
+    tagline:"Big ideas, measurable results.",
+    services:["Brand campaigns","Creative concepts","Media planning & buying","TVC & radio"],
+    referral:"Companies launching a product or planning a yearly campaign.",
+    phone:"", email:"", web:"", logo:"", slideId:"" },
+  { id:"digital", label:"Digital", icon:"📈", color:"#2e6be6", business:"Digital Marketing", member:"",
+    tagline:"Turn scrolls into sales.",
+    services:["Social media management","Paid ads (Meta / Google)","SEO","Content creation"],
+    referral:"SMEs whose social pages are quiet or whose ads aren't converting.",
+    phone:"", email:"", web:"", logo:"", slideId:"" },
+  { id:"web", label:"Web & Apps", icon:"💻", color:"#5b4bd6", business:"Web & App Development", member:"",
+    tagline:"Your 24/7 storefront, built right.",
+    services:["Websites","E-commerce","Mobile apps","Hosting & maintenance"],
+    referral:"Businesses with an outdated website or none at all.",
+    phone:"", email:"", web:"", logo:"", slideId:"" },
+  { id:"photo", label:"Photo/Video", icon:"📸", color:"#1f1f1f", business:"Photo & Video Production", member:"",
+    tagline:"Stories worth watching.",
+    services:["Corporate videos","Product photography","Event coverage","Drone shots"],
+    referral:"Brands preparing a launch, event, or new website.",
+    phone:"", email:"", web:"", logo:"", slideId:"" },
+  { id:"giveaways", label:"Giveaways", icon:"🎁", color:"#c2187a", business:"Corporate Giveaways", member:"",
+    tagline:"Gifts that keep your name in hand.",
+    services:["Custom tumblers & bags","Holiday giveaways","Welcome kits","Branded merchandise"],
+    referral:"HR and marketing teams planning anniversaries, events or Christmas gifts.",
+    phone:"", email:"", web:"", logo:"", slideId:"" },
+  { id:"events", label:"Events", icon:"🎪", color:"#d9475b", business:"Events & Activations", member:"",
+    tagline:"Moments your market remembers.",
+    services:["Corporate events","Product launches","Booth & mall activations","Hosts & talents"],
+    referral:"Companies planning launches, conventions or year-end parties.",
+    phone:"", email:"", web:"", logo:"", slideId:"" },
+  { id:"branding", label:"Branding", icon:"🎨", color:"#e0a100", business:"Graphic Design & Branding", member:"",
+    tagline:"Look like the leader you are.",
+    services:["Logo & identity","Brand guidelines","Packaging design","Presentation design"],
+    referral:"Start-ups and businesses that have outgrown their logo.",
+    phone:"", email:"", web:"", logo:"", slideId:"" },
+  { id:"apparel", label:"Apparel", icon:"👕", color:"#2f8f5b", business:"Uniforms & Custom Apparel", member:"",
+    tagline:"Wear your brand with pride.",
+    services:["Corporate uniforms","Event shirts","Embroidery","Sublimation printing"],
+    referral:"Companies with frontline staff, teams, or upcoming events.",
+    phone:"", email:"", web:"", logo:"", slideId:"" },
+  { id:"pr", label:"PR & Media", icon:"📰", color:"#3d4f63", business:"PR & Media Relations", member:"",
+    tagline:"Get talked about — for the right reasons.",
+    services:["Press releases","Media placements","Crisis communication","Influencer relations"],
+    referral:"Businesses with news to share or a reputation to protect.",
+    phone:"", email:"", web:"", logo:"", slideId:"" },
+  { id:"packaging", label:"Packaging", icon:"📦", color:"#9a6a3a", business:"Packaging & Labels", member:"",
+    tagline:"Packaging that sells off the shelf.",
+    services:["Product boxes","Labels & stickers","Paper bags","Food packaging"],
+    referral:"Food and consumer brands getting into retail or delivery.",
+    phone:"", email:"", web:"", logo:"", slideId:"" },
+];
+/* ========================================================== */
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const iconHTML = (m, cls="") => m.logo
+  ? `<img src="${esc(m.logo)}" alt="${esc(m.business)} logo" ${cls}>`
+  : `<span aria-hidden="true">${m.icon}</span>`;
+const deckLink = slideId => slideId ? `${DECK_URL}/present#slide=id.${encodeURIComponent(slideId)}` : `${DECK_URL}/present`;
+
+let shown = MEMBERS.slice();
+
+function renderGrid(){
+  const per = 8, pages = Math.max(1, Math.ceil(shown.length / per));
+  let html = "";
+  for(let p=0;p<pages;p++){
+    html += `<div class="grid-page">` + shown.slice(p*per,(p+1)*per).map(m =>
+      `<button class="svc" data-id="${m.id}"><span class="ic">${iconHTML(m)}${m.id==="print"?'<span class="tag">NEW</span>':""}</span><span class="lbl">${esc(m.label)}</span></button>`
+    ).join("") + `</div>`;
+  }
+  $("#grid").innerHTML = shown.length ? html : "";
+  $("#grid").scrollLeft = 0;
+  $("#dots").innerHTML = pages > 1 ? Array.from({length:pages},(_,i)=>`<i class="${i?"":"on"}"></i>`).join("") : "";
+}
+function renderList(){
+  $("#list").innerHTML = shown.length ? shown.map(m =>
+    `<button class="row" data-id="${m.id}">
+      <span class="ic" style="background:${m.color}1f">${iconHTML(m)}</span>
+      <span class="tx"><b>${esc(m.business)}</b><small>${esc(m.member || m.tagline)}</small></span>
+      <span class="go">›</span></button>`
+  ).join("") : `<div class="empty">No member matches that search.<br>Try “print”, “video” or “events”.</div>`;
+}
+function render(){ renderGrid(); renderList(); }
+
+$("#grid").addEventListener("scroll", e => {
+  const i = Math.round(e.target.scrollLeft / e.target.clientWidth);
+  document.querySelectorAll("#dots i").forEach((d,k)=>d.classList.toggle("on",k===i));
+});
+$("#q").addEventListener("input", e => {
+  const q = e.target.value.trim().toLowerCase();
+  shown = !q ? MEMBERS.slice() : MEMBERS.filter(m =>
+    [m.label,m.business,m.member,m.tagline,...m.services].join(" ").toLowerCase().includes(q));
+  $("#listTitle").textContent = q ? `Results for “${e.target.value.trim()}”` : "All members";
+  render();
+});
+$("#memberCount").textContent = `${MEMBERS.length} members`;
+
+/* ---- Slide viewer ---- */
+let cur = 0;
+const TEAM = { id:"team", isTeam:true, business:"CAS Power Team", label:"Team", icon:"🤝", color:"#cf2030",
+  tagline:"Corporate & Advertising Services — one referral, a full campaign.", slideId:TEAM_SLIDE_ID };
+
+function openViewer(idx){ cur = idx; drawSlide(); $("#viewer").classList.add("open"); $("#vClose").focus(); }
+function closeViewer(){ $("#viewer").classList.remove("open"); }
+function drawSlide(){
+  const m = cur < 0 ? TEAM : MEMBERS[cur];
+  $("#vTitle").textContent = m.business;
+  $("#vCount").textContent = cur < 0 ? "Overview" : `${cur+1} / ${MEMBERS.length}`;
+  $("#vDeck").href = deckLink(m.slideId);
+  $("#vDeck").textContent = m.slideId ? "Open slide in deck ↗" : "Open deck ↗";
+  const grad = `linear-gradient(135deg, ${m.color}, ${m.color}cc 60%, #00000055)`;
+  let body = `
+    <div class="slide" style="background:${grad}">
+      <div><div class="k">BNI · CAS POWER TEAM</div>
+        <div class="biz" style="margin-top:8px">${esc(m.business)}</div>
+        ${m.member?`<div class="who">${esc(m.member)}</div>`:""}</div>
+      <div class="tl">“${esc(m.tagline)}”</div>
+      <div class="foot"><span>Givers Gain®</span><b>BNI</b></div>
+      <div class="big">${m.logo?`<img src="${esc(m.logo)}" alt="">`:m.icon}</div>
+    </div>`;
+  if (m.isTeam){
+    body += `<div class="sec"><h3>Who we are</h3><p>${MEMBERS.length} trusted specialists covering everything a brand needs — strategy, design, production, and promotion. Refer one of us and your contact gets the whole team.</p></div>
+      <div class="sec"><h3>Members</h3><div class="chips">${MEMBERS.map((x,i)=>`<span data-jump="${i}" style="cursor:pointer">${x.icon} ${esc(x.business)}</span>`).join("")}</div></div>`;
+  } else {
+    body += `<div class="sec"><h3>Services</h3><div class="chips">${m.services.map(s=>`<span>${esc(s)}</span>`).join("")}</div></div>
+      <div class="sec"><h3>A good referral for us</h3><p>${esc(m.referral)}</p></div>`;
+    const c = [
+      m.phone && `<a href="tel:${esc(m.phone)}">📞 ${esc(m.phone)}</a>`,
+      m.email && `<a href="mailto:${esc(m.email)}">✉️ ${esc(m.email)}</a>`,
+      m.web && `<a href="${esc(/^https?:/.test(m.web)?m.web:"https://"+m.web)}" target="_blank" rel="noopener">🌐 ${esc(m.web)}</a>`
+    ].filter(Boolean);
+    if (c.length) body += `<div class="sec"><h3>Contact</h3><div class="contact">${c.join("")}</div></div>`;
+  }
+  $("#vBody").innerHTML = body;
+  $("#vBody").scrollTop = 0;
+}
+function step(d){ const n = MEMBERS.length; cur = cur < 0 ? (d>0?0:n-1) : (cur + d + n) % n; drawSlide(); }
+
+document.addEventListener("click", e => {
+  const t = e.target.closest("[data-id],[data-jump],[data-act],[data-nav]");
+  if (!t) return;
+  if (t.dataset.id) openViewer(MEMBERS.findIndex(m=>m.id===t.dataset.id));
+  else if (t.dataset.jump) { cur = +t.dataset.jump; drawSlide(); }
+  else if (t.dataset.act === "team") openViewer(-1);
+  else if (t.dataset.act) toast(t.dataset.act==="refer" ? "Thank you! Tell us who you know — Givers Gain® 🙌" : "Let's meet for a 1-2-1 after the chapter meeting ☕");
+  else if (t.dataset.nav) {
+    document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on", b===t && t.dataset.nav!=="scan"));
+    if (t.dataset.nav==="home") $("#main").scrollTo({top:0,behavior:"smooth"});
+    else if (t.dataset.nav==="scan") openViewer(-1);
+    else toast({wins:"Team wins & testimonials — coming soon",refs:"Referrals passed within the Power Team",msgs:"Reach any member from their slide"}[t.dataset.nav]);
+  }
+});
+$("#hero").addEventListener("click", () => openViewer(-1));
+$("#bniBtn").addEventListener("click", () => openViewer(-1));
+$("#vClose").addEventListener("click", closeViewer);
+$("#vPrev").addEventListener("click", () => step(-1));
+$("#vNext").addEventListener("click", () => step(1));
+document.addEventListener("keydown", e => {
+  if (!$("#viewer").classList.contains("open")) return;
+  if (e.key==="Escape") closeViewer();
+  if (e.key==="ArrowRight") step(1);
+  if (e.key==="ArrowLeft") step(-1);
+});
+// Swipe between slides
+let sx=null;
+$("#vBody").addEventListener("touchstart", e=>{ sx=e.touches[0].clientX; }, {passive:true});
+$("#vBody").addEventListener("touchend", e=>{ if(sx==null) return; const dx=e.changedTouches[0].clientX-sx; if(Math.abs(dx)>60) step(dx<0?1:-1); sx=null; });
+
+// "Scroll for more" pill
+$("#main").addEventListener("scroll", e => $("#pill").classList.toggle("hide", e.target.scrollTop > 40));
+
+// Theme toggle
+$("#themeBtn").addEventListener("click", () => {
+  const root = document.documentElement;
+  const dark = root.dataset.theme ? root.dataset.theme==="dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+  root.dataset.theme = dark ? "light" : "dark";
+});
+
+let tt; function toast(msg){ const el=$("#toast"); el.textContent=msg; el.classList.add("on"); clearTimeout(tt); tt=setTimeout(()=>el.classList.remove("on"),2200); }
+
+function tick(){ const d=new Date(); $("#clock").textContent=d.toLocaleTimeString([], {hour:"numeric",minute:"2-digit"}).replace(/\s?[AP]M/i,""); }
+tick(); setInterval(tick, 30000);
+render();
+</script>
+</body>
+</html>
