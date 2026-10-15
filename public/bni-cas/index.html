@@ -8,24 +8,26 @@
 <style>
   :root{
     --brand:#0b5d3b; --brand2:#0f7a4d; --brand-ink:#0a3d28;
-    --bni:#cf2030; --bg:#ffffff; --bg2:#f4f6f5; --line:#e6e9e8;
+    --bni:#cf2030; --cas1:#6a2bd9; --cas2:#e0457b;
+    --bg:#ffffff; --bg2:#f4f6f5; --line:#e6e9e8;
     --ink:#1b1f1d; --ink2:#5e6763; --chip:#ffffff; --shadow:0 2px 10px rgba(0,0,0,.08);
-    --slide-bg:#ffffff; --frame:#d9dedc;
+    --frame:#d9dedc;
   }
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
       --bg:#121614; --bg2:#1a201d; --line:#26302b; --ink:#eef2f0; --ink2:#9aa6a0;
-      --chip:#1d2420; --shadow:0 2px 10px rgba(0,0,0,.4); --slide-bg:#1a201d; --frame:#0b0e0c;
+      --chip:#1d2420; --shadow:0 2px 10px rgba(0,0,0,.4); --frame:#0b0e0c;
     }
   }
   :root[data-theme="dark"]{
     --bg:#121614; --bg2:#1a201d; --line:#26302b; --ink:#eef2f0; --ink2:#9aa6a0;
-    --chip:#1d2420; --shadow:0 2px 10px rgba(0,0,0,.4); --slide-bg:#1a201d; --frame:#0b0e0c;
+    --chip:#1d2420; --shadow:0 2px 10px rgba(0,0,0,.4); --frame:#0b0e0c;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{margin:0;height:100%}
   body{background:var(--frame);font-family:-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;color:var(--ink);display:flex;justify-content:center}
   button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
+  img{display:block}
 
   /* Phone shell: full screen on mobile, framed on desktop */
   .phone{position:relative;width:100%;max-width:430px;height:100vh;height:100dvh;background:var(--bg);overflow:hidden;display:flex;flex-direction:column}
@@ -42,21 +44,20 @@
   .search input{border:0;outline:0;flex:1;font-size:16px;background:transparent;color:#222;min-width:0}
   .badge{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-weight:800;flex:none}
   .badge.bni{background:var(--bni);color:#fff;font-size:12px;letter-spacing:.5px}
-  .badge.me{background:#e8f5ee;color:var(--brand)}
+  .badge.me{background:#e8f5ee;color:var(--brand);font-size:18px}
 
-  main{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:12px}
+  main{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:16px}
   main::-webkit-scrollbar{display:none}
 
   /* Service grid */
   .grid-wrap{overflow-x:auto;scroll-snap-type:x mandatory;display:flex;scrollbar-width:none;padding-top:16px}
   .grid-wrap::-webkit-scrollbar{display:none}
-  .grid-page{flex:0 0 100%;scroll-snap-align:start;display:grid;grid-template-columns:repeat(4,1fr);row-gap:14px;padding:0 8px}
+  .grid-page{flex:0 0 100%;scroll-snap-align:start;display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:min-content;row-gap:14px;padding:0 8px}
   .svc{display:flex;flex-direction:column;align-items:center;gap:6px;padding:4px 2px;border-radius:14px}
   .svc:active{background:var(--bg2)}
-  .svc .ic{width:62px;height:62px;display:grid;place-items:center;font-size:40px;line-height:1;position:relative}
-  .svc .ic img{width:56px;height:56px;object-fit:contain;border-radius:12px}
-  .svc .lbl{font-size:13px;color:var(--ink);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:84px}
-  .svc .tag{position:absolute;top:-2px;right:-6px;background:var(--bni);color:#fff;font-size:9px;font-weight:700;padding:2px 5px;border-radius:8px}
+  .svc .ic{width:62px;height:62px;display:grid;place-items:center;font-size:42px;line-height:1;position:relative}
+  .svc .lbl{font-size:12.5px;color:var(--ink);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:86px}
+  .svc .tag{position:absolute;top:-2px;right:-8px;background:var(--bni);color:#fff;font-size:9px;font-weight:700;padding:2px 5px;border-radius:8px}
   .dots{display:flex;justify-content:center;gap:5px;margin:10px 0 4px}
   .dots i{width:6px;height:6px;border-radius:3px;background:var(--line);transition:.2s}
   .dots i.on{width:18px;background:var(--ink)}
@@ -72,20 +73,25 @@
   h2{font-size:22px;margin:22px 16px 12px;display:flex;align-items:center;gap:10px}
   h2 .arrow{width:24px;height:24px;border-radius:50%;background:var(--line);display:grid;place-items:center;font-size:14px;color:var(--ink2)}
 
-  /* Hero banner */
-  .hero{margin:0 16px;border-radius:18px;overflow:hidden;position:relative;aspect-ratio:16/9;background:linear-gradient(135deg,#7a0f19,var(--bni) 55%,#f2604a);color:#fff;padding:18px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:var(--shadow);text-align:left;width:calc(100% - 32px)}
-  .hero .kicker{font-size:11px;letter-spacing:2px;font-weight:700;opacity:.9}
-  .hero .t{font-size:24px;font-weight:900;line-height:1.1;max-width:70%}
-  .hero .cta{align-self:flex-start;background:#fff;color:var(--bni);font-weight:800;padding:8px 16px;border-radius:20px;font-size:14px}
-  .hero .art{position:absolute;right:-10px;bottom:-10px;font-size:110px;opacity:.95;transform:rotate(-8deg)}
+  /* Featured banner (cover slide) */
+  .hero{display:block;margin:0 16px;width:calc(100% - 32px);border-radius:18px;overflow:hidden;position:relative;box-shadow:var(--shadow);background:#fff}
+  .hero img{width:100%;height:auto}
+  .hero .cta{position:absolute;left:12px;bottom:12px;background:linear-gradient(90deg,var(--cas1),var(--cas2));color:#fff;font-weight:800;padding:8px 16px;border-radius:20px;font-size:14px;box-shadow:0 4px 10px rgba(0,0,0,.2)}
   .hero-cap{margin:10px 16px 0;font-size:16px}
   .hero-cap small{display:block;color:var(--ink2);font-size:13px;margin-top:2px}
 
+  /* Category chips */
+  .cats{display:flex;gap:8px;overflow-x:auto;padding:0 16px 12px;scrollbar-width:none}
+  .cats::-webkit-scrollbar{display:none}
+  .cats button{flex:none;padding:7px 14px;border-radius:18px;border:1px solid var(--line);font-size:14px;background:var(--chip);white-space:nowrap}
+  .cats button.on{background:var(--brand2);border-color:var(--brand2);color:#fff}
+
   /* Member list */
   .list{padding:0 16px;display:flex;flex-direction:column;gap:10px}
-  .row{display:flex;gap:12px;align-items:center;padding:12px;border:1px solid var(--line);border-radius:16px;background:var(--chip);text-align:left;width:100%}
-  .row .ic{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;font-size:30px;flex:none}
-  .row .ic img{width:44px;height:44px;object-fit:contain}
+  .row{display:flex;gap:12px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:16px;background:var(--chip);text-align:left;width:100%}
+  .logo-box{width:84px;height:52px;border-radius:10px;background:#fff;border:1px solid #eee;display:flex;align-items:center;justify-content:center;flex:none;overflow:hidden;padding:4px}
+  .logo-box img{max-width:100%;max-height:100%;min-width:0;min-height:0;object-fit:contain}
+  .logo-box .em{font-size:28px}
   .row .tx{flex:1;min-width:0}
   .row b{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .row small{display:block;color:var(--ink2);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -93,8 +99,8 @@
   .empty{padding:30px 16px;text-align:center;color:var(--ink2)}
 
   /* Floating pill */
-  .pill{position:absolute;left:50%;transform:translateX(-50%);bottom:86px;background:var(--brand-ink);color:#fff;padding:10px 20px;border-radius:24px;font-weight:600;font-size:15px;box-shadow:0 6px 16px rgba(0,0,0,.25);transition:opacity .25s;white-space:nowrap}
-  .pill.hide{opacity:0;pointer-events:none}
+  .pill{position:absolute;left:50%;transform:translateX(-50%);bottom:86px;background:var(--brand-ink);color:#fff;padding:10px 20px;border-radius:24px;font-weight:600;font-size:15px;box-shadow:0 6px 16px rgba(0,0,0,.25);transition:opacity .25s;white-space:nowrap;pointer-events:none}
+  .pill.hide{opacity:0}
 
   /* Bottom nav */
   nav{flex:none;display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--line);background:var(--bg);padding:6px 0 calc(8px + env(safe-area-inset-bottom));align-items:end}
@@ -109,32 +115,42 @@
   .viewer{position:absolute;inset:0;background:var(--bg);z-index:20;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .3s cubic-bezier(.2,.8,.2,1)}
   .viewer.open{transform:none}
   .vbar{display:flex;align-items:center;gap:10px;padding:12px 12px 10px;border-bottom:1px solid var(--line)}
-  .vbar .x{width:38px;height:38px;border-radius:50%;background:var(--bg2);font-size:20px;display:grid;place-items:center}
-  .vbar .ttl{flex:1;font-weight:700;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .vbar .cnt{color:var(--ink2);font-size:13px}
+  .vbar .x{width:38px;height:38px;border-radius:50%;background:var(--bg2);font-size:18px;display:grid;place-items:center;flex:none}
+  .vbar .ttl{flex:1;min-width:0}
+  .vbar .ttl b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .vbar .ttl small{display:block;color:var(--ink2);font-size:12px}
+  .vbar .cnt{color:var(--ink2);font-size:13px;flex:none}
   .vbody{flex:1;overflow-y:auto;padding:16px}
-  .slide{aspect-ratio:16/9;border-radius:14px;overflow:hidden;position:relative;color:#fff;padding:16px 18px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:var(--shadow)}
-  .slide .k{font-size:10px;letter-spacing:2px;font-weight:700;opacity:.85}
-  .slide .biz{font-size:22px;font-weight:900;line-height:1.1;max-width:68%}
-  .slide .who{font-size:13px;opacity:.9;margin-top:4px}
-  .slide .tl{font-size:13px;font-style:italic;max-width:68%;opacity:.95}
-  .slide .big{position:absolute;right:12px;top:50%;transform:translateY(-50%);width:34%;aspect-ratio:1;border-radius:50%;background:rgba(255,255,255,.18);display:grid;place-items:center;font-size:64px}
-  .slide .big img{width:70%;height:70%;object-fit:contain;background:#fff;border-radius:50%;padding:8%}
-  .slide .foot{display:flex;justify-content:space-between;align-items:center;font-size:10px;opacity:.85}
-  .slide .foot b{background:#fff;color:var(--bni);padding:2px 6px;border-radius:4px;font-size:10px}
+  .slide{position:relative;border-radius:12px;overflow:hidden;box-shadow:var(--shadow);background:#fff;width:100%}
+  .slide img{width:100%;height:auto}
+  .slide .zoom{position:absolute;right:8px;bottom:8px;background:rgba(0,0,0,.6);color:#fff;font-size:12px;padding:5px 10px;border-radius:14px}
+  .vhead{display:flex;gap:12px;align-items:center;margin-top:16px}
+  .vhead .logo-box{width:96px;height:58px}
+  .vhead h3{margin:0;font-size:19px;line-height:1.2}
+  .vhead p{margin:2px 0 0;color:var(--ink2);font-size:14px}
   .sec{margin-top:18px}
-  .sec h3{font-size:13px;letter-spacing:1px;text-transform:uppercase;color:var(--ink2);margin:0 0 8px}
+  .sec h4{font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--ink2);margin:0 0 8px}
   .chips{display:flex;flex-wrap:wrap;gap:8px}
-  .chips span{background:var(--bg2);border:1px solid var(--line);padding:6px 12px;border-radius:16px;font-size:14px}
-  .sec p{margin:0;line-height:1.5;font-size:15px}
-  .contact{display:flex;flex-direction:column;gap:8px}
-  .contact a{display:flex;gap:10px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:12px;color:var(--ink);text-decoration:none;font-size:15px}
+  .chips span,.chips button{background:var(--bg2);border:1px solid var(--line);padding:6px 12px;border-radius:16px;font-size:14px}
+  .actions{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .actions a{display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 6px;border:1px solid var(--line);border-radius:14px;color:var(--ink);text-decoration:none;font-size:13px;font-weight:600}
+  .actions a span{font-size:22px}
+  .actions a.off{opacity:.35;pointer-events:none}
+  .contact-lines{margin-top:10px;font-size:14px;color:var(--ink2);line-height:1.7;word-break:break-word}
   .vfoot{display:flex;gap:10px;padding:12px 16px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--line)}
   .vfoot button,.vfoot a{flex:1;padding:13px;border-radius:24px;font-weight:700;text-align:center;font-size:15px;text-decoration:none}
-  .vfoot .sec-btn{background:var(--bg2);color:var(--ink);flex:0 0 52px}
+  .vfoot .nav-btn{background:var(--bg2);color:var(--ink);flex:0 0 52px;font-size:20px}
   .vfoot .pri{background:var(--brand2);color:#fff}
 
-  /* Toast / sheet */
+  /* Full-screen slide (rotates to landscape on portrait phones) */
+  .lightbox{position:fixed;inset:0;background:#000;z-index:50;display:none;align-items:center;justify-content:center}
+  .lightbox.open{display:flex}
+  .lightbox img{max-width:100vw;max-height:100vh;object-fit:contain}
+  @media (orientation:portrait){
+    .lightbox img{max-width:100vh;max-height:100vw;transform:rotate(90deg)}
+  }
+  .lightbox .hint{position:absolute;top:calc(12px + env(safe-area-inset-top));right:12px;color:#fff;background:rgba(255,255,255,.15);padding:8px 14px;border-radius:18px;font-size:14px}
+
   .toast{position:absolute;left:16px;right:16px;bottom:96px;background:#222;color:#fff;padding:12px 16px;border-radius:12px;font-size:14px;opacity:0;transform:translateY(10px);transition:.25s;pointer-events:none;z-index:30;text-align:center}
   .toast.on{opacity:1;transform:none}
 </style>
@@ -142,13 +158,13 @@
 <body>
 <div class="phone" id="phone">
   <header>
-    <div class="status"><span id="clock">8:04</span><span>BNI · laCAS</span><span>📶 66</span></div>
+    <div class="status"><span id="clock">8:04</span><span>BNI · Creative &amp; Advertising</span><span>📶 66</span></div>
     <div class="head-row">
       <label class="search">
         <span aria-hidden="true">🔍</span>
         <input id="q" type="search" placeholder="Search members & services" autocomplete="off" aria-label="Search members and services" />
       </label>
-      <button class="badge bni" id="bniBtn" aria-label="About BNI CAS">BNI</button>
+      <button class="badge bni" id="bniBtn" aria-label="Power Team overview">BNI</button>
       <button class="badge me" id="themeBtn" aria-label="Toggle light or dark theme">☾</button>
     </div>
   </header>
@@ -158,21 +174,20 @@
     <div class="dots" id="dots"></div>
 
     <div class="quick">
-      <button class="qcard" data-act="team"><div><small>Power Team</small><b id="memberCount">12 members</b></div><span class="e">🤝</span></button>
+      <button class="qcard" data-act="team"><div><small>Power Team</small><b id="memberCount">members</b></div><span class="e">🤝</span></button>
       <button class="qcard" data-act="refer"><div><small>Pass a</small><b>Referral</b></div><span class="e">📨</span></button>
       <button class="qcard" data-act="one21"><div><small>Book a</small><b>1-2-1</b></div><span class="e">☕</span></button>
     </div>
 
     <h2>Our Power Team <span class="arrow">›</span></h2>
     <button class="hero" id="hero" aria-label="Open the Power Team overview slide">
-      <span class="kicker">BNI · CORPORATE &amp; ADVERTISING SERVICES</span>
-      <span class="t">One team for every brand need</span>
-      <span class="cta">MEET US →</span>
-      <span class="art" aria-hidden="true">🚀</span>
+      <img src="slides/cover.jpg" alt="Creative & Advertising Services Power Team member logos" />
+      <span class="cta">MEET THE TEAM →</span>
     </button>
-    <div class="hero-cap">From print to pixels — one referral, a full campaign<small>Power Team · BNI laCAS</small></div>
+    <div class="hero-cap">One referral, a full campaign — from strategy to stage<small>BNI · Creative &amp; Advertising Services Power Team</small></div>
 
     <h2 id="listTitle">All members</h2>
+    <div class="cats" id="cats"></div>
     <div class="list" id="list"></div>
   </main>
 
@@ -181,121 +196,153 @@
   <nav>
     <button class="on" data-nav="home"><span class="e">🏠</span>Home</button>
     <button data-nav="wins"><span class="e">🏆</span>Wins</button>
-    <button data-nav="scan" aria-label="Connect"><span class="center">⌗</span></button>
+    <button data-nav="scan" aria-label="Present the team"><span class="center">▶</span></button>
     <button data-nav="refs"><span class="e">🧾</span>Referrals</button>
-    <button data-nav="msgs"><span class="e">💬</span><span class="dot">2</span>Contact</button>
+    <button data-nav="msgs"><span class="e">💬</span><span class="dot">24</span>Contact</button>
   </nav>
 
   <section class="viewer" id="viewer" aria-modal="true" role="dialog" aria-labelledby="vTitle">
     <div class="vbar">
       <button class="x" id="vClose" aria-label="Close">✕</button>
-      <div class="ttl" id="vTitle"></div>
+      <div class="ttl"><b id="vTitle"></b><small id="vSub"></small></div>
       <div class="cnt" id="vCount"></div>
     </div>
     <div class="vbody" id="vBody"></div>
     <div class="vfoot">
-      <button class="sec-btn" id="vPrev" aria-label="Previous member">‹</button>
-      <a class="pri" id="vDeck" target="_blank" rel="noopener">Open slide in deck ↗</a>
-      <button class="sec-btn" id="vNext" aria-label="Next member">›</button>
+      <button class="nav-btn" id="vPrev" aria-label="Previous member">‹</button>
+      <a class="pri" id="vDeck" target="_blank" rel="noopener">Open full deck ↗</a>
+      <button class="nav-btn" id="vNext" aria-label="Next member">›</button>
     </div>
   </section>
 
   <div class="toast" id="toast"></div>
 </div>
 
+<div class="lightbox" id="lightbox" role="dialog" aria-label="Full-screen slide">
+  <img id="lbImg" alt="" />
+  <span class="hint">Tap to close</span>
+</div>
+
 <script>
 /* ==========================================================
-   EDIT HERE — Power Team members
-   - label:   short text under the icon (keep ≤ 10 chars)
-   - icon:    emoji that suggests the business (shown when no logo)
-   - logo:    optional image URL/path for the member's logo,
-              e.g. "logos/printamplified.png" (put files in public/bni-cas/logos/)
-   - slideId: the Google Slides slide id for this member. Open the deck,
-              go to the member's slide, and copy the part after
-              "#slide=id." from the address bar (e.g. "g38593bdabcb_1_169").
+   Power Team members — taken from the BNI Creative & Advertising
+   Services pitch deck. Slide images live in slides/, logos in logos/.
+   - icon:  emoji that suggests the business (home-screen tile)
+   - label: short text under the tile (keep ≤ 11 chars)
+   - slide: slide number in the Google Slides deck (if known)
    ========================================================== */
 const DECK_URL = "https://docs.google.com/presentation/d/1GMQC8ece6qk0y--jhTqVixnMc-xXgHMldSojmAZNz90";
-const TEAM_SLIDE_ID = "g38593bdabcb_1_169";
+
+const CATS = [
+  { id:"all",     name:"All" },
+  { id:"ads",     name:"Advertising & Media" },
+  { id:"digital", name:"Digital & Tech" },
+  { id:"content", name:"Content & Talent" },
+  { id:"events",  name:"Events" },
+  { id:"print",   name:"Print & Merch" },
+  { id:"gifts",   name:"Gifts" },
+];
 
 const MEMBERS = [
-  { id:"print", label:"Print", icon:"🖨️", color:"#0aa3b3", business:"PrintAmplified", member:"",
-    tagline:"Print that amplifies your brand.",
-    services:["Offset & digital printing","Brochures & flyers","Business cards","Corporate collateral"],
-    referral:"Marketing and admin managers who order brochures, annual reports or event collateral.",
-    phone:"", email:"", web:"", logo:"", slideId:"" },
-  { id:"signage", label:"Signage", icon:"🪧", color:"#e2681f", business:"Signage & Large Format", member:"",
-    tagline:"Be seen from across the street.",
-    services:["Store signage","Tarpaulins & banners","Wall & vehicle wraps","Acrylic & 3D letters"],
-    referral:"Businesses opening a new branch or rebranding a storefront.",
-    phone:"", email:"", web:"", logo:"", slideId:"" },
-  { id:"ads", label:"Ad Agency", icon:"📣", color:"#cf2030", business:"Advertising Agency", member:"",
-    tagline:"Big ideas, measurable results.",
-    services:["Brand campaigns","Creative concepts","Media planning & buying","TVC & radio"],
-    referral:"Companies launching a product or planning a yearly campaign.",
-    phone:"", email:"", web:"", logo:"", slideId:"" },
-  { id:"digital", label:"Digital", icon:"📈", color:"#2e6be6", business:"Digital Marketing", member:"",
-    tagline:"Turn scrolls into sales.",
-    services:["Social media management","Paid ads (Meta / Google)","SEO","Content creation"],
-    referral:"SMEs whose social pages are quiet or whose ads aren't converting.",
-    phone:"", email:"", web:"", logo:"", slideId:"" },
-  { id:"web", label:"Web & Apps", icon:"💻", color:"#5b4bd6", business:"Web & App Development", member:"",
-    tagline:"Your 24/7 storefront, built right.",
-    services:["Websites","E-commerce","Mobile apps","Hosting & maintenance"],
-    referral:"Businesses with an outdated website or none at all.",
-    phone:"", email:"", web:"", logo:"", slideId:"" },
-  { id:"photo", label:"Photo/Video", icon:"📸", color:"#1f1f1f", business:"Photo & Video Production", member:"",
-    tagline:"Stories worth watching.",
-    services:["Corporate videos","Product photography","Event coverage","Drone shots"],
-    referral:"Brands preparing a launch, event, or new website.",
-    phone:"", email:"", web:"", logo:"", slideId:"" },
-  { id:"giveaways", label:"Giveaways", icon:"🎁", color:"#c2187a", business:"Corporate Giveaways", member:"",
-    tagline:"Gifts that keep your name in hand.",
-    services:["Custom tumblers & bags","Holiday giveaways","Welcome kits","Branded merchandise"],
-    referral:"HR and marketing teams planning anniversaries, events or Christmas gifts.",
-    phone:"", email:"", web:"", logo:"", slideId:"" },
-  { id:"events", label:"Events", icon:"🎪", color:"#d9475b", business:"Events & Activations", member:"",
-    tagline:"Moments your market remembers.",
-    services:["Corporate events","Product launches","Booth & mall activations","Hosts & talents"],
-    referral:"Companies planning launches, conventions or year-end parties.",
-    phone:"", email:"", web:"", logo:"", slideId:"" },
-  { id:"branding", label:"Branding", icon:"🎨", color:"#e0a100", business:"Graphic Design & Branding", member:"",
-    tagline:"Look like the leader you are.",
-    services:["Logo & identity","Brand guidelines","Packaging design","Presentation design"],
-    referral:"Start-ups and businesses that have outgrown their logo.",
-    phone:"", email:"", web:"", logo:"", slideId:"" },
-  { id:"apparel", label:"Apparel", icon:"👕", color:"#2f8f5b", business:"Uniforms & Custom Apparel", member:"",
-    tagline:"Wear your brand with pride.",
-    services:["Corporate uniforms","Event shirts","Embroidery","Sublimation printing"],
-    referral:"Companies with frontline staff, teams, or upcoming events.",
-    phone:"", email:"", web:"", logo:"", slideId:"" },
-  { id:"pr", label:"PR & Media", icon:"📰", color:"#3d4f63", business:"PR & Media Relations", member:"",
-    tagline:"Get talked about — for the right reasons.",
-    services:["Press releases","Media placements","Crisis communication","Influencer relations"],
-    referral:"Businesses with news to share or a reputation to protect.",
-    phone:"", email:"", web:"", logo:"", slideId:"" },
-  { id:"packaging", label:"Packaging", icon:"📦", color:"#9a6a3a", business:"Packaging & Labels", member:"",
-    tagline:"Packaging that sells off the shelf.",
-    services:["Product boxes","Labels & stickers","Paper bags","Food packaging"],
-    referral:"Food and consumer brands getting into retail or delivery.",
-    phone:"", email:"", web:"", logo:"", slideId:"" },
+  { id:"sisi", label:"Ad Agency", icon:"📣", cat:"ads", business:"Sisi Advertising", title:"Advertising & Marketing",
+    services:["Campaign strategy","Key visuals","Branding","Packaging","Copywriting"],
+    email:"bern@sisiadvertising.com", phone:"+63 966 701 4545", web:"sisiadvertising.com" },
+  { id:"rocketship", label:"Websites", icon:"🌐", cat:"digital", business:"Rocketship Designs", title:"Web Design & Development",
+    services:["Website design & development","eCommerce websites","WooCommerce","Shopify"],
+    email:"robert@rocketshipdesigns.com", phone:"+63 917 472 6295", web:"rocketshipdesigns.com" },
+  { id:"spectrum", label:"Media Buy", icon:"📡", cat:"ads", business:"Spectrum Corp", title:"Advertising & Marketing",
+    services:["Audio/video production","Media planning","Media ad buying & placement","TV · Static · LED"],
+    email:"mlapira@gmail.com", phone:"+63 917 527 1320", web:"www.spectrumprodph.com" },
+  { id:"crimxon", label:"Maps & Waze", icon:"📍", cat:"digital", business:"Crimxon Innovations", title:"Google Maps & Waze Location Management", slide:10,
+    services:["Branch info sync across map channels","Branch locator","Visit & click insights","Local SEO"],
+    email:"denison.tan@crimxon.com.ph", phone:"+63 917 562 8044", web:"crimxon.com.ph" },
+  { id:"digitalhog", label:"Social Media", icon:"📱", cat:"digital", business:"Digital Hog", title:"Social Media", slide:17,
+    services:["Facebook","Instagram","TikTok","LinkedIn","Content creation","Ad placement","Forum seeding"],
+    email:"joy.sy@digital-hog.com", phone:"+63 947 996 2889", web:"digital-hog.com" },
+  { id:"work24", label:"Apps", icon:"📲", cat:"digital", business:"Work24 Philippines Technologies OPC", title:"App Development", slide:18,
+    services:["Web","Mobile apps","Design","Hosting"],
+    email:"omar@work24ph.com", phone:"+63 917 804 4284", web:"work24ph.com" },
+  { id:"betterpresentations", label:"Pitch Decks", icon:"📊", cat:"digital", business:"Better Presentations", title:"Presentation Design", slide:19,
+    services:["Sales presentations","Pitch decks","Marketing presentations"],
+    email:"gerard.que@betterpresntation.ph", phone:"+63 917 509 0653", web:"betterpresentation.ph" },
+  { id:"botsatwork", label:"AI Bots", icon:"🤖", cat:"digital", business:"Bots at Work", title:"AI Chatbots / AI Agents", slide:20,
+    services:["AI chatbots","AI agents","Messenger","Instagram","Viber","WhatsApp","Telegram","TikTok"],
+    email:"dominic@botsatwork.ph", phone:"+63 918 903 2073", web:"botsatwork.ph" },
+  { id:"madkon", label:"Video", icon:"🎬", cat:"content", business:"Madkon Productions", title:"Video Production", slide:21,
+    services:["Digital video content","Company AVPs","Event highlights"],
+    email:"kam@madkonprod.com", phone:"+63 917 728 0408", web:"madkonprod.com" },
+  { id:"halili", label:"Photography", icon:"📸", cat:"content", business:"Christian Halili Photography", title:"Photographer", slide:22,
+    services:["Magazine covers","Product photography","Executive portraiture","Food photography","Legacy books"],
+    email:"christianhalili@yahoo.com", phone:"+63 917 825 2082", web:"christianhalili.com" },
+  { id:"cbb", label:"TV Talk Show", icon:"📺", cat:"ads", business:"CBB Productions", person:"Christine Babao, Head of CBB Productions", title:"Talk Show / TV Advertising", slide:23,
+    services:["TV host & content creator","TV · Radio · Social · Digital","Brand partnerships & advertising","KOL representation (Julius Babao)"],
+    email:"tintinbabao@yahoo.com", phone:"+63 918 808 7878", web:"" },
+  { id:"rjledesma", label:"Host", icon:"🎙️", cat:"content", business:"RJ Ledesma", title:"Events Host & Podcast", slide:24,
+    services:["Events host","Podcast","3x Aliw Awards winner"],
+    email:"ledesma.rj@gmail.com", phone:"0917 813 1601", web:"facebook.com/rjledesma" },
+  { id:"trumatch", label:"Large Print", icon:"🪧", cat:"print", business:"Trumatch Graphics", title:"Large Format Printing", slide:25,
+    services:["Standees & banners","Vehicle wraps","Booth & wall graphics","Stickers & labels"],
+    email:"eotrumatch@gmail.com", phone:"0917 894 2026", web:"facebook.com/TrumatchG" },
+  { id:"printamplified", label:"Printing", icon:"🖨️", cat:"print", business:"Print Amplified", title:"Digital & Offset Printing", slide:26,
+    services:["Printing","Planner notebooks","Calendars","Packaging","Paper bags"],
+    email:"guiam.printamplified@gmail.com", phone:"+63 918 944 7718", web:"printamplified.com" },
+  { id:"creasia", label:"Corp Events", icon:"🎟️", cat:"events", business:"Creasia, Inc.", title:"Corporate Events", slide:27,
+    services:["Live events","Virtual events","Hybrid events","Webinars"],
+    email:"marketing@creasiainc.com", phone:"+63 917 658 3121", web:"creasiainc.com" },
+  { id:"player2", label:"Activations", icon:"🎪", cat:"events", business:"Player Two Productions", title:"Brand Activations", slide:28,
+    services:["Sampling activations","Brand activations","Festivals","Pop-culture events"],
+    email:"mark.navarro@playertwoventures.com", phone:"+63 917 874 7768", web:"" },
+  { id:"risingdesigns", label:"Stage Design", icon:"🎭", cat:"events", business:"Rising Designs PH", title:"Stage Design and Fabrication", slide:29,
+    services:["Product launches","Launch parties","Outdoor stages","Expos","Private events","Caravans","Award events"],
+    email:"risingdesignsph@gmail.com", phone:"+63 995 147 0400", web:"" },
+  { id:"kubisk", label:"Uniforms", icon:"👕", cat:"print", business:"Kubisk Enterprises Inc.", title:"Uniforms", slide:30,
+    services:["Company shirts","Uniforms & jackets","Customized brand shirts"],
+    email:"keithlao@cubic.com.ph", phone:"+63 917 705 3484", web:"cubic.com.ph" },
+  { id:"gemini", label:"Giveaways", icon:"🎁", cat:"gifts", business:"Gemini Premium Label Inc.", title:"Corporate Giveaways", slide:31,
+    services:["Tumblers & gift kits","Custom USB drives","Mugs","Umbrellas","Glassware","Notebooks"],
+    email:"gemini.pl.inc@gmail.com", phone:"+63 917 885 2786", web:"geminicorporategiveaways.com" },
+  { id:"pagsibol", label:"3D PVC", icon:"🔑", cat:"print", business:"Pagsibol Ventures Corp.", title:"Specialty 3D PVC Products", slide:32,
+    services:["PVC keychains","3D figures & mascots","Shoe charms","Coasters","Phone cases"],
+    email:"sales@pagsibolventures.com", phone:"0917 894 0515", web:"" },
+  { id:"jetstrophy", label:"Trophies", icon:"🏆", cat:"print", business:"Jets Trophy, Inc.", title:"Customized Award Products", slide:33,
+    services:["Trophies","Plaques","Medals","Custom keychains"],
+    email:"sales@jetstrophyinc.com", phone:"0938 842 6004", web:"" },
+  { id:"nestmanila", label:"Tech Gifts", icon:"🛍️", cat:"gifts", business:"The Nest Manila", title:"Corporate Gifts, Rewards & Giveaways", slide:34,
+    services:["Tech gadgets","Last-minute gifts","Rewards & incentives","Giveaways"],
+    email:"thenestmanila@gmail.com", phone:"+63 917 310 3221", web:"" },
+  { id:"joelle", label:"Voice Over", icon:"🎧", cat:"content", business:"Joelle Villafranca", title:"Voice Actor / Voice Over Talent", slide:35,
+    services:["Commercial","Corporate","Live event VO","Character"],
+    email:"joellevillafranca@gmail.com", phone:"+63 998 971 5434", web:"joellevillafranca.com" },
+  { id:"dolcefrutta", label:"Fruit Gifts", icon:"🍇", cat:"gifts", business:"Dolce Frutta", title:"Healthy Giveaways", slide:36,
+    services:["Fruit gift boxes","Same-day delivery","Personalized packages","BIR-registered invoice"],
+    email:"kristinelim@outlook.ph", phone:"+63 997 559 0927", web:"dolcefruttamnl.com" },
 ];
+// Members whose slide has no separate logo graphic
+const NO_LOGO = new Set(["cbb","risingdesigns","joelle"]);
 /* ========================================================== */
 
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const iconHTML = (m, cls="") => m.logo
-  ? `<img src="${esc(m.logo)}" alt="${esc(m.business)} logo" ${cls}>`
-  : `<span aria-hidden="true">${m.icon}</span>`;
-const deckLink = slideId => slideId ? `${DECK_URL}/present#slide=id.${encodeURIComponent(slideId)}` : `${DECK_URL}/present`;
+const logoHTML = m => NO_LOGO.has(m.id)
+  ? `<span class="em" aria-hidden="true">${m.icon}</span>`
+  : `<img src="logos/${m.id}.png" alt="${esc(m.business)} logo" loading="lazy">`;
+const catName = id => (CATS.find(c => c.id === id) || {}).name || "";
 
-let shown = MEMBERS.slice();
+let query = "", cat = "all", shown = MEMBERS.slice();
 
+function filter(){
+  const q = query.toLowerCase();
+  shown = MEMBERS.filter(m => (cat === "all" || m.cat === cat) &&
+    (!q || [m.label,m.business,m.title,m.person,catName(m.cat),...m.services].join(" ").toLowerCase().includes(q)));
+  $("#listTitle").textContent = query ? `Results for “${query}”` : "All members";
+  render();
+}
 function renderGrid(){
   const per = 8, pages = Math.max(1, Math.ceil(shown.length / per));
   let html = "";
   for(let p=0;p<pages;p++){
     html += `<div class="grid-page">` + shown.slice(p*per,(p+1)*per).map(m =>
-      `<button class="svc" data-id="${m.id}"><span class="ic">${iconHTML(m)}${m.id==="print"?'<span class="tag">NEW</span>':""}</span><span class="lbl">${esc(m.label)}</span></button>`
+      `<button class="svc" data-id="${m.id}" aria-label="${esc(m.business)} — ${esc(m.title)}"><span class="ic" aria-hidden="true">${m.icon}${m.id==="printamplified"?'<span class="tag">HOST</span>':""}</span><span class="lbl">${esc(m.label)}</span></button>`
     ).join("") + `</div>`;
   }
   $("#grid").innerHTML = shown.length ? html : "";
@@ -305,79 +352,86 @@ function renderGrid(){
 function renderList(){
   $("#list").innerHTML = shown.length ? shown.map(m =>
     `<button class="row" data-id="${m.id}">
-      <span class="ic" style="background:${m.color}1f">${iconHTML(m)}</span>
-      <span class="tx"><b>${esc(m.business)}</b><small>${esc(m.member || m.tagline)}</small></span>
+      <span class="logo-box">${logoHTML(m)}</span>
+      <span class="tx"><b>${esc(m.business)}</b><small>${m.icon} ${esc(m.title)}</small></span>
       <span class="go">›</span></button>`
   ).join("") : `<div class="empty">No member matches that search.<br>Try “print”, “video” or “events”.</div>`;
 }
-function render(){ renderGrid(); renderList(); }
+function renderCats(){
+  $("#cats").innerHTML = CATS.map(c => `<button data-cat="${c.id}" class="${c.id===cat?"on":""}">${esc(c.name)}</button>`).join("");
+}
+function render(){ renderGrid(); renderList(); renderCats(); }
 
 $("#grid").addEventListener("scroll", e => {
   const i = Math.round(e.target.scrollLeft / e.target.clientWidth);
   document.querySelectorAll("#dots i").forEach((d,k)=>d.classList.toggle("on",k===i));
 });
-$("#q").addEventListener("input", e => {
-  const q = e.target.value.trim().toLowerCase();
-  shown = !q ? MEMBERS.slice() : MEMBERS.filter(m =>
-    [m.label,m.business,m.member,m.tagline,...m.services].join(" ").toLowerCase().includes(q));
-  $("#listTitle").textContent = q ? `Results for “${e.target.value.trim()}”` : "All members";
-  render();
-});
+$("#q").addEventListener("input", e => { query = e.target.value.trim(); filter(); });
 $("#memberCount").textContent = `${MEMBERS.length} members`;
 
 /* ---- Slide viewer ---- */
-let cur = 0;
-const TEAM = { id:"team", isTeam:true, business:"CAS Power Team", label:"Team", icon:"🤝", color:"#cf2030",
-  tagline:"Corporate & Advertising Services — one referral, a full campaign.", slideId:TEAM_SLIDE_ID };
+let cur = 0; // -1 = team overview
+const webURL = w => /^https?:/i.test(w) ? w : "https://" + w;
 
-function openViewer(idx){ cur = idx; drawSlide(); $("#viewer").classList.add("open"); $("#vClose").focus(); }
+function openViewer(idx){ cur = idx; drawSlide(); $("#viewer").classList.add("open"); $("#vClose").focus({preventScroll:true}); }
 function closeViewer(){ $("#viewer").classList.remove("open"); }
 function drawSlide(){
-  const m = cur < 0 ? TEAM : MEMBERS[cur];
-  $("#vTitle").textContent = m.business;
-  $("#vCount").textContent = cur < 0 ? "Overview" : `${cur+1} / ${MEMBERS.length}`;
-  $("#vDeck").href = deckLink(m.slideId);
-  $("#vDeck").textContent = m.slideId ? "Open slide in deck ↗" : "Open deck ↗";
-  const grad = `linear-gradient(135deg, ${m.color}, ${m.color}cc 60%, #00000055)`;
-  let body = `
-    <div class="slide" style="background:${grad}">
-      <div><div class="k">BNI · CAS POWER TEAM</div>
-        <div class="biz" style="margin-top:8px">${esc(m.business)}</div>
-        ${m.member?`<div class="who">${esc(m.member)}</div>`:""}</div>
-      <div class="tl">“${esc(m.tagline)}”</div>
-      <div class="foot"><span>Givers Gain®</span><b>BNI</b></div>
-      <div class="big">${m.logo?`<img src="${esc(m.logo)}" alt="">`:m.icon}</div>
-    </div>`;
-  if (m.isTeam){
-    body += `<div class="sec"><h3>Who we are</h3><p>${MEMBERS.length} trusted specialists covering everything a brand needs — strategy, design, production, and promotion. Refer one of us and your contact gets the whole team.</p></div>
-      <div class="sec"><h3>Members</h3><div class="chips">${MEMBERS.map((x,i)=>`<span data-jump="${i}" style="cursor:pointer">${x.icon} ${esc(x.business)}</span>`).join("")}</div></div>`;
-  } else {
-    body += `<div class="sec"><h3>Services</h3><div class="chips">${m.services.map(s=>`<span>${esc(s)}</span>`).join("")}</div></div>
-      <div class="sec"><h3>A good referral for us</h3><p>${esc(m.referral)}</p></div>`;
-    const c = [
-      m.phone && `<a href="tel:${esc(m.phone)}">📞 ${esc(m.phone)}</a>`,
-      m.email && `<a href="mailto:${esc(m.email)}">✉️ ${esc(m.email)}</a>`,
-      m.web && `<a href="${esc(/^https?:/.test(m.web)?m.web:"https://"+m.web)}" target="_blank" rel="noopener">🌐 ${esc(m.web)}</a>`
-    ].filter(Boolean);
-    if (c.length) body += `<div class="sec"><h3>Contact</h3><div class="contact">${c.join("")}</div></div>`;
+  $("#vDeck").href = `${DECK_URL}/present`;
+  if (cur < 0){
+    $("#vTitle").textContent = "Creative & Advertising Services";
+    $("#vSub").textContent = "BNI Power Team";
+    $("#vCount").textContent = "Overview";
+    $("#vBody").innerHTML = `
+      <button class="slide" data-zoom="slides/cover.jpg"><img src="slides/cover.jpg" alt="Power Team cover slide"><span class="zoom">⤢ Full screen</span></button>
+      <div class="sec"><h4>Who we are</h4><p style="margin:0;line-height:1.5">${MEMBERS.length} trusted specialists covering everything a brand needs — strategy, digital, content, events, print and gifts. Refer one of us and your contact gets the whole team.</p></div>
+      ${CATS.filter(c=>c.id!=="all").map(c => `<div class="sec"><h4>${esc(c.name)}</h4><div class="chips">${
+        MEMBERS.map((m,i)=>[m,i]).filter(([m])=>m.cat===c.id).map(([m,i])=>`<button data-jump="${i}">${m.icon} ${esc(m.business)}</button>`).join("")}</div></div>`).join("")}`;
+    $("#vBody").scrollTop = 0;
+    return;
   }
-  $("#vBody").innerHTML = body;
+  const m = MEMBERS[cur];
+  $("#vTitle").textContent = m.business;
+  $("#vSub").textContent = m.title;
+  $("#vCount").textContent = `${cur+1} / ${MEMBERS.length}`;
+  const src = `slides/${m.id}.jpg`;
+  const tel = m.phone.replace(/[^\d+]/g,"");
+  $("#vBody").innerHTML = `
+    <button class="slide" data-zoom="${src}"><img src="${src}" alt="${esc(m.business)} slide"><span class="zoom">⤢ Full screen</span></button>
+    <div class="vhead">
+      <span class="logo-box">${logoHTML(m)}</span>
+      <div><h3>${esc(m.business)}</h3><p>${esc(m.person || m.title)}${m.slide?` · Slide ${m.slide}`:""}</p></div>
+    </div>
+    <div class="sec"><h4>Services</h4><div class="chips">${m.services.map(s=>`<span>${esc(s)}</span>`).join("")}</div></div>
+    <div class="sec"><h4>Contact</h4>
+      <div class="actions">
+        <a href="tel:${esc(tel)}"><span>📞</span>Call</a>
+        <a href="mailto:${esc(m.email)}"><span>✉️</span>Email</a>
+        <a ${m.web?`href="${esc(webURL(m.web))}" target="_blank" rel="noopener"`:'class="off" aria-disabled="true"'}><span>🌐</span>Website</a>
+      </div>
+      <div class="contact-lines">${esc(m.phone)}<br>${esc(m.email)}${m.web?`<br>${esc(m.web)}`:""}</div>
+    </div>`;
   $("#vBody").scrollTop = 0;
 }
 function step(d){ const n = MEMBERS.length; cur = cur < 0 ? (d>0?0:n-1) : (cur + d + n) % n; drawSlide(); }
 
+function openLightbox(src){ $("#lbImg").src = src; $("#lightbox").classList.add("open"); }
+$("#lightbox").addEventListener("click", () => $("#lightbox").classList.remove("open"));
+
 document.addEventListener("click", e => {
-  const t = e.target.closest("[data-id],[data-jump],[data-act],[data-nav]");
+  const t = e.target.closest("[data-id],[data-jump],[data-act],[data-nav],[data-cat],[data-zoom]");
   if (!t) return;
-  if (t.dataset.id) openViewer(MEMBERS.findIndex(m=>m.id===t.dataset.id));
+  if (t.dataset.zoom) openLightbox(t.dataset.zoom);
+  else if (t.dataset.id) openViewer(MEMBERS.findIndex(m=>m.id===t.dataset.id));
   else if (t.dataset.jump) { cur = +t.dataset.jump; drawSlide(); }
+  else if (t.dataset.cat) { cat = t.dataset.cat; filter(); }
   else if (t.dataset.act === "team") openViewer(-1);
   else if (t.dataset.act) toast(t.dataset.act==="refer" ? "Thank you! Tell us who you know — Givers Gain® 🙌" : "Let's meet for a 1-2-1 after the chapter meeting ☕");
   else if (t.dataset.nav) {
-    document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on", b===t && t.dataset.nav!=="scan"));
+    if (t.dataset.nav !== "scan") document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on", b===t));
     if (t.dataset.nav==="home") $("#main").scrollTo({top:0,behavior:"smooth"});
-    else if (t.dataset.nav==="scan") openViewer(-1);
-    else toast({wins:"Team wins & testimonials — coming soon",refs:"Referrals passed within the Power Team",msgs:"Reach any member from their slide"}[t.dataset.nav]);
+    else if (t.dataset.nav==="scan") openViewer(0);
+    else if (t.dataset.nav==="msgs") { $("#main").scrollTo({top:$("#listTitle").offsetTop-10,behavior:"smooth"}); }
+    else toast({wins:"Team wins & testimonials — coming soon",refs:"Referrals passed within the Power Team — coming soon"}[t.dataset.nav]);
   }
 });
 $("#hero").addEventListener("click", () => openViewer(-1));
@@ -386,15 +440,24 @@ $("#vClose").addEventListener("click", closeViewer);
 $("#vPrev").addEventListener("click", () => step(-1));
 $("#vNext").addEventListener("click", () => step(1));
 document.addEventListener("keydown", e => {
+  if ($("#lightbox").classList.contains("open")) {
+    if (e.key==="Escape") $("#lightbox").classList.remove("open");
+    return;
+  }
   if (!$("#viewer").classList.contains("open")) return;
   if (e.key==="Escape") closeViewer();
   if (e.key==="ArrowRight") step(1);
   if (e.key==="ArrowLeft") step(-1);
 });
 // Swipe between slides
-let sx=null;
-$("#vBody").addEventListener("touchstart", e=>{ sx=e.touches[0].clientX; }, {passive:true});
-$("#vBody").addEventListener("touchend", e=>{ if(sx==null) return; const dx=e.changedTouches[0].clientX-sx; if(Math.abs(dx)>60) step(dx<0?1:-1); sx=null; });
+let sx=null, sy=null;
+$("#vBody").addEventListener("touchstart", e=>{ sx=e.touches[0].clientX; sy=e.touches[0].clientY; }, {passive:true});
+$("#vBody").addEventListener("touchend", e=>{
+  if(sx==null) return;
+  const dx=e.changedTouches[0].clientX-sx, dy=e.changedTouches[0].clientY-sy;
+  if(Math.abs(dx)>60 && Math.abs(dx)>Math.abs(dy)*1.5) step(dx<0?1:-1);
+  sx=sy=null;
+});
 
 // "Scroll for more" pill
 $("#main").addEventListener("scroll", e => $("#pill").classList.toggle("hide", e.target.scrollTop > 40));
