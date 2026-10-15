@@ -8,7 +8,7 @@
 <style>
   :root{
     --brand:#0b5d3b; --brand2:#0f7a4d; --brand-ink:#0a3d28;
-    --bni:#cf2030; --cas1:#6a2bd9; --cas2:#e0457b;
+    --bni:#cf2030; --cas1:#6a2bd9; --cas2:#e0457b; --grab:#00b14f; --tag-bg:#e8f7ee;
     --bg:#ffffff; --bg2:#f4f6f5; --line:#e6e9e8;
     --ink:#1b1f1d; --ink2:#5e6763; --chip:#ffffff; --shadow:0 2px 10px rgba(0,0,0,.08);
     --frame:#d9dedc;
@@ -16,10 +16,11 @@
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
       --bg:#121614; --bg2:#1a201d; --line:#26302b; --ink:#eef2f0; --ink2:#9aa6a0;
-      --chip:#1d2420; --shadow:0 2px 10px rgba(0,0,0,.4); --frame:#0b0e0c;
+      --chip:#1d2420; --shadow:0 2px 10px rgba(0,0,0,.4); --frame:#0b0e0c; --tag-bg:#14281d;
     }
   }
   :root[data-theme="dark"]{
+    --tag-bg:#14281d;
     --bg:#121614; --bg2:#1a201d; --line:#26302b; --ink:#eef2f0; --ink2:#9aa6a0;
     --chip:#1d2420; --shadow:0 2px 10px rgba(0,0,0,.4); --frame:#0b0e0c;
   }
@@ -37,48 +38,55 @@
   }
 
   /* Header */
-  header{background:linear-gradient(180deg,var(--brand-ink),var(--brand));color:#fff;padding:10px 16px 18px;flex:none}
-  .status{display:flex;justify-content:space-between;font-size:13px;font-weight:600;opacity:.95;margin-bottom:12px}
-  .head-row{display:flex;gap:10px;align-items:center}
-  .search{flex:1;display:flex;align-items:center;gap:8px;background:#fff;border-radius:14px;padding:11px 14px;color:#555}
-  .search input{border:0;outline:0;flex:1;font-size:16px;background:transparent;color:#222;min-width:0}
-  .badge{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-weight:800;flex:none}
-  .badge.bni{background:var(--bni);color:#fff;font-size:12px;letter-spacing:.5px}
-  .badge.me{background:#e8f5ee;color:var(--brand);font-size:18px}
+  header{background:linear-gradient(180deg,#00422c,#00613f);color:#fff;padding:16px 16px 18px;flex:none}
+  .head-row{display:flex;gap:12px;align-items:center}
+  .search{flex:1;min-width:0;display:flex;align-items:center;gap:10px;background:#fff;border-radius:14px;padding:0 14px;height:50px;color:#5f6461}
+  .search svg{flex:none}
+  .search input{border:0;outline:0;flex:1;font-size:17px;background:transparent;color:#1b1f1d;min-width:0}
+  .search input::placeholder{color:#7a7f7c}
+  .badge{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;font-weight:900;flex:none}
+  .badge.bni{background:#f5b301;color:#fff;font-size:22px;box-shadow:inset 0 -3px 0 rgba(0,0,0,.12),0 0 0 3px rgba(255,255,255,.15)}
+  .badge.me{background:#1f9a86;box-shadow:0 0 0 3px rgba(255,255,255,.2)}
+
+  /* Tagline strip */
+  .tagline{display:flex;align-items:center;gap:12px;margin:14px 16px 0;padding:12px 14px;border-radius:16px;background:var(--tag-bg)}
+  .tagline .mark{width:44px;height:44px;border-radius:12px;background:var(--grab);display:grid;place-items:center;flex:none}
+  .tagline p{margin:0;font-size:18px;font-weight:800;line-height:1.2;letter-spacing:-.2px;text-wrap:balance}
+  .tagline p .g{color:var(--grab);font-weight:900;font-size:22px}
 
   main{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:16px}
   main::-webkit-scrollbar{display:none}
 
   /* Service grid */
-  .grid-wrap{overflow-x:auto;scroll-snap-type:x mandatory;display:flex;scrollbar-width:none;padding-top:16px}
+  .grid-wrap{display:grid;grid-template-rows:repeat(2,auto);grid-auto-flow:column;grid-auto-columns:22.5%;row-gap:18px;overflow-x:auto;scrollbar-width:none;padding:18px 6px 0;scroll-snap-type:x proximity}
   .grid-wrap::-webkit-scrollbar{display:none}
-  .grid-page{flex:0 0 100%;scroll-snap-align:start;display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:min-content;row-gap:14px;padding:0 8px}
-  .svc{display:flex;flex-direction:column;align-items:center;gap:6px;padding:4px 2px;border-radius:14px}
+  .svc{display:flex;flex-direction:column;align-items:center;gap:6px;padding:4px 2px;border-radius:14px;scroll-snap-align:start}
   .svc:active{background:var(--bg2)}
-  .svc .ic{width:62px;height:62px;display:grid;place-items:center;font-size:42px;line-height:1;position:relative}
-  .svc .lbl{font-size:12.5px;color:var(--ink);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:86px}
+  .svc .ic{width:64px;height:64px;display:grid;place-items:center;font-size:46px;line-height:1;position:relative}
+  .svc .lbl{font-size:14px;color:var(--ink);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:86px}
   .svc .tag{position:absolute;top:-2px;right:-8px;background:var(--bni);color:#fff;font-size:9px;font-weight:700;padding:2px 5px;border-radius:8px}
-  .dots{display:flex;justify-content:center;gap:5px;margin:10px 0 4px}
+  .dots{display:flex;justify-content:center;gap:5px;margin:14px 0 6px}
   .dots i{width:6px;height:6px;border-radius:3px;background:var(--line);transition:.2s}
-  .dots i.on{width:18px;background:var(--ink)}
+  .dots i.on{width:26px;background:var(--ink)}
 
   /* Quick cards */
   .quick{display:flex;gap:10px;overflow-x:auto;padding:12px 16px 4px;scrollbar-width:none}
   .quick::-webkit-scrollbar{display:none}
-  .qcard{flex:0 0 150px;border:1px solid var(--line);border-radius:16px;padding:12px 14px;text-align:left;background:var(--chip);display:flex;justify-content:space-between;align-items:center;gap:8px}
-  .qcard small{display:block;color:var(--ink2);font-size:12px}
-  .qcard b{font-size:16px}
+  .qcard{flex:0 0 168px;border:1.5px solid var(--line);border-radius:20px;padding:14px 16px;text-align:left;background:var(--chip);display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .qcard small{display:block;color:var(--ink2);font-size:14px}
+  .qcard b{font-size:19px}
   .qcard span.e{font-size:24px}
 
-  h2{font-size:22px;margin:22px 16px 12px;display:flex;align-items:center;gap:10px}
-  h2 .arrow{width:24px;height:24px;border-radius:50%;background:var(--line);display:grid;place-items:center;font-size:14px;color:var(--ink2)}
+  h2{font-size:27px;font-weight:800;letter-spacing:-.3px;margin:26px 16px 14px;display:flex;align-items:center;gap:10px}
+  h2 .arrow{width:28px;height:28px;border-radius:50%;background:#9aa09d;display:grid;place-items:center;font-size:18px;color:#fff;font-weight:700}
 
   /* Featured banner (cover slide) */
   .hero{display:block;margin:0 16px;width:calc(100% - 32px);border-radius:18px;overflow:hidden;position:relative;box-shadow:var(--shadow);background:#fff}
   .hero img{width:100%;height:auto}
   .hero .cta{position:absolute;left:12px;bottom:12px;background:linear-gradient(90deg,var(--cas1),var(--cas2));color:#fff;font-weight:800;padding:8px 16px;border-radius:20px;font-size:14px;box-shadow:0 4px 10px rgba(0,0,0,.2)}
-  .hero-cap{margin:10px 16px 0;font-size:16px}
-  .hero-cap small{display:block;color:var(--ink2);font-size:13px;margin-top:2px}
+  .hero-fab{position:absolute;right:10px;bottom:10px;width:64px;height:64px;border-radius:50%;background:#fff;color:#1b1f1d;display:grid;place-items:center;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+  .hero-cap{margin:12px 16px 0;font-size:18px}
+  .hero-cap small{display:block;color:var(--ink2);font-size:15px;margin-top:4px}
 
   /* Category chips */
   .cats{display:flex;gap:8px;overflow-x:auto;padding:0 16px 12px;scrollbar-width:none}
@@ -105,11 +113,13 @@
   /* Bottom nav */
   nav{flex:none;display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--line);background:var(--bg);padding:6px 0 calc(8px + env(safe-area-inset-bottom));align-items:end}
   nav button{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:12px;color:var(--ink2);position:relative}
-  nav button .e{font-size:22px;filter:grayscale(1);opacity:.75}
-  nav button.on{color:var(--brand2)}
-  nav button.on .e{filter:none;opacity:1}
-  nav .center{width:62px;height:62px;border-radius:50%;background:var(--brand-ink);color:#fff;display:grid;place-items:center;font-size:26px;margin:-26px auto 0;box-shadow:0 4px 12px rgba(0,0,0,.25)}
-  nav .dot{position:absolute;top:-2px;right:calc(50% - 18px);background:var(--bni);color:#fff;font-size:10px;font-weight:700;border-radius:9px;min-width:16px;height:16px;display:grid;place-items:center;padding:0 4px}
+  nav button svg{width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  nav button.on{color:var(--grab)}
+  nav button.on svg.home{fill:var(--grab)}
+  nav .center{width:72px;height:72px;border-radius:50%;background:#0d4a35;color:#fff;display:grid;place-items:center;margin:-30px auto 0;box-shadow:0 4px 12px rgba(0,0,0,.25)}
+  nav .center svg{stroke:#fff}
+  nav .ndot{position:absolute;top:0;right:calc(50% - 16px);width:9px;height:9px;border-radius:50%;background:#f0453a}
+  nav .dot{position:absolute;top:-4px;right:calc(50% - 22px);background:var(--bni);color:#fff;font-size:10px;font-weight:700;border-radius:9px;min-width:16px;height:16px;display:grid;place-items:center;padding:0 4px}
 
   /* Slide viewer */
   .viewer{position:absolute;inset:0;background:var(--bg);z-index:20;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .3s cubic-bezier(.2,.8,.2,1)}
@@ -161,18 +171,21 @@
 <body>
 <div class="phone" id="phone">
   <header>
-    <div class="status"><span id="clock">8:04</span><span>BNI · Creative &amp; Advertising</span><span>📶 66</span></div>
     <div class="head-row">
       <label class="search">
-        <span aria-hidden="true">🔍</span>
-        <input id="q" type="search" placeholder="Search members & services" autocomplete="off" aria-label="Search members and services" />
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m20 20-4.8-4.8"/></svg>
+        <input id="q" type="search" placeholder="Search services" autocomplete="off" aria-label="Search members and services" />
       </label>
-      <button class="badge bni" id="bniBtn" aria-label="Power Team overview">BNI</button>
-      <button class="badge me" id="themeBtn" aria-label="Toggle light or dark theme">☾</button>
+      <button class="badge bni" id="bniBtn" aria-label="Power Team overview">B</button>
+      <button class="badge me" id="meBtn" aria-label="Power Team overview"><svg width="26" height="26" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><circle cx="12" cy="8" r="4.2"/><path d="M3.8 20.5c.8-4.2 4.2-6.5 8.2-6.5s7.4 2.3 8.2 6.5z"/></svg></button>
     </div>
   </header>
 
   <main id="main">
+    <div class="tagline">
+      <span class="mark" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11v3a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1z"/><path d="M15.5 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/></svg></span>
+      <p><span class="g">Grab</span> Your Marketing Services here!</p>
+    </div>
     <div class="grid-wrap" id="grid"></div>
     <div class="dots" id="dots"></div>
 
@@ -182,12 +195,13 @@
       <button class="qcard" data-act="one21"><div><small>Book a</small><b>1-2-1</b></div><span class="e">☕</span></button>
     </div>
 
-    <h2>Our Power Team <span class="arrow">›</span></h2>
+    <h2>Meet the Team <span class="arrow">›</span></h2>
     <button class="hero" id="hero" aria-label="Open the Power Team overview slide">
       <img src="slides/cover.jpg" alt="Creative & Advertising Services Power Team member logos" />
       <span class="cta">MEET THE TEAM →</span>
+      <span class="hero-fab" aria-hidden="true"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg></span>
     </button>
-    <div class="hero-cap">One referral, a full campaign — from strategy to stage<small>BNI · Creative &amp; Advertising Services Power Team</small></div>
+    <div class="hero-cap">One referral, a full campaign from strategy to stage<small>Ad · BNI Creative &amp; Advertising Services</small></div>
 
     <h2 id="listTitle">All members</h2>
     <div class="cats" id="cats"></div>
@@ -197,11 +211,11 @@
   <div class="pill" id="pill">↓ Scroll for more</div>
 
   <nav>
-    <button class="on" data-nav="home"><span class="e">🏠</span>Home</button>
-    <button data-nav="wins"><span class="e">🏆</span>Wins</button>
-    <button data-nav="scan" aria-label="Present the team"><span class="center">▶</span></button>
-    <button data-nav="refs"><span class="e">🧾</span>Referrals</button>
-    <button data-nav="msgs"><span class="e">💬</span><span class="dot">24</span>Contact</button>
+    <button class="on" data-nav="home"><svg class="home" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V19a1.5 1.5 0 0 1-1.5 1.5h-4v-5h-5v5h-4A1.5 1.5 0 0 1 4 19z"/></svg>Home</button>
+    <button data-nav="members"><span class="ndot"></span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="m15.5 8.5-2 5-5 2 2-5z"/></svg>Members</button>
+    <button data-nav="scan" aria-label="Present the team"><span class="center"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2M7 12h10"/></svg></span></button>
+    <button data-nav="refs"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3.5H6.5a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2H11M8 8h7M8 11.5h4"/><circle cx="17" cy="16.5" r="4"/><path d="M17 14.8v1.9l1.2.8"/></svg>Referrals</button>
+    <button data-nav="msgs"><span class="dot">24</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5h14a1.5 1.5 0 0 1 1.5 1.5v9a1.5 1.5 0 0 1-1.5 1.5h-6l-4.5 3.5V16.5H5A1.5 1.5 0 0 1 3.5 15V6A1.5 1.5 0 0 1 5 4.5z"/><path d="M8 9h8M8 12h5"/></svg>Contact</button>
   </nav>
 
   <section class="viewer" id="viewer" aria-modal="true" role="dialog" aria-labelledby="vTitle">
@@ -341,15 +355,14 @@ function filter(){
   render();
 }
 function renderGrid(){
-  const per = 8, pages = Math.max(1, Math.ceil(shown.length / per));
-  let html = "";
-  for(let p=0;p<pages;p++){
-    html += `<div class="grid-page">` + shown.slice(p*per,(p+1)*per).map(m =>
-      `<button class="svc" data-id="${m.id}" aria-label="${esc(m.business)} — ${esc(m.title)}"><span class="ic" aria-hidden="true">${m.icon}${m.id==="printamplified"?'<span class="tag">HOST</span>':""}</span><span class="lbl">${esc(m.label)}</span></button>`
-    ).join("") + `</div>`;
-  }
-  $("#grid").innerHTML = shown.length ? html : "";
+  const cols = Math.ceil(shown.length / 2), top = shown.slice(0, cols), bottom = shown.slice(cols);
+  const ordered = [];
+  top.forEach((m, i) => { ordered.push(m); if (bottom[i]) ordered.push(bottom[i]); });
+  $("#grid").innerHTML = ordered.map(m =>
+    `<button class="svc" data-id="${m.id}" aria-label="${esc(m.business)} — ${esc(m.title)}"><span class="ic" aria-hidden="true">${m.icon}${m.id==="printamplified"?'<span class="tag">HOST</span>':""}</span><span class="lbl">${esc(m.label)}</span></button>`
+  ).join("");
   $("#grid").scrollLeft = 0;
+  const pages = Math.ceil(cols / 4);
   $("#dots").innerHTML = pages > 1 ? Array.from({length:pages},(_,i)=>`<i class="${i?"":"on"}"></i>`).join("") : "";
 }
 function renderList(){
@@ -366,8 +379,9 @@ function renderCats(){
 function render(){ renderGrid(); renderList(); renderCats(); }
 
 $("#grid").addEventListener("scroll", e => {
-  const i = Math.round(e.target.scrollLeft / e.target.clientWidth);
-  document.querySelectorAll("#dots i").forEach((d,k)=>d.classList.toggle("on",k===i));
+  const g = e.target, dots = document.querySelectorAll("#dots i"), max = g.scrollWidth - g.clientWidth;
+  const i = max > 0 ? Math.round(g.scrollLeft / max * (dots.length - 1)) : 0;
+  dots.forEach((d,k)=>d.classList.toggle("on",k===i));
 });
 $("#q").addEventListener("input", e => { query = e.target.value.trim(); filter(); });
 $("#memberCount").textContent = `${MEMBERS.length} members`;
@@ -454,8 +468,8 @@ document.addEventListener("click", e => {
     if (t.dataset.nav !== "scan") document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on", b===t));
     if (t.dataset.nav==="home") $("#main").scrollTo({top:0,behavior:"smooth"});
     else if (t.dataset.nav==="scan") openViewer(0);
-    else if (t.dataset.nav==="msgs") { $("#main").scrollTo({top:$("#listTitle").offsetTop-10,behavior:"smooth"}); }
-    else toast({wins:"Team wins & testimonials — coming soon",refs:"Referrals passed within the Power Team — coming soon"}[t.dataset.nav]);
+    else if (t.dataset.nav==="msgs" || t.dataset.nav==="members") { $("#main").scrollTo({top:$("#listTitle").offsetTop-10,behavior:"smooth"}); }
+    else toast("Referrals passed within the Power Team — coming soon");
   }
 });
 $("#hero").addEventListener("click", () => openViewer(-1));
@@ -486,17 +500,10 @@ $("#vBody").addEventListener("touchend", e=>{
 // "Scroll for more" pill
 $("#main").addEventListener("scroll", e => $("#pill").classList.toggle("hide", e.target.scrollTop > 40));
 
-// Theme toggle
-$("#themeBtn").addEventListener("click", () => {
-  const root = document.documentElement;
-  const dark = root.dataset.theme ? root.dataset.theme==="dark" : matchMedia("(prefers-color-scheme: dark)").matches;
-  root.dataset.theme = dark ? "light" : "dark";
-});
+$("#meBtn").addEventListener("click", () => openViewer(-1));
 
 let tt; function toast(msg){ const el=$("#toast"); el.textContent=msg; el.classList.add("on"); clearTimeout(tt); tt=setTimeout(()=>el.classList.remove("on"),2200); }
 
-function tick(){ const d=new Date(); $("#clock").textContent=d.toLocaleTimeString([], {hour:"numeric",minute:"2-digit"}).replace(/\s?[AP]M/i,""); }
-tick(); setInterval(tick, 30000);
 render();
 </script>
 </body>
