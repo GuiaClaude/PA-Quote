@@ -1,0 +1,42 @@
+# Supabase CLI settings — used for local development (`supabase start`) and
+# when linking to the hosted project (`supabase link`, `supabase db push`).
+# For the hosted project, the same options are set in the Supabase dashboard
+# (see README → "Set up Supabase").
+
+project_id = "print-amplified-portal"
+
+[api]
+schemas = ["public"]
+max_rows = 1000
+
+[db]
+major_version = 17
+
+[db.seed]
+enabled = true
+sql_paths = ["./seed.sql"]
+
+[storage]
+# Supabase FREE plan maximum. Raise to "100MiB" after upgrading to Pro.
+file_size_limit = "50MiB"
+
+[auth]
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["http://localhost:3000/auth/callback", "https://order.printamplified.com/auth/callback"]
+# Invite-only: nobody can create an account from the outside.
+enable_signup = false
+minimum_password_length = 12
+password_requirements = "lower_upper_letters_digits"
+jwt_expiry = 3600
+
+[auth.email]
+enable_signup = false
+enable_confirmations = true
+otp_expiry = 3600
+
+[auth.mfa]
+max_enrolled_factors = 5
+
+[auth.mfa.totp]
+enroll_enabled = true
+verify_enabled = true

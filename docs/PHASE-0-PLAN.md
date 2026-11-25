@@ -1,6 +1,15 @@
 # Print Amplified Client Ordering App — Phase 0 Plan
 
-Status: **draft for review**. No app code has been written yet. Everything below can change based on your answers to Section 1.
+Status: **approved — Phase 1 built.**
+
+### Decisions (from your answers)
+1. New app in `portal/`, deployed as a **new Vercel project** (Root Directory = `portal`). ✅
+2. **Stay on free plans first.** Consequences handled in the build: 50 MB upload limit (one setting/SQL line to raise to 100 MB on Pro), a weekly backup routine + `npm run export-client` script (Free has no backups), README warns about 1 GB storage, project pausing and Vercel Hobby's non-commercial terms.
+3. Web address **order.printamplified.com**. ✅
+4. AI auto-fill: built in Phase 5, **off by default**, cost shown before enabling. ✅
+5–14. Not answered yet → **recommended defaults in use** (can be changed any time): one-time charges have a per-charge "charge again on reorder" flag; VAT 12% shown as 3 lines; order numbers restart yearly; round order total up to ₱5; clients cancel until Confirmed; outside-domain invites approved by the assigned sales person or pa_admin; default lead time per product; production sees client name + address but no prices; placeholders for logo/bank details; PSA inflation pre-filled as "please confirm".
+
+Other Phase 1 notes: Next.js 16 "Cache Components" is switched off (private per-user app → always-fresh rendering is simpler); Next 16 renamed middleware to `proxy.ts`; shadcn components were added by hand because the shadcn registry is unreachable from the build machine.
 
 ---
 

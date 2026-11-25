@@ -80,23 +80,10 @@ insert into public.settings (key, value, visibility, description) values
    "lockout_minutes": 15
  }', 'staff', 'Login security. DEMO: 2-step verification is OFF — turn it ON before go-live.'),
 ('uploads', '{"max_file_mb": 50}', 'client', 'Maximum upload size (50 MB on Supabase Free; 100 MB on Pro)'),
-('features', '{"ai_autofill_enabled": false}', 'staff', 'Optional paid features');
+('features', '{"ai_autofill_enabled": false}', 'staff', 'Optional paid features')
+on conflict (key) do update set value = excluded.value, description = excluded.description;
 
--- ------------------------------------------------------------- pricing rules
-insert into public.pricing_settings (version_no, rounding_step_pesos, rounding_scope, vat_rate_pct,
-  quote_validity_days, max_estimate_age_years, max_adjustment_pct, show_breakdown_to_clients,
-  quote_reply_target_hours, created_by, effective_from)
-values (1, 5, 'order_total', 12.00, 15, 3.0, 20.00, false, 24, '10000000-0000-4000-8000-000000000001', '2020-01-01');
-
-insert into public.inflation_rates (year, rate_pct, source_note, needs_confirmation, set_by, effective_from) values
-  (2019, 2.400, 'PSA headline inflation (annual average) — please confirm', true, '10000000-0000-4000-8000-000000000001', '2020-01-01'),
-  (2020, 2.400, 'PSA headline inflation (annual average) — please confirm', true, '10000000-0000-4000-8000-000000000001', '2020-01-01'),
-  (2021, 3.900, 'PSA headline inflation (annual average) — please confirm', true, '10000000-0000-4000-8000-000000000001', '2020-01-01'),
-  (2022, 5.800, 'PSA headline inflation (annual average) — please confirm', true, '10000000-0000-4000-8000-000000000001', '2020-01-01'),
-  (2023, 6.000, 'PSA headline inflation (annual average) — please confirm', true, '10000000-0000-4000-8000-000000000001', '2020-01-01'),
-  (2024, 3.200, 'PSA headline inflation (annual average) — please confirm', true, '10000000-0000-4000-8000-000000000001', '2020-01-01'),
-  (2025, 1.700, 'PSA headline inflation (annual average) — please confirm', true, '10000000-0000-4000-8000-000000000001', '2020-01-01'),
-  (2026, 2.000, 'Placeholder for the current year — management to set', true, '10000000-0000-4000-8000-000000000001', '2020-01-01');
+-- Pricing rules v1 and the inflation table come from migration 0010.
 
 -- ----------------------------------------------------------- client companies
 insert into public.organizations (id, name, slug, billing_name, tin, credit_terms, notes, client_adjustment_pct, created_by) values

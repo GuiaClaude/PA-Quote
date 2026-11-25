@@ -1,26 +1,100 @@
 @import "tailwindcss";
 
+/*
+ * DESIGN TOKENS — the one place for colours, radius and fonts.
+ * Brand colours (--brand, --accent) can be overridden from Settings → Logo &
+ * brand colours; the app writes them onto <html style="--brand: …">.
+ *
+ * Contrast: --primary is a darker teal than the logo teal so white text on
+ * buttons meets WCAG AA (4.5:1). Status colours are always paired with an
+ * icon and a label, never colour alone.
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --brand: #00aebf;          /* logo teal */
+  --accent-brand: #e0295a;   /* logo magenta */
+
+  --background: #f6f7f9;
+  --surface: #ffffff;
+  --surface-muted: #f1f3f6;
+  --foreground: #111827;
+  --muted-foreground: #5b6473;
+  --border: #e3e6eb;
+  --input: #d5dae1;
+  --ring: #007c89;
+
+  --primary: #007c89;
+  --primary-hover: #006a75;
+  --primary-foreground: #ffffff;
+  --primary-soft: #e3f5f7;
+
+  --accent: #c81e4e;
+  --accent-soft: #fde8ee;
+
+  --success: #13795b;   --success-soft: #e6f4ee;
+  --warning: #a15c00;   --warning-soft: #fdf1e0;
+  --danger: #c0262d;    --danger-soft: #fdebec;
+  --info: #2357c6;      --info-soft: #e9effc;
+  --neutral: #4b5563;   --neutral-soft: #eef0f3;
+
+  --radius: 0.625rem;
+  --sidebar: #0f1b2d;
+  --sidebar-foreground: #c9d3e0;
+  --sidebar-active: #1c2d45;
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-brand: var(--brand);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-soft: var(--primary-soft);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+  --color-neutral: var(--neutral);
+  --color-neutral-soft: var(--neutral-soft);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-active: var(--sidebar-active);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, "Segoe UI", Roboto, Arial, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  * { border-color: var(--border); }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    font-feature-settings: "cv11", "ss01";
+    -webkit-font-smoothing: antialiased;
   }
+  :focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+  .tabular { font-variant-numeric: tabular-nums; }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
+
+/* Safe area for the bottom tab bar on phones with a home indicator */
+.pb-safe { padding-bottom: max(env(safe-area-inset-bottom), 0.5rem); }
