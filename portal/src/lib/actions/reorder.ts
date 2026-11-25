@@ -2,6 +2,7 @@
 import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 import { z } from "zod";
+import { kickPush } from "@/lib/push/send";
 import { supabaseServer } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/session";
@@ -58,6 +59,7 @@ async function placeOrder(me: NonNullable<Awaited<ReturnType<typeof buyer>>>, id
 
 /** "Reorder now": price at today's rates; if it differs from what the client saw, ask them to look again. */
 export async function reorderNow(input: { printItemId: string; quantity: number; expectedTotalCentavos: number } & z.input<typeof delivery>): Promise<{ orderId?: string; error?: string; changed?: Offer }> {
+  kickPush();
   const me = await buyer();
   if (!me) return { error: "Only company admins and buyers can order." };
   const d = delivery.safeParse(input);
@@ -86,6 +88,7 @@ async function saveCart(me: { id: string; organizationId: string }, id: string |
 }
 
 export async function addToCart(printItemId: string, quantity: number): Promise<ActionState> {
+  kickPush();
   const me = await buyer();
   if (!me || !qty.safeParse(quantity).success || !(await canSeeItem(printItemId))) return { error: "Not allowed." };
   const q = await quoteForItem({ printItemId, quantity });
@@ -97,6 +100,7 @@ export async function addToCart(printItemId: string, quantity: number): Promise<
 }
 
 export async function removeFromCart(printItemId: string): Promise<ActionState> {
+  kickPush();
   const me = await buyer();
   if (!me) return { error: "Not allowed." };
   const c = await cart(me);
@@ -106,6 +110,7 @@ export async function removeFromCart(printItemId: string): Promise<ActionState> 
 
 /** Check out: expired or changed quotes are re-priced at today's rates first; if any price changed, the client sees it before ordering. */
 export async function checkoutCart(input: z.input<typeof delivery>): Promise<{ orderId?: string; error?: string; repriced?: boolean }> {
+  kickPush();
   const me = await buyer();
   if (!me) return { error: "Only company admins and buyers can order." };
   const d = delivery.safeParse(input);
@@ -137,6 +142,7 @@ const ALLOWED_REASONS = ["specs_changed", "has_revisions", "quantity_not_in_tier
 
 /** Different quantity or specs (or the instant price isn't allowed): send it to Print Amplified as a reorder quote request. */
 export async function requestReorderQuote(input: { printItemId: string; quantities: number[]; changes: string } & z.input<typeof delivery>): Promise<{ requestId?: string; error?: string }> {
+  kickPush();
   const me = await buyer();
   if (!me) return { error: "Only company admins and buyers can request quotes." };
   const d = delivery.safeParse(input);

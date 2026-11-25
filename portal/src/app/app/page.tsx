@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { InstallCard } from "@/components/pwa/install-card";
 import { ArrowRight, Layers, Mail, Phone, PlusCircle, RefreshCcw, PackageSearch, MessageCircle } from "lucide-react";
 import { requireClient } from "@/lib/auth/guards";
 import { supabaseServer } from "@/lib/supabase/server";
@@ -50,6 +51,7 @@ export default async function ClientHome({ searchParams }: { searchParams: Promi
     <div className="space-y-8">
       {sp.denied ? <Alert tone="warning">{t.common.forbidden}</Alert> : null}
       <h1 className="text-2xl font-bold tracking-tight">{t.home.greeting(user.fullName)}</h1>
+      <InstallCard />
       {quotesReady ? <Alert tone="warning"><b>{quotesReady} quote{quotesReady === 1 ? " is" : "s are"} ready for you.</b> <Link className="font-semibold underline" href="/app/quotes">Review and accept</Link></Alert> : null}
 
       <section aria-label="Quick actions" className="grid gap-3 sm:grid-cols-3">

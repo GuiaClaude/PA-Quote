@@ -14,6 +14,8 @@ import { StatusTimeline } from "@/components/data/status-timeline";
 import { OrderProgress } from "@/components/orders/order-progress";
 import { ConfirmPanel, PaymentsPanel, StatusPanel } from "@/components/orders/staff-order-panels";
 import { PaymentSlipUpload } from "@/components/orders/payment-slip-upload";
+import { InstallCard } from "@/components/pwa/install-card";
+import { PushToggle } from "@/components/pwa/push-toggle";
 
 const OPTS: CatalogOption[] = [
   { id: "s1", kind: "size", label: '2" x 3.5"', value: optionValue("size", "2x3.5in") },
@@ -38,7 +40,7 @@ export function LabClient({ card, card2, brochure, template }: {
   const [view, setView] = useState<string>("review");
   return (
     <main className="mx-auto max-w-5xl space-y-4 p-4">
-      <nav className="flex flex-wrap gap-2 text-sm">{["review", "compare", "designer", "brochure", "order", "quote", "builder", "reorder", "cart", "estimate", "track", "staff-order"].map((v) => (
+      <nav className="flex flex-wrap gap-2 text-sm">{["review", "compare", "designer", "brochure", "order", "quote", "builder", "reorder", "cart", "estimate", "track", "staff-order", "pwa"].map((v) => (
         <button key={v} data-view={v} onClick={() => setView(v)} className={`rounded border px-2 py-1 ${view === v ? "bg-primary text-white" : ""}`}>{v}</button>
       ))}</nav>
       {view === "review" ? <ReviewClient printItemId="lab" organizationId="lab" itemName="Business Card – Liza Mendoza" baseVersionId="lab" pages={card} template={template} maxMb={50} /> : null}
@@ -83,6 +85,7 @@ export function LabClient({ card, card2, brochure, template }: {
         <div className="space-y-6"><StatusPanel orderId="o" organizationId="org" status="printing" />
           <div className="rounded-xl border bg-surface p-4"><PaymentsPanel orderId="o" today="2026-11-25" canRecord cancelled={false} totalCentavos={4_698_400} paidCentavos={2_349_200}
             payments={[{ id: "pay1", method: "cheque", reference: "CHK 004512", bank: "Metrobank", amountCentavos: 2_349_200, receivedOn: "2026-11-20", notes: "50% down payment" }]} /></div></div></div> : null}
+      {view === "pwa" ? <div className="space-y-6"><InstallCard /><div className="rounded-xl border bg-surface p-4"><PushToggle publicKey="BNcRdreALRFXTkOOUHK1EtK2wtaz5Ry4YfYCA_0QTpQtUbVlUls0VJXg7A8u-Ts1XbjhazAkj7I99e8QcYP7DkM" /></div></div> : null}
       {view === "designer" ? <TemplateDesigner printItemId="lab" pages={card} fonts={[]} initial={{ renditionId: card[0]!.id, fields: template.fields }} /> : null}
     </main>
   );

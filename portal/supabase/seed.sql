@@ -412,3 +412,6 @@ insert into public.notifications (profile_id, organization_id, kind, title, body
 
 insert into public.audit_logs (actor_id, actor_email, organization_id, action, entity_type, entity_id, meta) values
   ('10000000-0000-4000-8000-000000000001', 'admin@pa-demo.test', null, 'seed.loaded', 'system', null, '{"note":"Demo data loaded"}');
+
+-- Demo notices are history: never push them to phones.
+update public.notifications set pushed_at = created_at where pushed_at is null;

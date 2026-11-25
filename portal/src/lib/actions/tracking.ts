@@ -2,6 +2,7 @@
 import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 import { z } from "zod";
+import { kickPush } from "@/lib/push/send";
 import Decimal from "decimal.js";
 import { supabaseServer } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
@@ -45,6 +46,7 @@ const refresh = (id: string) => { revalidatePath(`/staff/orders/${id}`); revalid
 // ---------------------------------------------------------------- staff: photos
 /** Staff uploaded a production/delivery photo or receipt to attachments/<org>/orders/<order>/… */
 export async function recordOrderPhoto(input: { orderId: string; path: string; name: string; size: number; mime?: string; receipt: boolean }): Promise<{ id?: string; error?: string }> {
+  kickPush();
   const me = await staff(false);
   if (!me || !uuid.safeParse(input.orderId).success) return { error: "Not allowed." };
   const o = await orderInfo(input.orderId);
@@ -67,6 +69,7 @@ const statusInput = z.object({
   fileIds: z.array(uuid).max(20).default([]), kind: z.enum(["production_photo", "delivery_photo", "delivery_receipt", "other"]).default("production_photo"),
 });
 export async function updateOrderStatus(raw: z.input<typeof statusInput>): Promise<ActionState> {
+  kickPush();
   const me = await staff(false);
   const p = statusInput.safeParse(raw);
   if (!me || !p.success) return { error: "Not allowed." };
@@ -84,6 +87,7 @@ export async function updateOrderStatus(raw: z.input<typeof statusInput>): Promi
 }
 
 export async function addOrderAttachments(orderId: string, fileIds: string[], kind: "production_photo" | "delivery_photo" | "delivery_receipt", note: string): Promise<ActionState> {
+  kickPush();
   const me = await staff(false);
   if (!me || !uuid.safeParse(orderId).success || !z.array(uuid).min(1).max(20).safeParse(fileIds).success) return { error: "Not allowed." };
   const sb = await supabaseServer();
@@ -95,6 +99,7 @@ export async function addOrderAttachments(orderId: string, fileIds: string[], ki
 
 // ---------------------------------------------------------------- staff: confirm
 export async function confirmOrder(orderId: string, prices: { orderItemId: string; total: string }[], note: string): Promise<ActionState> {
+  kickPush();
   const me = await staff(true);
   if (!me || !uuid.safeParse(orderId).success) return { error: "Not allowed." };
   let adj: { order_item_id: string; total_centavos: number }[];
@@ -117,6 +122,7 @@ export async function confirmOrder(orderId: string, prices: { orderItemId: strin
 
 // ---------------------------------------------------------------- cancel (client or staff)
 export async function cancelOrder(orderId: string, reason: string): Promise<ActionState> {
+  kickPush();
   const me = await getSessionUser();
   if (!me || me.needsMfa || !uuid.safeParse(orderId).success || reason.trim().length < 3) return { error: "Please give a reason." };
   const sb = await supabaseServer();
@@ -137,6 +143,7 @@ const paymentInput = z.object({
   amount: z.string().min(1), receivedOn: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), notes: z.string().max(1000).default(""),
 });
 export async function recordPayment(raw: z.input<typeof paymentInput>): Promise<ActionState> {
+  kickPush();
   const me = await staff(true);
   if (!me) return { error: "Only management and sales can record payments." };
   const p = paymentInput.safeParse(raw);
@@ -159,6 +166,7 @@ export async function recordPayment(raw: z.input<typeof paymentInput>): Promise<
 }
 
 export async function voidPayment(paymentId: string, orderId: string, reason: string): Promise<ActionState> {
+  kickPush();
   const me = await staff(true);
   if (!me || !uuid.safeParse(paymentId).success) return { error: "Not allowed." };
   const sb = await supabaseServer();
@@ -171,6 +179,7 @@ export async function voidPayment(paymentId: string, orderId: string, reason: st
 
 // ---------------------------------------------------------------- client: payment slip
 export async function submitPaymentSlip(input: { orderId: string; path: string; name: string; size: number; mime?: string; note: string }): Promise<ActionState> {
+  kickPush();
   const me = await getSessionUser();
   if (!me?.organizationId || me.needsMfa || !(me.clientRole === "client_admin" || me.clientRole === "client_buyer") || !uuid.safeParse(input.orderId).success) return { error: "Not allowed." };
   if (!input.path.startsWith(`${me.organizationId}/payment-slips/`) || input.path.includes("..")) return { error: "Invalid upload." };
@@ -193,6 +202,7 @@ export async function submitPaymentSlip(input: { orderId: string; path: string; 
 // ---------------------------------------------------------------- staff: save final price
 /** After an order is delivered: make its final prices the items' new agreed prices (so future instant quotes start from them). */
 export async function saveOrderPricesAsAgreed(orderId: string): Promise<ActionState> {
+  kickPush();
   const me = await staff(true);
   if (!me || !uuid.safeParse(orderId).success) return { error: "Not allowed." };
   const sb = await supabaseServer();

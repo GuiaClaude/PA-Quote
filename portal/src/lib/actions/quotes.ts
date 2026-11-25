@@ -2,6 +2,7 @@
 import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 import { z } from "zod";
+import { kickPush } from "@/lib/push/send";
 import { supabaseServer } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/session";
@@ -24,6 +25,7 @@ const input = z.object({
 
 /** Staff create a quote (or a revised quote) and send it to the client in one step. */
 export async function sendQuoteToClient(raw: z.infer<typeof input>): Promise<ActionState> {
+  kickPush();
   const me = await getSessionUser();
   if (!me || (me.staffRole !== "pa_admin" && me.staffRole !== "pa_sales")) return { error: "Not allowed." };
   const p = input.safeParse(raw);

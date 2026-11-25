@@ -2,6 +2,7 @@
 import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 import { z } from "zod";
+import { kickPush } from "@/lib/push/send";
 import { supabaseServer } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/session";
@@ -18,6 +19,7 @@ const site = () => env().NEXT_PUBLIC_SITE_URL;
 
 /** Client uploaded an attachment to the "attachments" bucket — record it (as the client, RLS checked). */
 export async function recordAttachment(input: { organizationId: string; path: string; name: string; size: number; mime?: string }): Promise<{ id?: string; error?: string }> {
+  kickPush();
   const me = await getSessionUser();
   if (!me?.organizationId || me.organizationId !== input.organizationId) return { error: "Not allowed." };
   if (!input.path.startsWith(`${me.organizationId}/revisions/`) || input.path.includes("..")) return { error: "Invalid upload." };
@@ -50,6 +52,7 @@ const submitInput = z.object({
 
 /** Client sends their markups / edited fields / notes / files as one Revision Request. */
 export async function submitRevision(input: z.infer<typeof submitInput>): Promise<{ id?: string; error?: string }> {
+  kickPush();
   const me = await getSessionUser();
   if (!me?.organizationId) return { error: "Please sign in again." };
   const p = submitInput.safeParse(input);
@@ -83,6 +86,7 @@ export async function submitRevision(input: z.infer<typeof submitInput>): Promis
 
 /** Client approves the revised proof (records name, time and IP). */
 export async function approveProof(revisionId: string): Promise<ActionState> {
+  kickPush();
   const me = await getSessionUser();
   if (!me?.organizationId || !uuid.safeParse(revisionId).success) return { error: "Not allowed." };
   const sb = await supabaseServer();
@@ -118,6 +122,7 @@ async function staffOnly() {
 }
 
 export async function setRevisionStatus(revisionId: string, status: "in_prepress" | "cancelled"): Promise<ActionState> {
+  kickPush();
   const me = await staffOnly();
   if (!me || !uuid.safeParse(revisionId).success) return { error: "Not allowed." };
   const sb = await supabaseServer();
@@ -129,6 +134,7 @@ export async function setRevisionStatus(revisionId: string, status: "in_prepress
 }
 
 export async function replyToMarkup(markupId: string, reply: string, status: "open" | "done" | "question"): Promise<ActionState> {
+  kickPush();
   const me = await staffOnly();
   if (!me || !uuid.safeParse(markupId).success) return { error: "Not allowed." };
   const sb = await supabaseServer();
@@ -142,6 +148,7 @@ export async function replyToMarkup(markupId: string, reply: string, status: "op
 
 /** Make (or reuse) the draft version that will hold the revised proof. */
 export async function prepareProofVersion(revisionId: string): Promise<ActionState & { versionId?: string }> {
+  kickPush();
   const me = await staffOnly();
   if (!me || !uuid.safeParse(revisionId).success) return { error: "Not allowed." };
   const sb = await supabaseServer();
@@ -157,6 +164,7 @@ export async function prepareProofVersion(revisionId: string): Promise<ActionSta
 }
 
 export async function sendProof(revisionId: string, versionId: string, message: string): Promise<ActionState> {
+  kickPush();
   const me = await staffOnly();
   if (!me || !uuid.safeParse(revisionId).success || !uuid.safeParse(versionId).success) return { error: "Not allowed." };
   const sb = await supabaseServer();

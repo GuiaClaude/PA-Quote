@@ -13,7 +13,11 @@
     "test:api": "vitest run --project rls tests/rls/api.test.ts",
     "db:local": "bash scripts/db/local-reset.sh",
     "export-client": "tsx --conditions=react-server scripts/export-client.ts",
-    "seed:files": "tsx --conditions=react-server scripts/seed-files.ts"
+    "seed:files": "tsx --conditions=react-server scripts/seed-files.ts",
+    "e2e": "playwright test --trace off",
+    "push:keys": "web-push generate-vapid-keys",
+    "icons": "node scripts/make-icons.mjs",
+    "preflight": "tsx scripts/preflight.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.14.0",
@@ -36,15 +40,18 @@
     "server-only": "^0.0.1",
     "sharp": "^0.35.5",
     "tailwind-merge": "^3.7.1",
+    "web-push": "^4.0.0",
     "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "@tailwindcss/turbopack": "4.3.3",
     "@types/node": "^22.20.7",
     "@types/papaparse": "^5.5.2",
     "@types/pg": "^8.23.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/web-push": "^3.6.4",
     "dotenv": "^18.0.10",
     "eslint": "^9",
     "eslint-config-next": "16.4.6",

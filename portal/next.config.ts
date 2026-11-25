@@ -23,7 +23,11 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ["mupdf", "sharp"],
   outputFileTracingIncludes: { "/**": ["./node_modules/mupdf/dist/*.wasm", "./node_modules/mupdf/dist/*.js"] },
   async headers() {
-    return [{ source: "/(.*)", headers: securityHeaders }];
+    return [
+      { source: "/(.*)", headers: securityHeaders },
+      // The service worker must always be re-checked so updates reach phones quickly.
+      { source: "/sw.js", headers: [{ key: "Cache-Control", value: "no-cache, no-store, must-revalidate" }, { key: "Content-Type", value: "application/javascript; charset=utf-8" }] },
+    ];
   },
 };
 

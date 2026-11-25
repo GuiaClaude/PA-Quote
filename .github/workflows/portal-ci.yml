@@ -1,0 +1,68 @@
+# Checks every push and pull request to the ordering app (portal/).
+# Free on GitHub. Nothing here touches the live app or its data.
+name: Portal checks
+
+on:
+  push:
+    paths: ["portal/**", ".github/workflows/portal-ci.yml"]
+  pull_request:
+    paths: ["portal/**", ".github/workflows/portal-ci.yml"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: portal-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: portal
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      CI: "1"
+      PGURL: postgres://postgres:postgres@localhost:5432
+      TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/pa_test
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: portal/package-lock.json
+      - run: npm ci
+      - name: Type check
+        run: npx tsc --noEmit
+      - name: Lint
+        run: npx eslint src e2e --max-warnings=0
+      - name: Unit tests (pricing engine, previews, specs)
+        run: npm test
+      - name: Database security tests (RLS, workflows)
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client
+          npm run db:local
+          npm run test:rls
+      - name: Production build
+        run: npm run build
+      - name: Install Playwright's Chromium
+        run: npx playwright install --with-deps chromium
+      - name: End-to-end tests (install, offline, security) on phone and desktop
+        run: npm run e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: portal/playwright-report
+          retention-days: 7

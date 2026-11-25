@@ -4,7 +4,7 @@ The app where Print Amplified's clients **reorder in one tap, place new orders, 
 
 This guide is written for the **management and sales team**. You don't need to be a developer for anything in the "Day-to-day" part. The "Set-up" part is done once (or by whoever looks after the app technically).
 
-> **Build status:** Phases 1–6 of 7 are complete (foundation; file archive and Print Items; review & revise; catalog, new orders and quotes; past estimates and one-click reorder; order tracking and payments). Phase 7 (phone install, push notifications, launch) is next. Screens marked **“Coming soon”** or with a 🔨 note are built in later phases. See [What's built](#whats-built-so-far).
+> **Build status:** All 7 phases are built: foundation; file archive and Print Items; review & revise; catalog, new orders and quotes; past estimates and one-click reorder; order tracking and payments; phone app, push notifications and launch kit. **Before real clients use it**, follow [Going live](#going-live-checklist). See [What's built](#whats-built-so-far).
 
 ---
 
@@ -41,10 +41,12 @@ This guide is written for the **management and sales team**. You don't need to b
   - [Change the logo, colours and payment instructions](#change-the-logo-colours-and-payment-instructions)
   - [Sign-in security settings](#sign-in-security-settings)
   - [The audit log](#the-audit-log)
-  - [Coming in later phases](#coming-in-later-phases)
+  - [How clients install the app on their phones](#how-clients-install-the-app-on-their-phones)
+  - [Turn on notifications](#turn-on-notifications)
 - [What each monthly service costs](#what-each-monthly-service-costs)
 - [Backups](#backups)
 - [Set-up (one time)](#set-up-one-time)
+- [Going live checklist](#going-live-checklist)
 - [For developers](#for-developers)
 
 ---
@@ -372,10 +374,35 @@ The person who placed the order always gets their order's emails. Internal steps
 
 Filter by **area** (e.g. Payments), **person** (part of an email) and **dates**, then press **Export CSV** to open it in Excel (up to 20,000 rows; the export itself is logged).
 
-### Coming in later phases
+### How clients install the app on their phones
 
-| Guide topic | Phase |
-|---|---|
+No app store is needed. Send clients the link **https://order.printamplified.com** and tell them:
+
+**iPhone (Safari)**
+1. Open the link in **Safari** (not Chrome or the Facebook/Viber browser) and sign in.
+2. Tap **Share** (the square with an arrow), then **Add to Home Screen**, then **Add**.
+3. Open **PA Orders** from the home screen. It opens full screen, like any app.
+
+**Android (Chrome)**
+1. Open the link in **Chrome** and sign in.
+2. Tap **Install** on the card at the top of the home screen (or ⋮ → **Install app** / **Add to Home screen**).
+3. Open **PA Orders** from the home screen or the app drawer.
+
+**Computer (Chrome or Edge):** click the install icon at the right of the address bar, or ignore it. The website works the same.
+
+Why install: it stays signed in longer when *Keep me signed in* is ticked (30 days instead of 12 hours, editable in Settings), it can receive push notifications, and it shows a friendly offline screen when there's no signal. Nothing private is saved on the phone: every screen is loaded fresh from the server.
+
+### Turn on notifications
+
+Each person turns notifications on **per phone or computer**: **Account → Notifications → Notifications on this device**. The phone asks for permission; tap **Allow**. A "Notifications are on" message arrives straight away, as a test.
+
+- **iPhone:** works only in the **installed** app (iOS 16.4 or newer). In Safari the switch explains this.
+- **Turned it off by mistake / tapped "Don't allow":** allow notifications for the app in the phone's settings, then switch it on again.
+- People get the same events as their in-app notices (order confirmed and status changes, quote ready, proof to approve, payment received; for staff: new orders, quote requests, revisions, payment slips). Emails continue as before.
+- A shared phone: whoever switches notifications on last receives them.
+- Push needs the two **VAPID keys** set once on the server (see [Set-up](#3-put-the-app-online-vercel)). Without them, the switch says push isn't set up and everything else still works.
+
+---|---|
 | How clients install the app on their phones; push notifications | 7 |
 
 ---
@@ -449,7 +476,9 @@ Supabase Free has **no automatic backups**, so please do these:
 ### 3. Put the app online (Vercel)
 1. In Vercel, **Add New → Project** and import this GitHub repository.
 2. **Root Directory: `portal`**. This is important, because the old estimator and the BNI pages stay where they are.
-3. Add every variable from `.env.example` under Environment Variables.
+3. Add every variable from `.env.example` under Environment Variables. Two need creating first:
+   - `DEVICE_HASH_SECRET`: any long random text (40+ characters, e.g. from a password manager).
+   - Push keys: on any computer with Node.js, run `npx web-push generate-vapid-keys` (or `npm run push:keys` in `portal`), then copy the **Public Key** into `NEXT_PUBLIC_VAPID_PUBLIC_KEY` and the **Private Key** into `VAPID_PRIVATE_KEY`. Create them **once**: new keys switch notifications off on every phone.
 4. Deploy. Then **Settings → Domains → add `order.printamplified.com`** and add the DNS record Vercel shows.
 
 ### 4. First management account
@@ -460,6 +489,9 @@ Use a demo account on a demo project. For the **live** project, create the first
    update public.profiles set staff_role = 'pa_admin', full_name = 'Your Name' where email = 'you@printamplified.com';
    ```
 3. Sign in, set up 2-step verification, and invite everyone else from the app.
+
+### 5. Optional: backup trigger for push
+The app sends pushes right after each action. For extra safety, in Supabase → **Database → Webhooks** create a webhook on **INSERT** into `notifications`, type HTTP POST, URL `https://order.printamplified.com/api/push/dispatch`, with the header `x-push-secret` set to your `PUSH_WEBHOOK_SECRET`.
 
 ### Demo accounts (demo seed only)
 Password for all of them: **`Demo-Print-2026!`**
@@ -475,7 +507,37 @@ Password for all of them: **`Demo-Print-2026!`**
 
 ---
 
+## Going live checklist
+
+Do these in order. Ticking them all usually takes one afternoon.
+
+**A. Try it on a demo first (recommended)**
+1. Create a **second, free** Supabase project called *pa-demo*, load it with the demo seed (`npx supabase db push --include-seed`), and deploy a **Preview** on Vercel pointing at it.
+2. Click through as each demo account (see [Demo accounts](#demo-accounts-demo-seed-only)) on your own phone: install the app, turn on notifications, reorder, move the order to Delivered as production, record the payment as sales.
+3. Optional, automatic: from `portal`, run `E2E_BASE_URL=https://<your-demo-preview-url> npm run e2e`. A robot does the same on a phone-sized and a desktop screen and checks that a reorder takes under 30 seconds. **Never point this at the live app**, because it places real orders.
+
+**B. The live project**
+1. Follow [Set-up (one time)](#set-up-one-time) steps 1–4 with a **new** Supabase project (no demo data) and the real domain.
+2. On your computer, put the live values in `portal/.env.local` and run `npm run preflight`. It checks the variables, that every database update is applied, that the storage folders are private, that there is no demo data, that 2-step verification is on, and that the payment instructions and inflation table are filled in. Fix every ❌. Then delete `.env.local` from that computer, or keep it somewhere safe.
+3. In the app (as management): upload the **logo**, check the **colours**, fill in **payment instructions**, the **email sender**, and **confirm the inflation rates** on the Pricing page.
+4. Create the staff accounts, assign account managers, add the first clients and their email domains, and import old records (Import page).
+5. Invite one friendly client first. Watch one order go from Submitted to Delivered and Paid, then invite the rest.
+
+**C. After launch**
+- Do the weekly [Backups](#backups) (the free Supabase plan has none).
+- The free plans have limits. See [What each monthly service costs](#what-each-monthly-service-costs). In particular, **Vercel Hobby is for non-commercial use**, so plan to move to Vercel Pro (about US$20/month) for the business app.
+- Every change to the code is checked automatically on GitHub (**Actions → Portal checks**): type check, lint, unit tests, database security tests, a production build and the phone/desktop tests. Merge only when it's green.
+
+---
+
 ## What's built so far
+
+**Phase 7 — Phone app and launch kit ✅**
+- Installable app: manifest, icons (including Android "maskable" and iPhone home-screen icons), iPhone splash screens, an "Install the app" card (one tap on Android, two-step help on iPhone), and an offline screen.
+- A service worker that never caches private pages or data; only the app's own static files.
+- Push notifications on installed phones and desktop browsers for every in-app notice, with an on/off switch per device, automatic clean-up of dead subscriptions, and no repeat sends.
+- End-to-end tests with Playwright on a phone and a desktop: install, offline, security headers and push-webhook protection run everywhere. The full business flow (reorder under 30 seconds → production → Delivered → Paid → client sees it, plus viewer limits) runs against a demo deployment.
+- A go-live preflight check (`npm run preflight`) and automatic checks on GitHub for every change.
 
 **Phase 6 — Order tracking and payments ✅**
 - Staff order page: confirm, with an optional price change (VAT and totals recomputed); status updates with notes, client or internal visibility, and production and delivery photos and signed receipts; cancel with a reason.
@@ -550,10 +612,16 @@ npm run dev                    # http://localhost:3000
 | `npm run db:local` | Builds a test database on a plain local PostgreSQL: `tests/rls/supabase-shim.sql` (a stand-in for Supabase's `auth`/`storage` schemas, **tests only**), then all migrations, then the seed |
 | `npm run test:rls` | Versions and approval rules, plus the **isolation proof**: for every table and bucket, Client A gets 0 rows of Client B; guessed ids; prices hidden from viewers and production; deactivation; 2FA; locked artwork; append-only audit log; invite rules |
 | `npm run test:api` | The same proof through the **live Supabase API** with each demo user's own token (set `TEST_SUPABASE_*`) |
+| `npm run build` then `npm run e2e` | Playwright on a phone (Pixel 7) and a desktop: manifest, icons, splash screens, service worker, offline screen, security headers. With `E2E_BASE_URL` set to a **demo** deployment, also the main business flows |
+| `npm run preflight` | Go-live check of variables, migrations, buckets, demo data and key settings (changes nothing) |
+| `npm run push:keys` | Creates the VAPID key pair for push notifications (once) |
+| `npm run icons` | Re-creates the app icons and iPhone splash screens from `scripts/make-icons.mjs` |
 
 **Key rules for anyone changing the code**
 - All screen text lives in `src/i18n/en.ts`.
 - Money: integer **centavos** for amounts, `numeric(14,4)` for unit prices, `decimal.js` in code. Never floats.
 - `supabaseServer()` acts as the signed-in user (RLS applies). `supabaseAdmin()` bypasses RLS: use it only on the server, after an explicit permission check.
 - New tables need `organization_id`, RLS policies and a line in `tests/rls/isolation.test.ts` (the test already loops over every table automatically).
+- Anything that creates a notification should call `kickPush()` (`src/lib/push/send.ts`) so phones get it straight away.
+- The service worker (`public/sw.js`) must never cache `/app`, `/staff` or `/api` responses: they are private. Bump `VERSION` in it when you change it.
 - Generate typed database types once the Supabase project exists: `npx supabase gen types typescript --linked > src/lib/supabase/database.types.ts`.

@@ -15,6 +15,10 @@ const schema = z.object({
   ANTHROPIC_API_KEY: z.string().optional(),
   EMAIL_FROM: z.string().default("Print Amplified <orders@order.printamplified.com>"),
   DEVICE_HASH_SECRET: z.string().min(16).default("dev-only-device-hash-secret-change-me"),
+  NEXT_PUBLIC_VAPID_PUBLIC_KEY: z.string().min(40).optional(),
+  VAPID_PRIVATE_KEY: z.string().min(20).optional(),
+  VAPID_SUBJECT: z.string().default("mailto:orders@printamplified.com"),
+  PUSH_WEBHOOK_SECRET: z.string().min(24).optional(),
 });
 
 export type ServerEnv = z.infer<typeof schema>;
@@ -34,6 +38,10 @@ export function env(): ServerEnv {
     ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY || undefined,
     EMAIL_FROM: process.env.EMAIL_FROM || undefined,
     DEVICE_HASH_SECRET: process.env.DEVICE_HASH_SECRET || undefined,
+    NEXT_PUBLIC_VAPID_PUBLIC_KEY: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || undefined,
+    VAPID_PRIVATE_KEY: process.env.VAPID_PRIVATE_KEY || undefined,
+    VAPID_SUBJECT: process.env.VAPID_SUBJECT || undefined,
+    PUSH_WEBHOOK_SECRET: process.env.PUSH_WEBHOOK_SECRET || undefined,
   });
   if (!parsed.success) {
     const missing = parsed.error.issues.map((i) => i.path.join(".")).join(", ");

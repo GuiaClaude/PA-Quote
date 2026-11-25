@@ -2,6 +2,7 @@
 import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 import { z } from "zod";
+import { kickPush } from "@/lib/push/send";
 import { supabaseServer } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/lib/auth/session";
@@ -22,6 +23,7 @@ async function buyer() {
 
 /** Client uploaded artwork for a new order / quote request to the attachments bucket. */
 export async function recordOrderArtwork(input: { path: string; name: string; size: number; mime?: string }): Promise<{ id?: string; error?: string }> {
+  kickPush();
   const me = await buyer();
   if (!me) return { error: "Not allowed." };
   if (!input.path.startsWith(`${me.organizationId}/orders/`) || input.path.includes("..")) return { error: "Invalid upload." };
@@ -43,6 +45,7 @@ const common = {
 
 const standardInput = z.object({ standardPriceId: uuid, ...common });
 export async function placeStandardOrder(input: z.infer<typeof standardInput>): Promise<{ orderId?: string; error?: string }> {
+  kickPush();
   const me = await buyer();
   if (!me) return { error: "Only company admins and buyers can place orders." };
   const p = standardInput.safeParse(input);
@@ -67,6 +70,7 @@ export async function placeStandardOrder(input: z.infer<typeof standardInput>): 
 
 const quoteInput = z.object({ productId: uuid, title: z.string().min(2).max(160), spec: z.record(z.string(), z.unknown()), quantities: z.array(z.number().int().positive().max(10_000_000)).min(1).max(8), ...common });
 export async function requestQuote(input: z.infer<typeof quoteInput>): Promise<{ requestId?: string; error?: string }> {
+  kickPush();
   const me = await buyer();
   if (!me) return { error: "Only company admins and buyers can request quotes." };
   const p = quoteInput.safeParse(input);
@@ -92,6 +96,7 @@ export async function requestQuote(input: z.infer<typeof quoteInput>): Promise<{
 }
 
 export async function saveDraft(input: { draftId?: string | null; title: string; payload: Record<string, unknown> }): Promise<{ draftId?: string; error?: string }> {
+  kickPush();
   const me = await buyer();
   if (!me) return { error: "Not allowed." };
   const json = JSON.stringify(input.payload ?? {});
@@ -106,6 +111,7 @@ export async function saveDraft(input: { draftId?: string | null; title: string;
 }
 
 export async function deleteDraft(draftId: string): Promise<ActionState> {
+  kickPush();
   const me = await buyer();
   if (!me || !uuid.safeParse(draftId).success) return { error: "Not allowed." };
   const sb = await supabaseServer();
@@ -118,6 +124,7 @@ export async function deleteDraft(draftId: string): Promise<ActionState> {
 const addressInput = z.object({ label: z.string().trim().min(2).max(80), recipient: z.string().max(120).default(""), phone: z.string().max(40).default(""),
   line1: z.string().trim().min(3).max(200), barangay: z.string().max(120).default(""), city: z.string().trim().min(2).max(120), province: z.string().max(120).default(""), zip: z.string().max(10).default("") });
 export async function addAddress(input: z.infer<typeof addressInput>): Promise<{ id?: string; error?: string }> {
+  kickPush();
   const me = await buyer();
   if (!me) return { error: "Not allowed." };
   const p = addressInput.safeParse(input);
@@ -129,6 +136,7 @@ export async function addAddress(input: z.infer<typeof addressInput>): Promise<{
 
 // ---------------------------------------------------------------- quotes
 export async function acceptQuote(quoteId: string, tierId: string, clientPo: string): Promise<{ orderId?: string; error?: string }> {
+  kickPush();
   const me = await buyer();
   if (!me || !uuid.safeParse(quoteId).success || !uuid.safeParse(tierId).success) return { error: "Not allowed." };
   const sb = await supabaseServer();
@@ -141,6 +149,7 @@ export async function acceptQuote(quoteId: string, tierId: string, clientPo: str
 }
 
 export async function declineQuote(quoteId: string, reason: string): Promise<ActionState> {
+  kickPush();
   const me = await buyer();
   if (!me || !uuid.safeParse(quoteId).success) return { error: "Not allowed." };
   const sb = await supabaseServer();
@@ -153,6 +162,7 @@ export async function declineQuote(quoteId: string, reason: string): Promise<Act
 
 /** Questions about a quote — from the client or from staff. */
 export async function postQuoteMessage(requestId: string, body: string): Promise<ActionState> {
+  kickPush();
   const me = await getSessionUser();
   if (!me || !uuid.safeParse(requestId).success || !body.trim()) return { error: "Type a message." };
   const sb = await supabaseServer();

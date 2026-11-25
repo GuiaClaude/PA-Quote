@@ -43,3 +43,8 @@ next-env.d.ts
 
 # client exports contain personal data
 /exports
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
