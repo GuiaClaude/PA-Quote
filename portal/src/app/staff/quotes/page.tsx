@@ -1,8 +1,8 @@
+import Link from "next/link";
 import { FileText } from "lucide-react";
 import { requireStaff } from "@/lib/auth/guards";
 import { supabaseServer } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/layout/page-header";
-import { PhaseNotice } from "@/components/layout/phase-notice";
 import { EmptyState } from "@/components/layout/empty-state";
 import { Card } from "@/components/ui/card";
 import { Badge, type BadgeTone } from "@/components/ui/badge";
@@ -28,7 +28,6 @@ export default async function StaffQuotes({ searchParams }: { searchParams: Prom
   return (
     <>
       <PageHeader title={t.nav.quotes} description="Oldest first, with the target reply time." />
-      <PhaseNotice phase={4}>Replying with prices per quantity tier, revising quotes and one-tap client acceptance arrive in Phase 4.</PhaseNotice>
       <div className="my-4"><FilterChips base="/staff/quotes" param="status" active={sp.status}
         options={[{ value: "", label: t.common.all }, { value: "submitted", label: "Waiting for reply" }, { value: "sent", label: "Sent" }, { value: "accepted", label: "Accepted" }, { value: "declined", label: "Declined" }]} /></div>
       {rows.length === 0 ? <EmptyState Icon={FileText} title="No quote requests here." /> : (
@@ -38,7 +37,7 @@ export default async function StaffQuotes({ searchParams }: { searchParams: Prom
             const overdue = r.status === "submitted" && r.reply_due_at && new Date(r.reply_due_at).getTime() < now;
             return (
               <TR key={r.id}>
-                <TD><p className="font-semibold">{r.title}</p><p className="text-xs text-muted-foreground">{r.request_no} · {r.kind === "reorder" ? "Reorder" : "New"}</p></TD>
+                <TD><Link href={`/staff/quotes/${r.id}`} className="font-semibold text-primary hover:underline">{r.title}</Link><p className="text-xs text-muted-foreground">{r.request_no} · {r.kind === "reorder" ? "Reorder" : "New"}</p></TD>
                 <TD>{r.organizations?.name}</TD>
                 <TD><Badge tone={TONE[r.status] ?? "neutral"}>{r.status === "submitted" ? "Waiting for reply" : r.status}</Badge></TD>
                 <TD className="hidden md:table-cell">{r.needs_quote_reasons?.length ? r.needs_quote_reasons.map((x) => <Badge key={x} tone="accent" className="mr-1">{t.staffDash.reasons[x] ?? x}</Badge>) : "—"}</TD>

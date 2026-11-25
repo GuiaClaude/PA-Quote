@@ -24,7 +24,7 @@ const GROUPS: { label: string; items: Item[] }[] = [
     { href: "/staff/estimates", label: t.nav.estimates, Icon: FileSpreadsheet, roles: ["pa_admin", "pa_sales"], soon: 5 },
   ] },
   { label: t.nav.groups.catalog, items: [
-    { href: "/staff/catalog", label: t.nav.catalog, Icon: ShoppingBag, roles: ["pa_admin", "pa_sales"], soon: 4 },
+    { href: "/staff/catalog", label: t.nav.catalog, Icon: ShoppingBag, roles: ["pa_admin", "pa_sales"] },
     { href: "/staff/pricing", label: t.nav.pricing, Icon: Percent, roles: ["pa_admin", "pa_sales"], soon: 5 },
   ] },
   { label: t.nav.groups.admin, items: [

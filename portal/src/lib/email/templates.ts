@@ -67,3 +67,21 @@ export function proofApprovedEmail(p: { company: string; item: string; round: nu
   const text = `${p.by} (${p.company}) approved Revision ${p.round} of ${p.item}. It is now Approved for Print.\n\n${p.url}`;
   return { subject: `${p.company} approved ${p.item}`, text, html: layout(title, `<p>${esc(p.by)} (${esc(p.company)}) approved Revision ${p.round} of <b>${esc(p.item)}</b>. It is now <b>Approved for Print</b>.</p>`, { label: "Open", url: p.url }) };
 }
+
+export function newOrderStaffEmail(p: { company: string; orderNo: string; item: string; quantity: number; url: string }) {
+  const title = `New order ${p.orderNo}`;
+  const text = `${p.company} placed ${p.orderNo}: ${p.item} × ${p.quantity.toLocaleString("en-PH")}. Please confirm it.\n\n${p.url}`;
+  return { subject: `${p.company} — ${title}`, text, html: layout(title, `<p><b>${esc(p.company)}</b> placed <b>${esc(p.orderNo)}</b>: ${esc(p.item)} × ${p.quantity.toLocaleString("en-PH")}.</p><p>Please confirm it.</p>`, { label: "Open order", url: p.url }) };
+}
+
+export function quoteRequestStaffEmail(p: { company: string; requestNo: string; title: string; url: string }) {
+  const title = `Quote request ${p.requestNo}`;
+  const text = `${p.company} asked for a quote: ${p.title}.\n\n${p.url}`;
+  return { subject: `${p.company} — ${title}`, text, html: layout(title, `<p><b>${esc(p.company)}</b> asked for a quote: ${esc(p.title)}.</p>`, { label: "Reply with a quote", url: p.url }) };
+}
+
+export function quoteReadyEmail(p: { title: string; quoteNo: string; validUntil: string | null; url: string }) {
+  const title = "Your quote is ready";
+  const text = `Your quote ${p.quoteNo} for ${p.title} is ready${p.validUntil ? ` (valid until ${p.validUntil})` : ""}. Accept it in one tap: ${p.url}`;
+  return { subject: `Quote ready: ${p.title}`, text, html: layout(title, `<p>Your quote <b>${esc(p.quoteNo)}</b> for <b>${esc(p.title)}</b> is ready${p.validUntil ? `, valid until <b>${esc(p.validUntil)}</b>` : ""}.</p><p>Review it and accept it in one tap.</p>`, { label: "View quote", url: p.url }) };
+}

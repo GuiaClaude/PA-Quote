@@ -4,7 +4,7 @@ The app where Print Amplified's clients **reorder in one tap, place new orders, 
 
 This guide is written for the **management and sales team**. You don't need to be a developer for anything in the "Day-to-day" part. The "Set-up" part is done once (or by whoever looks after the app technically).
 
-> **Build status:** Phases 1–3 of 7 are complete (foundation; file archive and Print Items; review & revise). Screens marked **“Coming soon”** or with a 🔨 note are built in later phases. See [What's built](#whats-built-so-far).
+> **Build status:** Phases 1–4 of 7 are complete (foundation; file archive and Print Items; review & revise; catalog, new orders and quotes). Screens marked **“Coming soon”** or with a 🔨 note are built in later phases. See [What's built](#whats-built-so-far).
 
 ---
 
@@ -21,6 +21,9 @@ This guide is written for the **management and sales team**. You don't need to b
   - [Colour standards](#colour-standards)
   - [Import old records (CSV) and upload old files in bulk](#import-old-records-csv-and-upload-old-files-in-bulk)
   - [What clients see (and can't take)](#what-clients-see-and-cant-take)
+  - [Manage the product catalog and standard prices](#manage-the-product-catalog-and-standard-prices)
+  - [Reply to quote requests](#reply-to-quote-requests)
+  - [How clients place a new order](#how-clients-place-a-new-order)
   - [Set up editable fields on an item](#set-up-editable-fields-on-an-item)
   - [Handle revision requests and send revised proofs](#handle-revision-requests-and-send-revised-proofs)
   - [How clients review, mark up and approve](#how-clients-review-mark-up-and-approve)
@@ -140,6 +143,38 @@ On an item, open the **Colour standard** tab. Enter the Pantone references, CMYK
 - Screenshots can't be prevented. That's why previews are low-res and watermarked.
 - If a client needs its own print files, management can switch on **Allow high-res download** for that client (Clients → company → Company details). Their users then see download links for the **approved** files, and every download is recorded in the audit log.
 
+### Manage the product catalog and standard prices
+
+**Catalog** in the menu.
+- **Categories** (right-hand panel): add or rename them (Marketing Collateral, Stationery…), set their order, or hide them.
+- **New product:** set its category, name, description, lead time ("5–7 working days") and **who can order it**: all clients, or only selected clients. Other clients never see client-only products, not even their names.
+- On the product page:
+  - **Photos:** the first one is the main photo in the client catalog.
+  - **Choices clients pick from:** sizes, papers (with GSM), colours, finishing, packaging, and suggested quantities ("100, 200, 500, 1000").
+  - **Standard prices:** choose a combination of choices, a quantity and the total price, then tick VAT inclusive and set an optional "valid until". When a client picks exactly that combination and quantity, they see the price immediately and can **Place order** without waiting. Hide a price with the eye icon.
+
+Anything without a standard price (other specs, other quantities, custom requests) automatically becomes a **quote request**.
+
+### Reply to quote requests
+
+**Quotes** in the menu lists requests, oldest first, with how long each has waited (red when overdue). The dashboard shows the same.
+1. Open a request to see the specs, quantities, needed-by date, delivery address, notes, any "needs design help" flag, and the client's artwork files and Drive links.
+2. In **Reply with a quote**, each quantity the client asked for is already listed. Type the **total** or the **price per piece**; the other is worked out exactly. You can add more quantities.
+3. Check the lead time, the **valid until** date (defaults to today + quote validity days) and VAT, then add notes and press **Send quote to client**.
+4. The client gets an email and an in-app notice. They tap **Accept quote** and it becomes a **confirmed order** at that price. You get notified.
+5. To change a sent quote, send a **revised quote** from the same page. It replaces the earlier one.
+6. Questions from the client appear under **Questions**, and you can reply there. Declined quotes show the client's reason.
+
+When a **new** order is **delivered**, the app automatically creates a **Print Item** from it, with the specs, the price paid and an empty version. Upload the final print file there and approve it, and next time the client can simply reorder.
+
+### How clients place a new order
+
+**New Order** → choose a product → four short steps: **Specs** (tap the options, or describe something custom), **Quantity**, **Artwork** (upload files, paste a Drive link, or tick "I need design / layout help") and **Delivery** (address, needed-by date, PO number, notes).
+- If the choices match a standard price, the price shows straight away and the button says **Place order**.
+- Otherwise it says **Request quote**. Choosing several quantities also gets a quote, so the client can compare prices.
+- **Save draft** keeps the form so they can finish it later (New Order → Your saved drafts).
+- Clients see their quotes under **My Orders → Quotes**. The home screen shows a banner when a quote is ready.
+
 ### Set up editable fields on an item
 
 For items that change often (business cards, ID cards, labels, price tags, certificates), clients can type new text and see it on the preview instantly.
@@ -201,7 +236,6 @@ The client's preview is only a guide: prepress always makes the change in the re
 
 | Guide topic | Phase |
 |---|---|
-| Manage the product catalog and standard prices; reply to quote requests | 4 |
 | Upload past estimates and confirm their data; update the inflation table and pricing rules; check an instant quote with the quote preview tool; update prices | 5 |
 | Update orders; record payments; email notifications | 6 |
 | How clients install the app on their phones; push notifications | 7 |
@@ -304,6 +338,14 @@ Password for all of them: **`Demo-Print-2026!`**
 ---
 
 ## What's built so far
+
+**Phase 4 — Catalog, new orders and quotes ✅**
+- Catalog management: categories, products, photos, client-only products, choices, and standard prices by spec and quantity.
+- Client catalog and a four-step order form (specs, quantity, artwork, delivery) with an instant price and saved drafts.
+- Orders at a standard price take the price from the price list in the database, never from the browser.
+- Quote requests (QR-2026-####) → staff quote builder (total or per-piece, exact maths, validity, VAT) → client **Accept quote** in one tap → confirmed order (with VAT split). Decline with a reason, a question thread, and revised quotes.
+- A delivered new order automatically becomes a Print Item with its price.
+- Emails and in-app notices for new orders, quote requests, quotes ready, accepted and declined.
 
 **Phase 3 — Review & revise ✅**
 - Review Artwork with "Confirm — print as is" or "I have revisions": pins, boxes, comments, attachments per mark, general notes and files (built for phones).

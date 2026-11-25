@@ -26,7 +26,7 @@ export default async function MyOrders({ searchParams }: { searchParams: Promise
 
   return (
     <>
-      <PageHeader title={t.orders.title} />
+      <PageHeader title={t.orders.title} actions={<Button asChild variant="outline"><Link href="/app/quotes">Quotes</Link></Button>} />
       {(orders ?? []).length === 0 ? (
         <EmptyState Icon={PackageSearch} title={t.orders.empty} action={<Button asChild><Link href="/app/order">{t.home.newOrder}</Link></Button>} />
       ) : (

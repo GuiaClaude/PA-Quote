@@ -402,6 +402,7 @@ insert into public.order_status_events (organization_id, order_id, from_status, 
 
 update public.print_items set source_order_id = null;  -- items were imported, not created from orders
 insert into public.order_number_counters (year, last_value) values (2026, 205);
+insert into public.doc_counters (kind, year, last_value) values ('quote_request', 2026, 5), ('quote', 2026, 3);
 
 -- a few in-app notifications
 insert into public.notifications (profile_id, organization_id, kind, title, body, link) values

@@ -18,6 +18,7 @@ export default async function ClientHome({ searchParams }: { searchParams: Promi
   const sp = await searchParams;
   const sb = await supabaseServer();
 
+  const { count: quotesReady } = await sb.from("quote_requests").select("id", { count: "exact", head: true }).eq("status", "quoted");
   const [{ data: manager }, { data: orders }, { data: history }, { data: items }] = await Promise.all([
     sb.from("staff_assignments").select("profiles(full_name, email, phone, viber, job_title)").eq("is_primary", true).maybeSingle(),
     sb.from("orders").select("id, order_no, status, placed_at, requested_delivery_date, order_items(title)")
@@ -49,6 +50,7 @@ export default async function ClientHome({ searchParams }: { searchParams: Promi
     <div className="space-y-8">
       {sp.denied ? <Alert tone="warning">{t.common.forbidden}</Alert> : null}
       <h1 className="text-2xl font-bold tracking-tight">{t.home.greeting(user.fullName)}</h1>
+      {quotesReady ? <Alert tone="warning"><b>{quotesReady} quote{quotesReady === 1 ? " is" : "s are"} ready for you.</b> <Link className="font-semibold underline" href="/app/quotes">Review and accept</Link></Alert> : null}
 
       <section aria-label="Quick actions" className="grid gap-3 sm:grid-cols-3">
         {actions.map(({ href, label, hint, Icon, cls }) => (

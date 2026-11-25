@@ -38,3 +38,23 @@ describe("CSV import", () => {
     expect(codeFromFileName("random.pdf", codes)).toBeNull();
   });
 });
+
+import { specFromSelection, specSummary, optionValue, type CatalogOption } from "@/lib/catalog/options";
+
+describe("catalog options to specs", () => {
+  const opts: CatalogOption[] = [
+    { id: "s1", kind: "size", label: "A5 (148 x 210 mm)", value: optionValue("size", "A5") },
+    { id: "m1", kind: "material", label: "Gloss Art 120gsm", value: optionValue("material", "Gloss Art", { gsm: 120 }) },
+    { id: "c1", kind: "colors", label: "4/0", value: optionValue("colors", "4/0") },
+    { id: "f1", kind: "finishing", label: "Matte lamination", value: optionValue("finishing", "matte lamination") },
+    { id: "f2", kind: "finishing", label: "Spot UV", value: optionValue("finishing", "spot UV") },
+  ];
+  it("builds specs that match the standard price specs exactly", () => {
+    const spec = specFromSelection(opts, { single: { size: "s1", material: "m1", colors: "c1" }, finishing: ["f2", "f1"] });
+    expect(spec).toMatchObject({ size: "A5", material: "Gloss Art", gsm: 120, colors: "4/0", finishing: ["spot UV", "matte lamination"] });
+    expect(specSummary(spec)).toBe("A5 · Gloss Art 120gsm · 4/0 · spot UV · matte lamination");
+  });
+  it("cleans quantity lists", () => {
+    expect(optionValue("quantity", "x", { quantities: [1000, 0, 500] })).toEqual({ quantities: [500, 1000] });
+  });
+});

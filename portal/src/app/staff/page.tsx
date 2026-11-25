@@ -76,7 +76,7 @@ export default async function StaffDashboard({ searchParams }: { searchParams: P
   for (const q of quoteRequests) {
     const overdue = q.reply_due_at ? new Date(q.reply_due_at).getTime() < now : false;
     queue.push({
-      key: `q-${q.id}`, href: `/staff/quotes`, kind: q.needs_quote_reasons?.length ? t.staffDash.needsQuote : "Quote request",
+      key: `q-${q.id}`, href: `/staff/quotes/${q.id}`, kind: q.needs_quote_reasons?.length ? t.staffDash.needsQuote : "Quote request",
       title: `${q.organizations?.name ?? ""} · ${q.title}`,
       subtitle: q.needs_quote_reasons?.map((r) => t.staffDash.reasons[r] ?? r).join(", ") || `Waiting ${formatDuration(now - new Date(q.submitted_at).getTime())}`,
       dueAt: q.reply_due_at, tone: overdue ? "danger" : "warning",

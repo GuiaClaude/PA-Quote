@@ -11,10 +11,12 @@ import { OrderStatusBadge, PaymentBadge } from "@/components/data/status-badge";
 import { StatusTimeline } from "@/components/data/status-timeline";
 import { formatCentavos, formatUnitPrice } from "@/lib/money";
 import { formatDate } from "@/lib/dates";
+import { Alert } from "@/components/ui/alert";
 import { t } from "@/i18n";
 
-export default async function OrderDetail({ params }: { params: Promise<{ id: string }> }) {
+export default async function OrderDetail({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ placed?: string }> }) {
   const { id } = await params;
+  const placed = (await searchParams).placed;
   const user = await requireClient();
   const prices = canSeePrices(user);
   const sb = await supabaseServer();
@@ -36,6 +38,7 @@ export default async function OrderDetail({ params }: { params: Promise<{ id: st
       <Link href="/app/orders" className="mb-3 inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"><ChevronLeft className="size-4" />{t.orders.title}</Link>
       <PageHeader title={o.order_no as string} description={`Placed ${formatDate(o.placed_at as string)}${o.client_po_no ? ` · PO ${o.client_po_no}` : ""}`}
         actions={<OrderStatusBadge status={o.status as string} />} />
+      {placed ? <Alert tone="success" className="mb-4"><b>Thank you — your order {o.order_no as string} is in.</b> Your account manager has been notified. Payment instructions are below.</Alert> : null}
       <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
         <div className="space-y-6">
           <Card>
