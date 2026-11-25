@@ -16,8 +16,9 @@ import { ItemForm } from "@/components/items/item-form";
 import { VersionPanel, NewVersionButton, type VersionView } from "@/components/items/version-panel";
 import { ColorStandardForm } from "@/components/items/color-standard-form";
 import { PreviewViewer } from "@/components/files/preview-viewer";
+import { ItemPrices } from "@/components/pricing/item-prices";
+import { manilaToday } from "@/lib/dates";
 import { FileUploader } from "@/components/files/file-uploader";
-import { formatCentavos, formatUnitPrice } from "@/lib/money";
 import { formatDate, formatDateTime } from "@/lib/dates";
 import { t } from "@/i18n";
 
@@ -155,22 +156,18 @@ async function ColorTab({ printItemId, organizationId, canManage, maxMb }: { pri
 
 async function HistoryTab({ printItemId, prices }: { printItemId: string; prices: boolean }) {
   const sb = await supabaseServer();
-  const [{ data: tiers }, { data: orders }, { data: approvals }] = await Promise.all([
+  const [{ data: tiers }, { data: orders }, { data: approvals }, { data: quotes }] = await Promise.all([
     prices ? sb.from("price_tiers").select("quantity, unit_price, total_centavos, vat_inclusive, source, source_ref, base_date").eq("print_item_id", printItemId).eq("is_current", true).order("quantity") : Promise.resolve({ data: [] }),
     sb.from("order_items").select("id, quantity, orders(id, order_no, placed_at, status)").eq("print_item_id", printItemId).limit(50),
     sb.from("approvals").select("id, approved_by_name, approved_at, ip, artwork_versions!inner(version_no, print_item_id)").eq("artwork_versions.print_item_id", printItemId).order("approved_at", { ascending: false }),
+    prices ? sb.from("instant_quotes").select("id, quantity, final_total_centavos, status, block_reasons, created_at, valid_until, override_reason").eq("print_item_id", printItemId).order("created_at", { ascending: false }).limit(15) : Promise.resolve({ data: [] }),
   ]);
   return (
-    <div className="grid gap-6 xl:grid-cols-3">
+    <div className="grid gap-6 xl:grid-cols-2">
       {prices ? (
-        <Card><CardHeader><CardTitle>Agreed prices</CardTitle></CardHeader><CardContent>
-          {(tiers ?? []).length === 0 ? <p className="text-sm text-muted-foreground">No agreed prices yet (Phase 5).</p> : (
-            <ul className="divide-y text-sm tabular">{(tiers as Array<{ quantity: number; unit_price: string; total_centavos: number; source_ref: string | null; base_date: string; vat_inclusive: boolean }>).map((p) => (
-              <li key={p.quantity} className="py-2"><div className="flex justify-between"><span>{p.quantity.toLocaleString("en-PH")} pcs · {formatUnitPrice(p.unit_price)}</span><b>{formatCentavos(p.total_centavos)}</b></div>
-                <p className="text-xs text-muted-foreground">{p.source_ref} · {formatDate(p.base_date)} · {p.vat_inclusive ? "VAT inclusive" : "VAT exclusive"}</p></li>
-            ))}</ul>
-          )}
-        </CardContent></Card>
+        <div className="xl:col-span-2"><ItemPrices printItemId={printItemId} today={manilaToday()}
+          tiers={(tiers as Array<{ quantity: number; unit_price: string; total_centavos: number; source: string; source_ref: string | null; base_date: string; vat_inclusive: boolean }>).map((p) => ({ quantity: p.quantity, unitPrice: String(p.unit_price), totalCentavos: Number(p.total_centavos), vatInclusive: p.vat_inclusive, source: p.source, sourceRef: p.source_ref, baseDate: p.base_date }))}
+          quotes={((quotes ?? []) as Array<{ id: string; quantity: number; final_total_centavos: number | null; status: string; block_reasons: string[] | null; created_at: string; valid_until: string; override_reason: string | null }>).map((q) => ({ id: q.id, quantity: q.quantity, totalCentavos: q.final_total_centavos === null ? null : Number(q.final_total_centavos), status: q.status, reasons: q.block_reasons ?? [], createdAt: q.created_at, validUntil: q.valid_until, overrideReason: q.override_reason }))} /></div>
       ) : null}
       <Card><CardHeader><CardTitle>Order history</CardTitle></CardHeader><CardContent>
         {(orders ?? []).length === 0 ? <p className="text-sm text-muted-foreground">Not ordered yet.</p> : (
@@ -186,7 +183,7 @@ async function HistoryTab({ printItemId, prices }: { printItemId: string; prices
           ))}</ul>
         )}
       </CardContent></Card>
-      <p className="text-xs text-muted-foreground xl:col-span-3"><Link2 className="mr-1 inline size-3" />Every change to this item is also in the audit log.</p>
+      <p className="text-xs text-muted-foreground xl:col-span-2"><Link2 className="mr-1 inline size-3" />Every change to this item is also in the audit log.</p>
     </div>
   );
 }

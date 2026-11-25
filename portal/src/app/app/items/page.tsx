@@ -58,7 +58,7 @@ export default async function MyItems({ searchParams }: { searchParams: Promise<
                     <Badge>{(i.product_categories as unknown as { name: string } | null)?.name ?? "Item"}</Badge>
                     {i.approved_version_id ? <Badge tone="success">{t.items.approved}</Badge> : null}
                   </div>
-                  <Link href={`/app/items/${i.id}?reorder=1`} className="mt-auto inline-flex h-9 items-center justify-center gap-1.5 rounded-lg bg-primary-soft text-sm font-semibold text-primary hover:bg-primary hover:text-white">
+                  <Link href={`/app/items/${i.id}/reorder`} className="mt-auto inline-flex h-9 items-center justify-center gap-1.5 rounded-lg bg-primary-soft text-sm font-semibold text-primary hover:bg-primary hover:text-white">
                     <RefreshCcw className="size-4" aria-hidden /> {t.home.reorder}
                   </Link>
                 </div>

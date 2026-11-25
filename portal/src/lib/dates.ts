@@ -41,3 +41,8 @@ export function timeAgo(value: string | Date, now: Date = new Date()): string {
 export function requestTimeMs(): number {
   return Date.now();
 }
+
+/** Today's date in Manila, YYYY-MM-DD. */
+export function manilaToday(): string {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Manila" }).format(new Date(requestTimeMs()));
+}

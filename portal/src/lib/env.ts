@@ -12,6 +12,7 @@ const schema = z.object({
   NEXT_PUBLIC_SITE_URL: z.url().default("http://localhost:3000"),
   NEXT_PUBLIC_TURNSTILE_SITE_KEY: z.string().optional(),
   RESEND_API_KEY: z.string().optional(),
+  ANTHROPIC_API_KEY: z.string().optional(),
   EMAIL_FROM: z.string().default("Print Amplified <orders@order.printamplified.com>"),
   DEVICE_HASH_SECRET: z.string().min(16).default("dev-only-device-hash-secret-change-me"),
 });
@@ -30,6 +31,7 @@ export function env(): ServerEnv {
     NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL || undefined,
     NEXT_PUBLIC_TURNSTILE_SITE_KEY: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || undefined,
     RESEND_API_KEY: process.env.RESEND_API_KEY || undefined,
+    ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY || undefined,
     EMAIL_FROM: process.env.EMAIL_FROM || undefined,
     DEVICE_HASH_SECRET: process.env.DEVICE_HASH_SECRET || undefined,
   });

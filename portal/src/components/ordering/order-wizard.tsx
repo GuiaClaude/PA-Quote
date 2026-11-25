@@ -16,7 +16,7 @@ import { formatCentavos, formatUnitPrice } from "@/lib/money";
 import { cn } from "@/lib/utils";
 
 type Price = { id: string; spec: Record<string, unknown>; quantity: number; unit_price: string; total_centavos: number; vat_inclusive: boolean };
-type Address = { id: string; label: string; line: string; isDefault: boolean };
+export type Address = { id: string; label: string; line: string; isDefault: boolean };
 type Upload = { id: string; name: string };
 const STEPS = ["Specs", "Quantity", "Artwork", "Delivery"] as const;
 
@@ -280,7 +280,7 @@ export function OrderWizard({ product, organizationId, options, prices, addresse
   );
 }
 
-function NewAddress({ onAdded }: { onAdded: (a: Address) => void }) {
+export function NewAddress({ onAdded }: { onAdded: (a: Address) => void }) {
   const [open, setOpen] = useState(false);
   const [f, setF] = useState({ label: "", recipient: "", phone: "", line1: "", barangay: "", city: "", province: "", zip: "" });
   const [err, setErr] = useState<string | null>(null);

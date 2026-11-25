@@ -9,7 +9,7 @@ import { requestMeta } from "@/lib/request-meta";
 import { audit } from "@/lib/audit";
 import { getSetting } from "@/lib/settings";
 import { env } from "@/lib/env";
-import { sendEmail } from "@/lib/email/send";
+import { emailStaff } from "@/lib/email/staff";
 import { newOrderStaffEmail, quoteRequestStaffEmail } from "@/lib/email/templates";
 import { specSchema } from "@/lib/specs";
 import type { ActionState } from "./account";
@@ -18,18 +18,6 @@ const uuid = z.uuid();
 async function buyer() {
   const me = await getSessionUser();
   return me?.organizationId && (me.clientRole === "client_admin" || me.clientRole === "client_buyer") ? (me as typeof me & { organizationId: string }) : null;
-}
-
-async function emailStaff(orgId: string, mail: (company: string) => { subject: string; html: string; text: string }) {
-  const admin = supabaseAdmin();
-  const [{ data: org }, { data: staff }] = await Promise.all([
-    admin.from("organizations").select("name").eq("id", orgId).single(),
-    admin.from("staff_assignments").select("profiles(email, is_active)").eq("organization_id", orgId),
-  ]);
-  for (const s of staff ?? []) {
-    const p = s.profiles as unknown as { email: string; is_active: boolean } | null;
-    if (p?.is_active) await sendEmail({ to: p.email, ...mail((org?.name as string) ?? "Client") });
-  }
 }
 
 /** Client uploaded artwork for a new order / quote request to the attachments bucket. */

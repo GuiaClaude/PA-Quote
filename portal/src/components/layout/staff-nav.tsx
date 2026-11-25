@@ -21,11 +21,11 @@ const GROUPS: { label: string; items: Item[] }[] = [
     { href: "/staff/clients", label: t.nav.clients, Icon: Building2, roles: ["pa_admin", "pa_sales"] },
     { href: "/staff/items", label: t.nav.printItems, Icon: Layers },
     { href: "/staff/import", label: "Import old records", Icon: Upload, roles: ["pa_admin", "pa_sales"] },
-    { href: "/staff/estimates", label: t.nav.estimates, Icon: FileSpreadsheet, roles: ["pa_admin", "pa_sales"], soon: 5 },
+    { href: "/staff/estimates", label: t.nav.estimates, Icon: FileSpreadsheet, roles: ["pa_admin", "pa_sales"] },
   ] },
   { label: t.nav.groups.catalog, items: [
     { href: "/staff/catalog", label: t.nav.catalog, Icon: ShoppingBag, roles: ["pa_admin", "pa_sales"] },
-    { href: "/staff/pricing", label: t.nav.pricing, Icon: Percent, roles: ["pa_admin", "pa_sales"], soon: 5 },
+    { href: "/staff/pricing", label: t.nav.pricing, Icon: Percent, roles: ["pa_admin", "pa_sales"] },
   ] },
   { label: t.nav.groups.admin, items: [
     { href: "/staff/staff-users", label: t.nav.staffUsers, Icon: UsersRound, roles: ["pa_admin"] },

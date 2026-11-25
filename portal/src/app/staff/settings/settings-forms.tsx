@@ -17,7 +17,7 @@ import { t } from "@/i18n";
 
 type Initial = {
   company: SettingValue<"company">; branding: SettingValue<"branding">; payment_instructions: SettingValue<"payment_instructions">;
-  email: SettingValue<"email">; security: SettingValue<"security">; uploads: SettingValue<"uploads">;
+  email: SettingValue<"email">; security: SettingValue<"security">; uploads: SettingValue<"uploads">; features: SettingValue<"features">; aiKeySet: boolean;
 };
 
 function Section<T>({ settingKey, title, description, value, disabled, children }: {
@@ -58,6 +58,7 @@ export function SettingsForms({ initial, disabled, logoUrl }: { initial: Initial
   const [email, setEmail] = useState(initial.email);
   const [sec, setSec] = useState(initial.security);
   const [uploads, setUploads] = useState(initial.uploads);
+  const [features, setFeatures] = useState(initial.features);
 
   const validHex = (h: string) => /^#[0-9A-Fa-f]{6}$/.test(h);
   const lowContrast = (h: string) => validHex(h) && contrastRatio(h, "#ffffff") < 4.5;
@@ -134,6 +135,19 @@ export function SettingsForms({ initial, disabled, logoUrl }: { initial: Initial
       <Section settingKey="uploads" title="File uploads" value={uploads} disabled={disabled}>
         <Field id="up-max" type="number" label="Maximum file size (MB)" value={uploads.max_file_mb} onChange={(v) => setUploads({ max_file_mb: Number(v) })}
           help="Supabase Free allows up to 50 MB per file. Upgrade to Pro for 100 MB." />
+      </Section>
+
+      <Section settingKey="features" title="Optional paid features" value={features} disabled={disabled}
+        description="These cost money per use. They are off until you switch them on.">
+        <div className="flex items-start justify-between gap-4 rounded-lg border p-3">
+          <div className="space-y-1">
+            <p className="text-sm font-medium">AI auto-fill for past estimates</p>
+            <p className="text-xs text-muted-foreground">Reads an uploaded estimate (PDF or photo) with the Claude API and fills in the form for staff to check. Nothing is saved until staff press Save.
+              Estimated cost: about US$0.04–0.08 (₱2–5) per estimate, billed by Anthropic to your own account. Needs an ANTHROPIC_API_KEY on the server.</p>
+            {!initial.aiKeySet ? <p className="text-xs font-medium text-warning">No ANTHROPIC_API_KEY is set yet — the button stays hidden until it is.</p> : null}
+          </div>
+          <Switch checked={features.ai_autofill_enabled} disabled={disabled} onCheckedChange={(v) => setFeatures({ ai_autofill_enabled: v })} aria-label="AI auto-fill for past estimates" />
+        </div>
       </Section>
     </div>
   );

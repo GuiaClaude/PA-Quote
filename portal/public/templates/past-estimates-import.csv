@@ -1,0 +1,4 @@
+client_name,item_code,estimate_no,estimate_date,vat_inclusive,quantity,total_price,valid_until,notes
+ABC Corporation,ABC-BR-01,CE-2024-0099,2024-03-15,yes,1000,17800.00,,Brochure 2024 run
+ABC Corporation,ABC-BR-01,CE-2024-0099,2024-03-15,yes,2000,24600.00,,
+Sunrise Foods Inc.,SF-LBL-80,CE-2023-0450,2023-10-02,no,10000,8200.00,2023-11-01,Labels — VAT exclusive

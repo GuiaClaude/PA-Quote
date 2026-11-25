@@ -86,7 +86,7 @@ export default async function ClientHome({ searchParams }: { searchParams: Promi
                     <div className="flex flex-1 flex-col gap-2 p-3">
                       <Link href={`/app/items/${item.id}`} className="line-clamp-2 text-sm font-semibold hover:underline">{item.name as string}</Link>
                       <p className="text-xs text-muted-foreground">{s ? `${t.home.lastOrdered} ${formatDate(s.last)}` : t.home.neverOrdered}</p>
-                      <Link href={`/app/items/${item.id}?reorder=1`}
+                      <Link href={`/app/items/${item.id}/reorder`}
                         className="mt-auto inline-flex h-9 items-center justify-center gap-1.5 rounded-lg bg-primary-soft text-sm font-semibold text-primary hover:bg-primary hover:text-white">
                         <RefreshCcw className="size-4" aria-hidden /> {t.home.reorder}
                       </Link>

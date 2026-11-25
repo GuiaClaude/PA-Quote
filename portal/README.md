@@ -4,7 +4,7 @@ The app where Print Amplified's clients **reorder in one tap, place new orders, 
 
 This guide is written for the **management and sales team**. You don't need to be a developer for anything in the "Day-to-day" part. The "Set-up" part is done once (or by whoever looks after the app technically).
 
-> **Build status:** Phases 1–4 of 7 are complete (foundation; file archive and Print Items; review & revise; catalog, new orders and quotes). Screens marked **“Coming soon”** or with a 🔨 note are built in later phases. See [What's built](#whats-built-so-far).
+> **Build status:** Phases 1–5 of 7 are complete (foundation; file archive and Print Items; review & revise; catalog, new orders and quotes; past estimates and one-click reorder with instant quotes). Screens marked **“Coming soon”** or with a 🔨 note are built in later phases. See [What's built](#whats-built-so-far).
 
 ---
 
@@ -27,6 +27,13 @@ This guide is written for the **management and sales team**. You don't need to b
   - [Set up editable fields on an item](#set-up-editable-fields-on-an-item)
   - [Handle revision requests and send revised proofs](#handle-revision-requests-and-send-revised-proofs)
   - [How clients review, mark up and approve](#how-clients-review-mark-up-and-approve)
+  - [Upload past estimates and confirm their prices](#upload-past-estimates-and-confirm-their-prices)
+  - [Inflation table and pricing rules](#inflation-table-and-pricing-rules)
+  - [How instant reorder quotes work](#how-instant-reorder-quotes-work)
+  - [Check a price with the quote preview tool](#check-a-price-with-the-quote-preview-tool)
+  - [Update an agreed price or change an instant quote](#update-an-agreed-price-or-change-an-instant-quote)
+  - [How clients reorder](#how-clients-reorder)
+  - [Optional: AI auto-fill (paid, off by default)](#optional-ai-auto-fill-paid-off-by-default)
   - [Change the logo, colours and payment instructions](#change-the-logo-colours-and-payment-instructions)
   - [Sign-in security settings](#sign-in-security-settings)
   - [The audit log](#the-audit-log)
@@ -200,7 +207,7 @@ The client's preview is only a guide: prepress always makes the change in the re
 ### How clients review, mark up and approve
 
 - From an item (or an order), the client opens **Review artwork** and sees exactly what was printed last time.
-- **Confirm — print as is** confirms nothing needs changing. Phase 5 turns this into a one-tap reorder.
+- **Confirm — print as is** goes straight to the one-click reorder screen.
 - **I have revisions** lets them:
   - **drop pins** or **draw boxes** on the preview, type what to change at each spot, and attach files (a new logo, a photo, a text document)
   - **edit text fields** and see the result immediately ("Preview only — final file will be prepared by Print Amplified prepress")
@@ -209,6 +216,74 @@ The client's preview is only a guide: prepress always makes the change in the re
 - When the revised proof is ready, they compare it with the previous version (slider or side by side), then press **Approve** (their name, the date and time, and their IP address are recorded) or **I have more changes**.
 - Marks are saved as percentages of the page, so they line up on any screen and at any zoom.
 - Clients never see draft versions, only approved versions and the proofs sent to them, and never the high-res files.
+
+### Upload past estimates and confirm their prices
+
+Your old cost estimates and quotations are where instant reorder prices come from.
+
+1. Go to **Past estimates → Add estimate**. Pick the client (and the Print Item if it already exists).
+2. Upload the original file (PDF, Excel, Word or a photo). Clients never see it. No file? Press **Type it in**.
+3. On the next screen the original is on the left and the form is on the right. Fill in:
+   - the estimate number and date (inflation is counted **from this date**);
+   - whether the prices **include 12% VAT** (most of ours do);
+   - one line per quoted quantity (type the total *or* the price per piece);
+   - one-time charges (plates, dies, setup). Switch on **charge again on reorder** only if a reorder needs it again.
+4. Link it to a Print Item (or type a name and press **Create**).
+5. Press **Save draft** to finish later, or **Confirm prices**. After confirming, the lines become the item's **agreed prices**. A confirmed estimate can't be edited; upload a newer one instead. An older estimate never replaces a newer agreed price.
+
+**Many at once:** **Past estimates → Bulk import**. Download the CSV template (one row per quantity), fill it in, and import. Then select all the original files at once. Each file name must **start with the estimate number**, e.g. `CE-2024-0099.pdf`. Leave "Confirm straight away" off unless the spreadsheet is already checked, and review the drafts instead.
+
+### Inflation table and pricing rules
+
+**Pricing** in the staff menu (management can change it; sales can view it):
+
+- **Yearly inflation.** One rate per year. The 2022–2026 figures are pre-filled from PSA and marked **please confirm**. Check each one and press **Confirm**. A year with no rate uses the latest earlier rate.
+- **Rounding.** Round the total up to ₱1, ₱5 (default) or ₱10, or round the price per piece instead.
+- **Limits.** The oldest estimate allowed for instant quotes (default 3 years) and the largest automatic increase (default 20%). Anything over a limit goes to staff as a quote request.
+- **Quote validity** (default 15 days), the **VAT rate**, and whether clients see the **price breakdown** (default: final price only).
+- **Surcharges** (e.g. paperboard +5% from 1 Dec) and **fixed add-ons** (e.g. delivery ₱300), each with a start date. Press ⏹ to end one.
+
+Saving the rules creates a new version. Past quotes keep the version they were made with.
+
+### How instant reorder quotes work
+
+> Instant price = agreed price × inflation since its date × (1 + surcharges) × (1 + client adjustment) + fixed add-ons + one-time charges billed again, then **rounded up**.
+
+- Inflation compounds year by year and is counted by days for part-years. For example, half a year at 2% adds about 1%, not 2%.
+- VAT-inclusive prices are converted to VAT-exclusive first, so VAT is never inflated twice. The client sees a VAT-inclusive total, with the VAT shown.
+- **Never below the past price**, unless the client has a discount (set on the client's page). A negotiated cap per client is also respected.
+- **Instant only if all of these are true:** a confirmed agreed price for exactly that quantity, the same specs, no artwork changes, the estimate isn't too old, the increase is within the limit, and instant quotes are on for that client. Otherwise the client presses **Ask for a quote** and you get a quote request with the reasons and a suggested price.
+- Every instant quote is saved with every input (past price, date, each year's rate, surcharges, rules version), so any price can be explained later.
+
+### Check a price with the quote preview tool
+
+**Pricing → Quote preview** (or **Preview quote** on an item's **Prices & history** tab). Pick an item and a quantity to see the exact price a client would get, step by step, and why it would need a manual quote if it's blocked. Nothing is saved.
+
+### Update an agreed price or change an instant quote
+
+On a Print Item → **Prices & history**:
+
+- **Set a price by hand.** Enter the quantity, total, the date the price was agreed and a reference. The old price is kept in the history.
+- **Recent instant quotes.** Press ✏️ on an offered quote to change its total. A reason is required, and the old total is kept. You can't change a quote after the client accepts it.
+
+### How clients reorder
+
+From **Home**, **My Print Items** or an item's page, the client presses **Reorder**:
+
+1. **Is the artwork still correct?** *Yes, print as is* or *I have changes* (this opens the markup screen; the reprint is quoted after they approve the new proof).
+2. **How many?** Each quantity with an agreed price shows its price today. **Other quantity** or **I need different specs** turns into **Ask for a quote**.
+3. **Delivery.** Address, needed-by date, PO number and notes. **Same as last order** fills in the last quantity and address.
+4. **Reorder now — ₱…** places a confirmed order straight away. You get an email. The line under the price says *"Based on your previous order/estimate of [date], adjusted for current costs."*
+
+**Add to cart** collects several items into **one order** (cart icon at the top). Prices that have expired are re-priced at today's rates before checkout, and the client sees the new price before ordering. Prices are always worked out on the server; the browser can't change them.
+
+### Optional: AI auto-fill (paid, off by default)
+
+AI auto-fill reads an uploaded estimate (PDF or photo) and fills the form **for staff to check**. Nothing is saved until staff press **Save**. Anything it was unsure about is listed at the top.
+
+- **Cost:** about **US$0.04–0.08 (₱2–5) per estimate**, billed by Anthropic to your own account. Run it on a few real estimates and check the actual cost before using it widely; every use is in the audit log with the tokens used.
+- **To turn it on:** (1) create an API key at console.anthropic.com and add it as `ANTHROPIC_API_KEY` in Vercel → Settings → Environment Variables; (2) in **Settings → Optional paid features**, switch on **AI auto-fill**. The **Auto-fill from file** button then appears on estimates that have a file.
+- Excel and Word files can't be auto-filled yet; save them as PDF first.
 
 ### Change the logo, colours and payment instructions
 
@@ -236,7 +311,6 @@ The client's preview is only a guide: prepress always makes the change in the re
 
 | Guide topic | Phase |
 |---|---|
-| Upload past estimates and confirm their data; update the inflation table and pricing rules; check an instant quote with the quote preview tool; update prices | 5 |
 | Update orders; record payments; email notifications | 6 |
 | How clients install the app on their phones; push notifications | 7 |
 
@@ -252,7 +326,7 @@ You decided to **start on free plans**. Prices change, so check each website bef
 | **Vercel** | Runs the website | ₱0 (Hobby). ⚠️ Vercel's terms say Hobby is for **non-commercial use** | Pro, about **US$20/month per member** |
 | **Resend** | Sends emails | ₱0 up to 3,000 emails/month (100/day) | about US$20/month for 50,000 |
 | **Cloudflare Turnstile** | Bot check on sign-in | ₱0 | — |
-| **Claude API** (optional, Phase 5) | Auto-fills past estimates | Off. Pay per use, only if you turn it on | Cost per estimate shown before you enable it |
+| **Claude API** (optional) | Auto-fills past estimates | Off. Pay per use, only if you turn it on | About US$0.04–0.08 (₱2–5) per estimate |
 
 **Watch out for on the free plan:**
 
@@ -338,6 +412,14 @@ Password for all of them: **`Demo-Print-2026!`**
 ---
 
 ## What's built so far
+
+**Phase 5 — Past estimates and one-click reorder ✅**
+- Past estimates: upload the original (PDF, Excel, Word, scan), a side-by-side check-and-confirm form, a "charge again on reorder" flag, Print Item link or create, and CSV bulk import with originals matched by estimate number.
+- Confirming an estimate turns its lines into the item's agreed prices (price history kept; an older estimate never replaces a newer one).
+- The instant quote engine (exact decimal maths, compounded and day-prorated inflation, VAT handled once, minimum and cap rules, round-up) with 22 unit tests.
+- Pricing page: inflation table (PSA figures pre-filled, "please confirm"), rounding, limits, validity, VAT, breakdown switch, surcharges and add-ons, versioned. Quote preview tool. Agreed prices by hand and staff override with a reason.
+- Client one-click reorder: artwork check, price chips per quantity, Same as last order, Reorder now (one confirmed order with colour standard snapshots), a multi-item cart with re-pricing of expired quotes, and Ask for a quote with clear reasons.
+- Optional AI auto-fill (Claude API) built but **off**. It needs both the settings switch and an API key.
 
 **Phase 4 — Catalog, new orders and quotes ✅**
 - Catalog management: categories, products, photos, client-only products, choices, and standard prices by spec and quantity.

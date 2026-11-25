@@ -17,9 +17,8 @@ import { formatCentavos, formatUnitPrice } from "@/lib/money";
 import { formatDate } from "@/lib/dates";
 import { t } from "@/i18n";
 
-export default async function ItemDetail({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ confirmed?: string }> }) {
+export default async function ItemDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const sp = await searchParams;
   const user = await requireClient();
   const prices = canSeePrices(user);
   const sb = await supabaseServer();
@@ -64,9 +63,8 @@ export default async function ItemDetail({ params, searchParams }: { params: Pro
         actions={<>
           {version ? <Badge tone="success">{t.items.approved} · v{version.version_no as number}</Badge> : null}
           {user.clientRole !== "client_viewer" && version ? <Button asChild variant="outline"><Link href={`/app/items/${id}/review`}><PenLine />Review artwork</Link></Button> : null}
-          {user.clientRole !== "client_viewer" ? <Button asChild><Link href={`/app/items/${id}?reorder=1`}><RefreshCcw />{t.home.reorder}</Link></Button> : null}
+          {user.clientRole !== "client_viewer" ? <Button asChild><Link href={`/app/items/${id}/reorder`}><RefreshCcw />{t.home.reorder}</Link></Button> : null}
         </>} />
-      {sp.confirmed ? <Alert tone="success" className="mb-4">Thanks — you confirmed the artwork is still correct. One-tap reorder with an instant quote arrives in Phase 5.</Alert> : null}
       {openRevision ? (
         <Alert tone={openRevision.status === "proof_sent" ? "warning" : "info"} className="mb-4">
           {openRevision.status === "proof_sent" ? <><b>Your revised proof is ready.</b> Please review and approve it. </> : <>Revision {openRevision.round_no as number} is with Print Amplified prepress. </>}

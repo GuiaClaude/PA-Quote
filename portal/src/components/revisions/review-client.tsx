@@ -96,7 +96,7 @@ export function ReviewClient({
             <p className="text-center font-semibold">Is this still correct?</p>
             <div className="grid gap-3 sm:grid-cols-2">
               <Button asChild size="lg" className="h-14 text-base">
-                <Link href={`/app/items/${printItemId}?confirmed=1`}><CheckCircle2 />Confirm — print as is</Link>
+                <Link href={`/app/items/${printItemId}/reorder`}><CheckCircle2 />Confirm — print as is</Link>
               </Button>
               <Button size="lg" variant="outline" className="h-14 text-base" onClick={() => setStep("revise")}><PenLine />I have revisions</Button>
             </div>

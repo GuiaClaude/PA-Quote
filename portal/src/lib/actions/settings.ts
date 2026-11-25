@@ -7,7 +7,7 @@ import { audit } from "@/lib/audit";
 import { t } from "@/i18n";
 import type { ActionState } from "./account";
 
-const EDITABLE: SettingKey[] = ["company", "branding", "payment_instructions", "email", "security", "uploads"];
+const EDITABLE: SettingKey[] = ["company", "branding", "payment_instructions", "email", "security", "uploads", "features"];
 
 /**
  * Save one settings section. Each form posts its values as JSON in a

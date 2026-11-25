@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ShoppingCart } from "lucide-react";
 import { requireClient } from "@/lib/auth/guards";
 import { supabaseServer } from "@/lib/supabase/server";
 import { ClientBottomNav, ClientSideNav } from "@/components/layout/client-nav";
@@ -14,10 +15,12 @@ export default async function ClientLayout({ children }: { children: React.React
   const user = await requireClient();
   const sb = await supabaseServer();
   const logoUrl = await getLogoUrl();
-  const [{ data: org }, { count: unread }] = await Promise.all([
+  const [{ data: org }, { count: unread }, { data: cart }] = await Promise.all([
     sb.from("organizations").select("name").eq("id", user.organizationId).maybeSingle(),
     sb.from("notifications").select("id", { count: "exact", head: true }).is("read_at", null),
+    sb.from("draft_orders").select("payload").eq("kind", "reorder_cart").eq("created_by", user.id).is("deleted_at", null).limit(1).maybeSingle(),
   ]);
+  const cartCount = ((cart?.payload as { lines?: unknown[] } | undefined)?.lines ?? []).length;
   const company = (org?.name as string | undefined) ?? "";
 
   return (
@@ -36,6 +39,12 @@ export default async function ClientLayout({ children }: { children: React.React
           <Link href="/app" className="lg:hidden"><Logo logoUrl={logoUrl} size={26} /></Link>
           <p className="hidden truncate text-sm text-muted-foreground lg:block">{t.app.clientPortal}</p>
           <div className="flex items-center gap-1">
+            {cartCount > 0 ? (
+              <Link href="/app/cart" aria-label={`Reorder cart, ${cartCount} item${cartCount === 1 ? "" : "s"}`} className="relative inline-flex size-10 items-center justify-center rounded-full hover:bg-surface-muted">
+                <ShoppingCart className="size-5" aria-hidden />
+                <span className="absolute right-1 top-1 inline-flex min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold leading-4 text-white">{cartCount}</span>
+              </Link>
+            ) : null}
             <NotificationBell href="/app/notifications" count={unread ?? 0} />
             <UserMenu name={user.fullName} subtitle={`${company} · ${t.roles[user.clientRole]}`} accountHref="/app/account" />
           </div>
