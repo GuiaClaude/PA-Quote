@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Layers, Mail, Phone, PlusCircle, RefreshCcw, PackageSearch, MessageCircle, ImageIcon } from "lucide-react";
+import { ArrowRight, Layers, Mail, Phone, PlusCircle, RefreshCcw, PackageSearch, MessageCircle } from "lucide-react";
 import { requireClient } from "@/lib/auth/guards";
 import { supabaseServer } from "@/lib/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,6 +7,8 @@ import { Avatar } from "@/components/ui/avatar";
 import { Alert } from "@/components/ui/alert";
 import { OrderStatusBadge } from "@/components/data/status-badge";
 import { formatDate } from "@/lib/dates";
+import { signPreviews } from "@/lib/data/previews";
+import { Thumb } from "@/components/files/thumb";
 import { t } from "@/i18n";
 
 const ACTIVE_EXCLUDED = "(delivered,closed,cancelled)";
@@ -34,6 +36,7 @@ export default async function ClientHome({ searchParams }: { searchParams: Promi
   const quick = [...(items ?? [])]
     .sort((a, b) => (stats.get(b.id as string)?.count ?? 0) - (stats.get(a.id as string)?.count ?? 0))
     .slice(0, 4);
+  const thumbs = await signPreviews(sb, quick.map((i) => i.thumbnail_path as string | null));
   const am = manager?.profiles as unknown as { full_name: string; email: string; phone: string | null; viber: string | null; job_title: string | null } | null;
 
   const actions = [
@@ -75,9 +78,8 @@ export default async function ClientHome({ searchParams }: { searchParams: Promi
               return (
                 <li key={item.id as string}>
                   <Card className="flex h-full flex-col overflow-hidden">
-                    <Link href={`/app/items/${item.id}`} className="flex aspect-[4/3] items-center justify-center bg-surface-muted text-muted-foreground">
-                      <ImageIcon className="size-8" aria-hidden />
-                      <span className="sr-only">Preview of {item.name as string}</span>
+                    <Link href={`/app/items/${item.id}`} className="block aspect-[4/3] overflow-hidden border-b bg-surface-muted">
+                      <Thumb url={item.thumbnail_path ? thumbs[item.thumbnail_path as string] : null} alt={`Preview of ${item.name as string}`} className="size-full" />
                     </Link>
                     <div className="flex flex-1 flex-col gap-2 p-3">
                       <Link href={`/app/items/${item.id}`} className="line-clamp-2 text-sm font-semibold hover:underline">{item.name as string}</Link>

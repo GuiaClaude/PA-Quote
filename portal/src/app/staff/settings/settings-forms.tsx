@@ -12,7 +12,7 @@ import { Switch } from "@/components/ui/switch";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { Alert } from "@/components/ui/alert";
 import { contrastRatio, readableOnWhiteText } from "@/theme/color";
-import { Logo } from "@/components/brand/logo";
+import { LogoUploader } from "./logo-uploader";
 import { t } from "@/i18n";
 
 type Initial = {
@@ -51,7 +51,7 @@ function Field({ id, label, value, onChange, type = "text", help }: { id: string
   );
 }
 
-export function SettingsForms({ initial, disabled }: { initial: Initial; disabled: boolean }) {
+export function SettingsForms({ initial, disabled, logoUrl }: { initial: Initial; disabled: boolean; logoUrl: string | null }) {
   const [company, setCompany] = useState(initial.company);
   const [branding, setBranding] = useState(initial.branding);
   const [pay, setPay] = useState(initial.payment_instructions);
@@ -93,7 +93,7 @@ export function SettingsForms({ initial, disabled }: { initial: Initial; disable
         <div className="space-y-2"><Label htmlFor="pay-notes">Notes for clients</Label><Textarea id="pay-notes" value={pay.notes} onChange={(e) => setPay({ ...pay, notes: e.target.value })} /></div>
       </Section>
 
-      <Section settingKey="branding" title={t.settings.branding} description="Logo upload arrives with file uploads in Phase 2." value={branding} disabled={disabled}>
+      <Section settingKey="branding" title={t.settings.branding} description="Colours apply to buttons, links and highlights everywhere." value={branding} disabled={disabled}>
         {(["primary", "accent"] as const).map((k) => (
           <div key={k} className="space-y-2">
             <Label htmlFor={`br-${k}`}>{k === "primary" ? "Main colour" : "Accent colour"}</Label>
@@ -105,8 +105,12 @@ export function SettingsForms({ initial, disabled }: { initial: Initial; disable
             {lowContrast(branding[k]) ? <p className="text-xs text-warning">{t.settings.contrastWarning} The app will use a darker shade ({readableOnWhiteText(branding[k])}) for buttons automatically.</p> : null}
           </div>
         ))}
-        <div className="rounded-lg bg-surface-muted p-4"><Logo /></div>
       </Section>
+
+      <Card>
+        <CardHeader><CardTitle>Logo</CardTitle><CardDescription>Shown on the sign-in page, in the app and on the installed phone app.</CardDescription></CardHeader>
+        <CardContent><LogoUploader logoUrl={logoUrl} disabled={disabled} /></CardContent>
+      </Card>
 
       <Section settingKey="email" title={t.settings.email} description="Emails are sent through Resend. The sender domain must be verified in Resend first." value={email} disabled={disabled}>
         <Field id="em-name" label="Sender name" value={email.from_name} onChange={(v) => setEmail({ ...email, from_name: v })} />

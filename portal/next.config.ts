@@ -19,6 +19,9 @@ const nextConfig: NextConfig = {
     },
   },
   poweredByHeader: false,
+  // MuPDF (PDF previews) ships a WebAssembly file; keep it out of the bundle.
+  serverExternalPackages: ["mupdf", "sharp"],
+  outputFileTracingIncludes: { "/**": ["./node_modules/mupdf/dist/*.wasm", "./node_modules/mupdf/dist/*.js"] },
   async headers() {
     return [{ source: "/(.*)", headers: securityHeaders }];
   },

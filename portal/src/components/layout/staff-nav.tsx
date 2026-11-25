@@ -3,7 +3,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, PackageSearch, FileText, PenLine, Building2, Layers, FileSpreadsheet, ShoppingBag,
-  Percent, UsersRound, Settings, ScrollText, type LucideIcon,
+  Percent, UsersRound, Settings, ScrollText, Upload, type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { t } from "@/i18n";
@@ -20,6 +20,7 @@ const GROUPS: { label: string; items: Item[] }[] = [
   { label: t.nav.groups.clients, items: [
     { href: "/staff/clients", label: t.nav.clients, Icon: Building2, roles: ["pa_admin", "pa_sales"] },
     { href: "/staff/items", label: t.nav.printItems, Icon: Layers },
+    { href: "/staff/import", label: "Import old records", Icon: Upload, roles: ["pa_admin", "pa_sales"] },
     { href: "/staff/estimates", label: t.nav.estimates, Icon: FileSpreadsheet, roles: ["pa_admin", "pa_sales"], soon: 5 },
   ] },
   { label: t.nav.groups.catalog, items: [

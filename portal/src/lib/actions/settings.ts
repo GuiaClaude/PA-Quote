@@ -38,3 +38,18 @@ export async function saveSettings(_prev: ActionState, formData: FormData): Prom
   revalidatePath("/", "layout");
   return { message: t.settings.saved };
 }
+
+/** Management uploaded a new logo to the public "brand" bucket; remember its path. */
+export async function setBrandLogo(path: string | null): Promise<ActionState> {
+  const me = await getSessionUser();
+  if (me?.staffRole !== "pa_admin") return { error: t.settings.onlyAdmin };
+  if (path !== null && !/^logo-[0-9a-f-]{36}\.(png|jpg|jpeg|svg|webp)$/.test(path)) return { error: "Invalid logo file." };
+  const sb = await supabaseServer();
+  const { data: row } = await sb.from("settings").select("value").eq("key", "branding").maybeSingle();
+  const value = { ...((row?.value as Record<string, unknown>) ?? {}), logo_path: path };
+  const { error } = await sb.from("settings").update({ value, updated_by: me.id }).eq("key", "branding");
+  if (error) return { error: t.settings.onlyAdmin };
+  await audit({ action: "settings.logo_changed", actorId: me.id, actorEmail: me.email, meta: { logo_path: path } });
+  revalidatePath("/", "layout");
+  return { message: path ? "Logo updated." : "Logo removed — the standard Print Amplified mark is shown." };
+}

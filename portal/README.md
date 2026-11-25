@@ -4,7 +4,7 @@ The app where Print Amplified's clients **reorder in one tap, place new orders, 
 
 This guide is written for the **management and sales team**. You don't need to be a developer for anything in the "Day-to-day" part. The "Set-up" part is done once (or by whoever looks after the app technically).
 
-> **Build status:** Phase 1 of 7 (foundation) is complete. Screens marked **“Coming soon”** or with a 🔨 note are built in later phases. See [What's built](#whats-built-so-far).
+> **Build status:** Phases 1–2 of 7 are complete (foundation; file archive and Print Items). Screens marked **“Coming soon”** or with a 🔨 note are built in later phases. See [What's built](#whats-built-so-far).
 
 ---
 
@@ -15,6 +15,12 @@ This guide is written for the **management and sales team**. You don't need to b
   - [Add a client, set its email domains and invite its users](#add-a-client-set-its-email-domains-and-invite-its-users)
   - [Deactivate a user who resigned](#deactivate-a-user-who-resigned)
   - [Add staff](#add-staff)
+  - [Add Print Items and files](#add-print-items-and-files)
+  - [Approve a version for print](#approve-a-version-for-print)
+  - [Google Drive links](#google-drive-links)
+  - [Colour standards](#colour-standards)
+  - [Import old records (CSV) and upload old files in bulk](#import-old-records-csv-and-upload-old-files-in-bulk)
+  - [What clients see (and can't take)](#what-clients-see-and-cant-take)
   - [Change the logo, colours and payment instructions](#change-the-logo-colours-and-payment-instructions)
   - [Sign-in security settings](#sign-in-security-settings)
   - [The audit log](#the-audit-log)
@@ -82,13 +88,63 @@ Only **management (pa_admin)** can do this: **Staff users → Invite staff**. Ch
 | Sales / account manager (`pa_sales`) | Only the clients assigned to them: items, files, prices, quotes, orders, payments |
 | Production (`pa_production`) | All orders and print files, and production status updates. **Never sees prices or payments.** |
 
+### Add Print Items and files
+
+A **Print Item** is the permanent record of something a client orders again and again ("Product Brochure A4 Trifold", "Shipping Box Medium"). It holds the specs, every artwork version, the colour standard, prices and order history.
+
+1. **Print Items → New Print Item.** Choose the client, type the name and item code, and fill in the specs: size, material and GSM, colours, finishing (separated by commas) and packaging.
+2. Press **Create Print Item**. It opens with an empty **Version 1**.
+3. Under Version 1, **drag files into the box** or press **Choose files**. Accepted: PDF, AI, PSD, EPS, INDD, TIFF, JPG, PNG and ZIP, up to **50 MB each** on the free plan.
+   - The app checks whether **the same file is already stored** for this client and warns you before uploading it again.
+   - A progress bar shows the upload. Then the app makes the **low-res preview** automatically, which takes a few seconds per page.
+   - **PSD, EPS, INDD and ZIP** files can't be previewed automatically. Press **Upload preview image** and add a JPG or PNG of the design. It gets the same watermark.
+   - If a preview fails, press **Regenerate preview** (the circular arrow).
+4. To change artwork later, press **New version**, describe what changed, upload the new files, and approve it.
+
+### Approve a version for print
+
+Press **Approve for Print** on a version, then confirm.
+- It becomes the version used for every reorder. Its preview is what the client sees, and page 1 becomes the item's thumbnail.
+- It is **locked**: its files can't be removed or changed, by anyone, including management. The database itself enforces this.
+- The previously approved version becomes **Superseded** and stays in history forever.
+- Who approved it, when, and from which IP address is recorded (**Prices & history** tab).
+
+### Google Drive links
+
+Some artwork lives only in a client's or agency's Google Drive. Under a version, use **Add a Google Drive link** (paste the link and a label).
+- Versions with only a link show a red warning: **"External link only — may be lost if the owner's account is removed."**
+- Download the file from Drive, upload it under the same version, then press **Mark as copied**. This works even after the version is approved.
+- **Print Items → filter "Drive link only"** lists every item still at risk.
+
+### Colour standards
+
+On an item, open the **Colour standard** tab. Enter the Pantone references, CMYK targets (one per line, e.g. `ABC Blue: 100 72 0 6`), paper stock, press, notes, and who approved it and when. Then add **photos or scans of the approved press sheet**. Clients see the colour standard and the photos (low-res) on their item page.
+
+### Import old records (CSV) and upload old files in bulk
+
+**Print Items → Import CSV** (or **Import old records** in the menu):
+1. **Download the template**, fill it in with Excel or Google Sheets (one row per Print Item), and save it as **CSV**.
+   - New client names create new clients, assigned to you. Existing names (exact match) are reused.
+   - Inside one cell, separate lists with a semicolon: `matte lamination;spot UV`.
+   - Rows whose item code already exists for that client are **skipped**, so importing twice is safe.
+2. Choose the CSV. The app checks every row first and shows problems in red. Press **Import**.
+3. **Upload the files.** Name each file starting with its item code: `ABC-BR-01.pdf`, `ABC-BR-01__back.pdf`. Choose all the files at once. The app matches each file to its item. Optionally tick **Mark as Approved for Print after upload**.
+
+### What clients see (and can't take)
+
+- Clients see **low-resolution previews** (about 1,200 px) with a light **"Print Amplified — Preview Only"** watermark: page by page, front and back, with zoom. It's two taps from their home screen: **My Items → the item**.
+- The **high-resolution print files never reach the client's browser**. There is no download button, right-click and dragging are blocked, and preview links expire after 10 minutes.
+- Screenshots can't be prevented. That's why previews are low-res and watermarked.
+- If a client needs its own print files, management can switch on **Allow high-res download** for that client (Clients → company → Company details). Their users then see download links for the **approved** files, and every download is recorded in the audit log.
+
 ### Change the logo, colours and payment instructions
 
 **Settings** (only management can save changes):
 
 - **Company details:** the name, address, phone and email shown in the app and in emails.
 - **Payment instructions:** bank accounts, who cheques are payable to, and a note. Clients see these on every order. Payments always happen outside the app, by bank transfer or cheque.
-- **Logo & brand colours:** the main and accent colours. If a colour is too light to read with white text, the app shows a warning and automatically uses a darker shade for buttons. Logo upload arrives in Phase 2.
+- **Logo & brand colours:** the main and accent colours. If a colour is too light to read with white text, the app shows a warning and automatically uses a darker shade for buttons.
+- **Logo:** upload a PNG or SVG (wide, transparent background). It appears on the sign-in page and in the app. **Use standard mark** brings back the built-in hexagon.
 - **Email sender:** the name and address that notification emails come from.
 
 ### Sign-in security settings
@@ -107,7 +163,6 @@ Only **management (pa_admin)** can do this: **Staff users → Invite staff**. Ch
 
 | Guide topic | Phase |
 |---|---|
-| Add Print Items and files, Drive links, "Approved for Print", colour standards, CSV import | 2 |
 | Set up editable fields on an item; handle revision requests and send revised proofs | 3 |
 | Manage the product catalog and standard prices; reply to quote requests | 4 |
 | Upload past estimates and confirm their data; update the inflation table and pricing rules; check an instant quote with the quote preview tool; update prices | 5 |
@@ -166,7 +221,7 @@ Supabase Free has **no automatic backups**, so please do these:
    ```bash
    npx supabase db push
    ```
-   This creates every table and security rule. For a **demo** project only, also load the demo data: `npx supabase db push --include-seed`. **Never seed the live project.**
+   This creates every table and security rule. For a **demo** project only, also load the demo data with `npx supabase db push --include-seed`, then put real demo files and previews behind it with `npm run seed:files`. **Never seed the live project.**
 3. **Authentication settings** (Supabase dashboard → Authentication):
    - *Sign In / Providers:* turn **off** "Allow new users to sign up" (invite-only). Keep Email enabled.
    - *Multi-Factor:* turn **on** TOTP (authenticator app).
@@ -213,6 +268,17 @@ Password for all of them: **`Demo-Print-2026!`**
 
 ## What's built so far
 
+**Phase 2 — File archive and Print Items ✅**
+- Uploads straight from the browser to private storage, with progress, duplicate check (SHA-256) and size and type checks.
+- Automatic low-res watermarked previews: PDF and PDF-compatible AI with MuPDF; JPG, PNG and TIFF with sharp. Manual preview image for PSD, EPS, INDD and ZIP.
+- Versions, "Approved for Print" with locking enforced in the database, and an approval record (who, when, IP).
+- Google Drive links with the warning, "Mark as copied" and a "Drive link only" filter.
+- Colour standards with press-sheet photos; structured specs with a spec signature (used for instant quotes in Phase 5).
+- Client view-only preview viewer (pages, front/back, zoom, no download); thumbnails everywhere.
+- High-res download only for staff, or for clients when management allows it, always audited.
+- CSV import of clients and Print Items, plus bulk file upload matched by item code.
+- Logo upload; a demo-file seeder.
+
 **Phase 1 — Foundation ✅**
 - **Database:** the full schema for all of v1 (companies, users, catalog, quotes, Print Items, files, previews, revisions, past estimates, pricing rules, instant quotes, orders, payments, audit log), with **Row Level Security on every table and storage bucket**.
 - **Sign-in:** password or email link; 2-step verification (enforced by the database itself); lockout after failed attempts; Turnstile; new-device emails; inactivity sign-out; sign out of all devices.
@@ -236,9 +302,10 @@ npm run dev                    # http://localhost:3000
 | Command | What it does |
 |---|---|
 | `npm run typecheck` / `npm run lint` | TypeScript (strict) and ESLint |
-| `npm test` | Unit tests (money, password rules, colours, tokens) |
+| `npm test` | Unit tests: money, password rules, colours, tokens, spec signatures, CSV rules, and **preview generation** (renders real PDFs and checks size and watermark) |
+| `npm run seed:files` | DEMO project only: generates demo artwork PDFs, uploads them and makes all previews |
 | `npm run db:local` | Builds a test database on a plain local PostgreSQL: `tests/rls/supabase-shim.sql` (a stand-in for Supabase's `auth`/`storage` schemas, **tests only**), then all migrations, then the seed |
-| `npm run test:rls` | **Isolation proof:** for every table and bucket, Client A gets 0 rows of Client B; guessed ids; prices hidden from viewers and production; deactivation; 2FA; locked artwork; append-only audit log; invite rules |
+| `npm run test:rls` | Versions and approval rules, plus the **isolation proof**: for every table and bucket, Client A gets 0 rows of Client B; guessed ids; prices hidden from viewers and production; deactivation; 2FA; locked artwork; append-only audit log; invite rules |
 | `npm run test:api` | The same proof through the **live Supabase API** with each demo user's own token (set `TEST_SUPABASE_*`) |
 
 **Key rules for anyone changing the code**
