@@ -4,7 +4,7 @@ The app where Print Amplified's clients **reorder in one tap, place new orders, 
 
 This guide is written for the **management and sales team**. You don't need to be a developer for anything in the "Day-to-day" part. The "Set-up" part is done once (or by whoever looks after the app technically).
 
-> **Build status:** Phases 1–2 of 7 are complete (foundation; file archive and Print Items). Screens marked **“Coming soon”** or with a 🔨 note are built in later phases. See [What's built](#whats-built-so-far).
+> **Build status:** Phases 1–3 of 7 are complete (foundation; file archive and Print Items; review & revise). Screens marked **“Coming soon”** or with a 🔨 note are built in later phases. See [What's built](#whats-built-so-far).
 
 ---
 
@@ -21,6 +21,9 @@ This guide is written for the **management and sales team**. You don't need to b
   - [Colour standards](#colour-standards)
   - [Import old records (CSV) and upload old files in bulk](#import-old-records-csv-and-upload-old-files-in-bulk)
   - [What clients see (and can't take)](#what-clients-see-and-cant-take)
+  - [Set up editable fields on an item](#set-up-editable-fields-on-an-item)
+  - [Handle revision requests and send revised proofs](#handle-revision-requests-and-send-revised-proofs)
+  - [How clients review, mark up and approve](#how-clients-review-mark-up-and-approve)
   - [Change the logo, colours and payment instructions](#change-the-logo-colours-and-payment-instructions)
   - [Sign-in security settings](#sign-in-security-settings)
   - [The audit log](#the-audit-log)
@@ -137,6 +140,41 @@ On an item, open the **Colour standard** tab. Enter the Pantone references, CMYK
 - Screenshots can't be prevented. That's why previews are low-res and watermarked.
 - If a client needs its own print files, management can switch on **Allow high-res download** for that client (Clients → company → Company details). Their users then see download links for the **approved** files, and every download is recorded in the audit log.
 
+### Set up editable fields on an item
+
+For items that change often (business cards, ID cards, labels, price tags, certificates), clients can type new text and see it on the preview instantly.
+1. Open the item, then press **Editable fields** (top right). The item needs an approved version with a preview.
+2. **Drag a box** over each piece of text clients may change. Drag a box to move it; drag its red corner to resize.
+3. For each field, set the **label** clients see ("Mobile"), the **current text** on the artwork, the **font, size (pt), weight, colour and alignment**, the **maximum characters**, and **Cover**. Cover paints the box in the background colour first, so the old text disappears.
+4. Type a **Test text** (a long name, for example) to check that it fits. Text shrinks automatically when it's too long.
+5. Press **Save**.
+
+**Fonts:** to make the preview look exactly like the artwork, upload the font used (TTF, OTF, WOFF) under **Upload a font**. It is then available for every item. Without it, a standard font is used.
+The client's preview is only a guide: prepress always makes the change in the real file. If clients already used the old fields, saving creates a new set and keeps the old one for history.
+
+### Handle revision requests and send revised proofs
+
+**Revisions** in the menu is the prepress queue (oldest first). Requests waiting more than a day are shown in red, and the account manager also gets an email and an in-app notice.
+1. Open a request. You see the client's **numbered pins and boxes** on the preview, their comments and attached files, any **edited text** (drawn where it goes, with **Copy** buttons), and general notes.
+2. Press **Start work** so the client sees it's being handled. Download the print files from **Print files to edit**.
+3. Reply to each mark if useful (**Done** or **Question**). The client sees your replies.
+4. Press **Start revised proof**, then upload the revised print file. The low-res preview is made automatically. Check it with the **before/after slider**.
+5. Add an optional message, then press **Send proof to client**. The client gets an email and an in-app notice. If the request came from an order, the order shows **Waiting for Client Approval**.
+6. When the client **approves**, the new version becomes **Approved for Print** and is locked, the old one is kept in history, and the order moves to **Approved for Print**. If they ask for more changes, **Revision 2** appears in the queue, and so on.
+
+### How clients review, mark up and approve
+
+- From an item (or an order), the client opens **Review artwork** and sees exactly what was printed last time.
+- **Confirm — print as is** confirms nothing needs changing. Phase 5 turns this into a one-tap reorder.
+- **I have revisions** lets them:
+  - **drop pins** or **draw boxes** on the preview, type what to change at each spot, and attach files (a new logo, a photo, a text document)
+  - **edit text fields** and see the result immediately ("Preview only — final file will be prepared by Print Amplified prepress")
+  - add general notes and files
+  Then they press **Send changes**.
+- When the revised proof is ready, they compare it with the previous version (slider or side by side), then press **Approve** (their name, the date and time, and their IP address are recorded) or **I have more changes**.
+- Marks are saved as percentages of the page, so they line up on any screen and at any zoom.
+- Clients never see draft versions, only approved versions and the proofs sent to them, and never the high-res files.
+
 ### Change the logo, colours and payment instructions
 
 **Settings** (only management can save changes):
@@ -163,7 +201,6 @@ On an item, open the **Colour standard** tab. Enter the Pantone references, CMYK
 
 | Guide topic | Phase |
 |---|---|
-| Set up editable fields on an item; handle revision requests and send revised proofs | 3 |
 | Manage the product catalog and standard prices; reply to quote requests | 4 |
 | Upload past estimates and confirm their data; update the inflation table and pricing rules; check an instant quote with the quote preview tool; update prices | 5 |
 | Update orders; record payments; email notifications | 6 |
@@ -268,6 +305,14 @@ Password for all of them: **`Demo-Print-2026!`**
 
 ## What's built so far
 
+**Phase 3 — Review & revise ✅**
+- Review Artwork with "Confirm — print as is" or "I have revisions": pins, boxes, comments, attachments per mark, general notes and files (built for phones).
+- Editable fields designer (draw boxes; font, size, colour, alignment, max characters, cover colour; font upload) and an instant client-side canvas preview.
+- Revision Requests with numbered rounds, a prepress queue, replies per mark, revised proof upload, and a before/after slider or side-by-side view.
+- Client approval locks the new version and records name, time and IP. Order status follows along (Waiting for Revisions, then Waiting for Client Approval, then Approved for Print).
+- Email and in-app notices for each step.
+- Tightened: clients only ever see previews of approved versions and of proofs sent to them.
+
 **Phase 2 — File archive and Print Items ✅**
 - Uploads straight from the browser to private storage, with progress, duplicate check (SHA-256) and size and type checks.
 - Automatic low-res watermarked previews: PDF and PDF-compatible AI with MuPDF; JPG, PNG and TIFF with sharp. Manual preview image for PSD, EPS, INDD and ZIP.
@@ -303,6 +348,7 @@ npm run dev                    # http://localhost:3000
 |---|---|
 | `npm run typecheck` / `npm run lint` | TypeScript (strict) and ESLint |
 | `npm test` | Unit tests: money, password rules, colours, tokens, spec signatures, CSV rules, and **preview generation** (renders real PDFs and checks size and watermark) |
+| `npm run dev`, then open `/dev/lab` | Development-only playground (404 in production) showing the review, markup, live-text, compare and designer screens with real generated previews, without a database |
 | `npm run seed:files` | DEMO project only: generates demo artwork PDFs, uploads them and makes all previews |
 | `npm run db:local` | Builds a test database on a plain local PostgreSQL: `tests/rls/supabase-shim.sql` (a stand-in for Supabase's `auth`/`storage` schemas, **tests only**), then all migrations, then the seed |
 | `npm run test:rls` | Versions and approval rules, plus the **isolation proof**: for every table and bucket, Client A gets 0 rows of Client B; guessed ids; prices hidden from viewers and production; deactivation; 2FA; locked artwork; append-only audit log; invite rules |

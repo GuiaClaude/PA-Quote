@@ -20,13 +20,13 @@ export default async function OrderDetail({ params }: { params: Promise<{ id: st
   const sb = await supabaseServer();
   const { data: order } = await sb.from("orders")
     .select(`id, order_no, status, placed_at, client_po_no, requested_delivery_date, delivery_address_snapshot, notes,
-      order_items(id, title, quantity${prices ? ", order_item_prices(unit_price, total_centavos)" : ""}),
+      order_items(id, title, quantity, print_item_id${prices ? ", order_item_prices(unit_price, total_centavos)" : ""}),
       order_status_events(id, to_status, note, created_at)${prices ? ", order_financials(net_centavos, vat_centavos, total_centavos, amount_paid_centavos, payment_status)" : ""}`)
     .eq("id", id).maybeSingle();
   if (!order) notFound();
   const o = order as unknown as Record<string, unknown>;
   const fin = o.order_financials as { net_centavos: number; vat_centavos: number; total_centavos: number; amount_paid_centavos: number; payment_status: string } | null;
-  const items = (o.order_items as Array<{ id: string; title: string; quantity: number; order_item_prices?: { unit_price: string; total_centavos: number } | null }>) ?? [];
+  const items = (o.order_items as Array<{ id: string; title: string; quantity: number; print_item_id: string | null; order_item_prices?: { unit_price: string; total_centavos: number } | null }>) ?? [];
   const events = (o.order_status_events as Array<{ id: string; to_status: string; note: string | null; created_at: string }>) ?? [];
   const payInfo = prices ? await getSetting("payment_instructions") : null;
   const address = o.delivery_address_snapshot as { label?: string; city?: string } | null;
@@ -44,7 +44,7 @@ export default async function OrderDetail({ params }: { params: Promise<{ id: st
               <ul className="divide-y">
                 {items.map((i) => (
                   <li key={i.id} className="flex items-center justify-between gap-4 py-3 text-sm">
-                    <div><p className="font-medium">{i.title}</p><p className="text-muted-foreground tabular">{i.quantity.toLocaleString("en-PH")} pcs{prices && i.order_item_prices ? ` × ${formatUnitPrice(i.order_item_prices.unit_price)}` : ""}</p></div>
+                    <div><p className="font-medium">{i.title}</p>{i.print_item_id && user.clientRole !== "client_viewer" ? <Link className="text-xs font-medium text-primary hover:underline" href={`/app/items/${i.print_item_id}/review?order=${o.id}`}>Review artwork</Link> : null}<p className="text-muted-foreground tabular">{i.quantity.toLocaleString("en-PH")} pcs{prices && i.order_item_prices ? ` × ${formatUnitPrice(i.order_item_prices.unit_price)}` : ""}</p></div>
                     {prices && i.order_item_prices ? <span className="tabular font-semibold">{formatCentavos(i.order_item_prices.total_centavos)}</span> : null}
                   </li>
                 ))}

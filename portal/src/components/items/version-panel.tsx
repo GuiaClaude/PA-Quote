@@ -41,7 +41,7 @@ export function VersionPanel({ version: v, canManage, organizationId, printItemI
   const [pending, start] = useTransition();
   const run = (fn: () => Promise<ActionState>) => start(async () => setMsg(await fn()));
   const locked = v.status === "approved" || v.status === "superseded";
-  const editable = canManage && !locked;
+  const editable = canManage && v.status === "draft"; // proofs are with the client; approved ones are locked
   const hasUncopiedDrive = v.files.some((f) => f.kind === "drive_link" && !f.copiedAt);
   const meta = STATUS[v.status] ?? STATUS.draft!;
 
@@ -59,6 +59,7 @@ export function VersionPanel({ version: v, canManage, organizationId, printItemI
             {v.approvedAt ? ` · approved ${formatDateTime(v.approvedAt)}${v.approvedBy ? ` by ${v.approvedBy}` : ""}` : ""}
           </p>
         </div>
+        {v.status === "proof" ? <p className="text-xs text-muted-foreground">Sent to the client for approval — see the revision.</p> : null}
         {editable ? (
           <ConfirmButton destructive={false} disabled={pending || v.files.length === 0} title={`Approve version ${v.versionNo} for print?`}
             message="It becomes the version used for every reorder and is locked: it can't be edited or deleted, only replaced by a newer approved version. The current approved version (if any) is kept in history."

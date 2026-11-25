@@ -248,11 +248,15 @@ describe("2-step verification is enforced in the database", () => {
 describe("storage buckets", () => {
   async function withObjects<T>(fn: (c: import("pg").PoolClient) => Promise<T>) {
     return asOwner(async (c) => {
+      // previews of APPROVED versions (paths from the seed's preview rows)
+      await c.query(`insert into storage.objects (bucket_id, name) values
+         ('previews', '20000000-0000-4000-8000-00000000000a/brochure/v2/p1.jpg'),
+         ('previews', '20000000-0000-4000-8000-00000000000b/label-80x50/v1/p1.jpg'),
+         ('previews', $1 || '/draft-item/draft-version/p1.jpg')`, [ORG_A]);
       for (const org of [ORG_A, ORG_B]) {
         await c.query(
           `insert into storage.objects (bucket_id, name) values
              ('print-files', $1 || '/item/v1/print.pdf'),
-             ('previews',    $1 || '/item/v1/p1.jpg'),
              ('attachments', $1 || '/revisions/logo.png'),
              ('attachments', $1 || '/payment-slips/slip.jpg')`, [org]);
       }
@@ -269,6 +273,7 @@ describe("storage buckets", () => {
         expect(rows.some((r) => r.bucket_id === "print-files"), u.label).toBe(false);
         expect(rows.some((r) => String(r.name).startsWith(u.other)), u.label).toBe(false);
         expect(rows.some((r) => r.bucket_id === "previews" && String(r.name).startsWith(u.own))).toBe(true);
+        expect(rows.some((r) => String(r.name).includes("draft-version")), `${u.label} sees a preview with no approved version`).toBe(false);
         const slip = rows.some((r) => String(r.name).includes("payment-slips"));
         expect(slip, `${u.label} payment slip visibility`).toBe(!u.label.includes("viewer"));
       });
@@ -378,6 +383,18 @@ describe("account and invite rules", () => {
           `insert into public.invitations (organization_id, email, client_role, token_hash, invited_by)
            values ($1, 'x@abccorp-demo.test', 'client_buyer', 'h-${id}', $2)`, [ORG_A, id]))
           .rejects.toThrow(/row-level security/);
+      });
+    }
+  });
+});
+
+describe("permission helpers never answer 'unknown'", () => {
+  it("returns false (not NULL) for people outside the company", async () => {
+    for (const id of [U.production, U.bAdmin, U.sales2]) {
+      await as({ id }, async (c) => {
+        const { rows } = await c.query(`select private.can_order($1) a, private.is_client_admin($1) b, private.can_see_prices($1) c,
+          private.staff_can_manage($1) d, private.can_read_org($1) e`, [ORG_A]);
+        for (const v of Object.values(rows[0])) expect(v === null, `${id}`).toBe(false);
       });
     }
   });

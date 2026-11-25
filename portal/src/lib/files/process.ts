@@ -79,7 +79,10 @@ async function storePage(fileId: string, orgId: string, folder: string, page: Re
     await setRendition(fileId, orgId, page.pageNo, side, { status: "failed", error: `Upload failed: ${error.message}` });
     return;
   }
-  await setRendition(fileId, orgId, page.pageNo, side, { status: "ready", preview_path: path, width: page.width, height: page.height, source, error: null });
+  await setRendition(fileId, orgId, page.pageNo, side, {
+    status: "ready", preview_path: path, width: page.width, height: page.height, source, error: null,
+    page_width_pt: page.pageWidthPt ?? null, page_height_pt: page.pageHeightPt ?? null,
+  });
 }
 
 /** Update the row for this page if it exists (other records point at it), otherwise create it. */

@@ -90,7 +90,7 @@ export default async function StaffDashboard({ searchParams }: { searchParams: P
   }
   for (const r of openRevisions) {
     queue.push({
-      key: `r-${r.id}`, href: `/staff/revisions`, kind: `Revision · round ${r.round_no}`, title: `${r.organizations?.name ?? ""} · ${r.print_items?.name ?? ""}`,
+      key: `r-${r.id}`, href: `/staff/revisions/${r.id}`, kind: `Revision · round ${r.round_no}`, title: `${r.organizations?.name ?? ""} · ${r.print_items?.name ?? ""}`,
       subtitle: `Waiting ${formatDuration(now - new Date(r.submitted_at).getTime())}`, dueAt: new Date(new Date(r.submitted_at).getTime() + 24 * 3_600_000).toISOString(), tone: "brand",
     });
   }

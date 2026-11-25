@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ChevronLeft, Link2 } from "lucide-react";
+import { ChevronLeft, Link2, Type } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { requireStaff } from "@/lib/auth/guards";
 import { supabaseServer } from "@/lib/supabase/server";
 import { getSetting } from "@/lib/settings";
@@ -74,7 +75,10 @@ export default async function StaffItemDetail({ params, searchParams }: { params
       <PageHeader title={item.name as string}
         breadcrumb={<Link className="hover:underline" href={`/staff/clients/${item.organization_id}`}>{org.name}</Link>}
         description={[(item.product_categories as unknown as { name: string } | null)?.name, item.code].filter(Boolean).join(" · ")}
-        actions={approved ? <Badge tone="success">{t.items.approved} · v{approved.versionNo}</Badge> : <Badge tone="warning">No approved version</Badge>} />
+        actions={<>
+          {approved ? <Badge tone="success">{t.items.approved} · v{approved.versionNo}</Badge> : <Badge tone="warning">No approved version</Badge>}
+          {canManage && approved ? <Button asChild size="sm" variant="outline"><Link href={`/staff/items/${id}/template`}><Type />Editable fields</Link></Button> : null}
+        </>} />
       {sp.created ? <Alert tone="success" className="mb-4">Print Item created. Upload its files below, then press <b>Approve for Print</b>.</Alert> : null}
       {driveOnly ? <Alert tone="danger" className="mb-4"><b>{t.items.driveOnly}</b> Upload a copy into the archive, then press “Mark as copied”.</Alert> : null}
       <div className="mb-5"><FilterChips base={`/staff/items/${id}`} param="tab" active={tab === "artwork" ? "" : tab}

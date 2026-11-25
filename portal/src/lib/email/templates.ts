@@ -47,3 +47,23 @@ export function inviteNeedsApprovalEmail(p: { company: string; email: string; in
     { label: "Review invite", url: p.url });
   return { subject: `Approve invite for ${p.company}`, html, text };
 }
+
+export function revisionSubmittedEmail(p: { company: string; item: string; round: number; by: string; changes: number; url: string }) {
+  const title = `Revision ${p.round} requested: ${p.item}`;
+  const text = `${p.by} (${p.company}) sent ${p.changes} change${p.changes === 1 ? "" : "s"} for ${p.item}.\n\nOpen the revision queue: ${p.url}`;
+  return { subject: `${p.company} — ${title}`, text, html: layout(title, `<p>${esc(p.by)} (${esc(p.company)}) sent <b>${p.changes}</b> change${p.changes === 1 ? "" : "s"} for <b>${esc(p.item)}</b>.</p>`, { label: "Open revision", url: p.url }) };
+}
+
+export function proofReadyEmail(p: { item: string; round: number; message: string | null; url: string }) {
+  const title = `Your revised proof is ready`;
+  const text = `The revised proof for ${p.item} (Revision ${p.round}) is ready for your review.${p.message ? `\n\nNote from Print Amplified: ${p.message}` : ""}\n\nReview and approve: ${p.url}`;
+  return { subject: `Revised proof ready: ${p.item}`, text, html: layout(title,
+    `<p>The revised proof for <b>${esc(p.item)}</b> (Revision ${p.round}) is ready. Compare it with the previous version, then approve it or add more changes.</p>${p.message ? `<p style="background:#f4f6f8;padding:12px;border-radius:8px">${esc(p.message)}</p>` : ""}`,
+    { label: "Review proof", url: p.url }) };
+}
+
+export function proofApprovedEmail(p: { company: string; item: string; round: number; by: string; url: string }) {
+  const title = `Proof approved: ${p.item}`;
+  const text = `${p.by} (${p.company}) approved Revision ${p.round} of ${p.item}. It is now Approved for Print.\n\n${p.url}`;
+  return { subject: `${p.company} approved ${p.item}`, text, html: layout(title, `<p>${esc(p.by)} (${esc(p.company)}) approved Revision ${p.round} of <b>${esc(p.item)}</b>. It is now <b>Approved for Print</b>.</p>`, { label: "Open", url: p.url }) };
+}

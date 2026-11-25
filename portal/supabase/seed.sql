@@ -247,14 +247,16 @@ update public.print_items set color_standard_id = '54000000-0000-4000-8000-00000
 insert into public.editable_templates (id, organization_id, print_item_id, artwork_version_id, rendition_id) values
   ('55000000-0000-4000-8000-0000000000a2', '20000000-0000-4000-8000-00000000000a', '50000000-0000-4000-8000-0000000000a2', '51000000-0000-4000-8000-0000000000a2', '53000000-0000-4000-8000-0000000000a2'),
   ('55000000-0000-4000-8000-0000000000b2', '20000000-0000-4000-8000-00000000000b', '50000000-0000-4000-8000-0000000000b2', '51000000-0000-4000-8000-0000000000b2', '53000000-0000-4000-8000-0000000000b2');
-insert into public.template_fields (organization_id, template_id, key, label, default_text, x_pct, y_pct, w_pct, h_pct, font_size_pt, color_hex, align, max_chars, sort) values
-  ('20000000-0000-4000-8000-00000000000a', '55000000-0000-4000-8000-0000000000a2', 'name',     'Name',     'Liza Mendoza',              8, 38, 60, 9, 11, '#1B2A4A', 'left', 30, 1),
-  ('20000000-0000-4000-8000-00000000000a', '55000000-0000-4000-8000-0000000000a2', 'position', 'Position', 'Purchasing Manager',        8, 48, 60, 6,  8, '#4A5568', 'left', 40, 2),
-  ('20000000-0000-4000-8000-00000000000a', '55000000-0000-4000-8000-0000000000a2', 'phone',    'Mobile',   '0918 200 0001',             8, 66, 50, 6,  8, '#1B2A4A', 'left', 20, 3),
-  ('20000000-0000-4000-8000-00000000000a', '55000000-0000-4000-8000-0000000000a2', 'email',    'Email',    'liza.mendoza@abccorp.com.ph', 8, 74, 70, 6, 8, '#1B2A4A', 'left', 40, 4),
-  ('20000000-0000-4000-8000-00000000000b', '55000000-0000-4000-8000-0000000000b2', 'product',  'Product',  'Mango Jam 250g',            6, 12, 88, 25, 12, '#000000', 'center', 24, 1),
-  ('20000000-0000-4000-8000-00000000000b', '55000000-0000-4000-8000-0000000000b2', 'price',    'Price',    '₱129.00',                   6, 45, 88, 35, 22, '#E0295A', 'center', 10, 2),
-  ('20000000-0000-4000-8000-00000000000b', '55000000-0000-4000-8000-0000000000b2', 'sku',      'SKU',      'SKU 4800001',               6, 84, 88, 10,  6, '#4A5568', 'center', 16, 3);
+-- Field boxes line up with the demo artwork made by `npm run seed:files`
+-- (business card 89 x 51 mm, price tag 60 x 30 mm).
+insert into public.template_fields (organization_id, template_id, key, label, default_text, x_pct, y_pct, w_pct, h_pct, font_size_pt, font_weight, color_hex, align, max_chars, sort) values
+  ('20000000-0000-4000-8000-00000000000a', '55000000-0000-4000-8000-0000000000a2', 'name',     'Name',     'Liza Mendoza',                     6.0, 40.5, 70, 11, 11, 700, '#1B2A4A', 'left', 30, 1),
+  ('20000000-0000-4000-8000-00000000000a', '55000000-0000-4000-8000-0000000000a2', 'position', 'Position', 'Purchasing Manager',               6.0, 53.5, 70,  7,  7, 400, '#4A5568', 'left', 40, 2),
+  ('20000000-0000-4000-8000-00000000000a', '55000000-0000-4000-8000-0000000000a2', 'phone',    'Mobile',   '0918 200 0001',                    6.0, 69.0, 60,  7,  7, 400, '#1B2A4A', 'left', 20, 3),
+  ('20000000-0000-4000-8000-00000000000a', '55000000-0000-4000-8000-0000000000a2', 'email',    'Email',    'liza.mendoza@abccorp-demo.test',   6.0, 77.0, 75,  7,  7, 400, '#1B2A4A', 'left', 40, 4),
+  ('20000000-0000-4000-8000-00000000000b', '55000000-0000-4000-8000-0000000000b2', 'product',  'Product',  'Mango Jam 250g',                   4.0, 15.5, 92, 13,  9, 700, '#1B2A4A', 'center', 24, 1),
+  ('20000000-0000-4000-8000-00000000000b', '55000000-0000-4000-8000-0000000000b2', 'price',    'Price',    'PHP 129.00',                       4.0, 44.0, 92, 24, 16, 700, '#E0295A', 'center', 12, 2),
+  ('20000000-0000-4000-8000-00000000000b', '55000000-0000-4000-8000-0000000000b2', 'sku',      'SKU',      'SKU 4800001',                      4.0, 76.0, 92,  8,  5, 400, '#4A5568', 'center', 16, 3);
 
 -- open revision request with markups on the brochure (ABC)
 insert into public.revision_requests (id, organization_id, print_item_id, base_version_id, round_no, status, general_notes, submitted_by, submitted_at) values

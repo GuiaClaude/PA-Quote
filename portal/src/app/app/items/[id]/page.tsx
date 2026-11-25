@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ChevronLeft, Download, Palette, RefreshCcw } from "lucide-react";
+import { ChevronLeft, Download, Palette, PenLine, RefreshCcw } from "lucide-react";
+import { Alert } from "@/components/ui/alert";
 import { requireClient } from "@/lib/auth/guards";
 import { canSeePrices } from "@/lib/auth/roles";
 import { supabaseServer } from "@/lib/supabase/server";
@@ -16,8 +17,9 @@ import { formatCentavos, formatUnitPrice } from "@/lib/money";
 import { formatDate } from "@/lib/dates";
 import { t } from "@/i18n";
 
-export default async function ItemDetail({ params }: { params: Promise<{ id: string }> }) {
+export default async function ItemDetail({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ confirmed?: string }> }) {
   const { id } = await params;
+  const sp = await searchParams;
   const user = await requireClient();
   const prices = canSeePrices(user);
   const sb = await supabaseServer();
@@ -38,6 +40,8 @@ export default async function ItemDetail({ params }: { params: Promise<{ id: str
     sb.from("order_items").select("id, quantity, orders(id, order_no, placed_at)").eq("print_item_id", id).limit(20),
     sb.from("organizations").select("allow_highres_download").eq("id", user.organizationId).single(),
   ]);
+  const { data: openRevision } = await sb.from("revision_requests").select("id, round_no, status")
+    .eq("print_item_id", id).in("status", ["open", "in_prepress", "proof_sent"]).order("created_at", { ascending: false }).limit(1).maybeSingle();
   const rows = (renditions ?? []) as Array<{ id: string; file_id: string; page_no: number; side: string | null; preview_path: string; width: number; height: number; created_at: string }>;
   const urls = await signPreviews(sb, rows.map((r) => r.preview_path));
   const pages: ViewerPage[] = rows
@@ -59,8 +63,16 @@ export default async function ItemDetail({ params }: { params: Promise<{ id: str
       <PageHeader title={item.name as string} description={[(item.product_categories as unknown as { name: string } | null)?.name, item.code].filter(Boolean).join(" · ")}
         actions={<>
           {version ? <Badge tone="success">{t.items.approved} · v{version.version_no as number}</Badge> : null}
+          {user.clientRole !== "client_viewer" && version ? <Button asChild variant="outline"><Link href={`/app/items/${id}/review`}><PenLine />Review artwork</Link></Button> : null}
           {user.clientRole !== "client_viewer" ? <Button asChild><Link href={`/app/items/${id}?reorder=1`}><RefreshCcw />{t.home.reorder}</Link></Button> : null}
         </>} />
+      {sp.confirmed ? <Alert tone="success" className="mb-4">Thanks — you confirmed the artwork is still correct. One-tap reorder with an instant quote arrives in Phase 5.</Alert> : null}
+      {openRevision ? (
+        <Alert tone={openRevision.status === "proof_sent" ? "warning" : "info"} className="mb-4">
+          {openRevision.status === "proof_sent" ? <><b>Your revised proof is ready.</b> Please review and approve it. </> : <>Revision {openRevision.round_no as number} is with Print Amplified prepress. </>}
+          <Link className="font-semibold text-primary underline" href={`/app/revisions/${openRevision.id}`}>Open revision</Link>
+        </Alert>
+      ) : null}
       <div className="grid gap-6 lg:grid-cols-[1.3fr_1fr]">
         <Card>
           <CardHeader className="flex-row items-center justify-between">

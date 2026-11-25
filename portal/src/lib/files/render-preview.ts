@@ -3,7 +3,7 @@ import sharp from "sharp";
 import { PREVIEW_LONG_EDGE, PREVIEW_MAX_PAGES, previewKind } from "./types";
 import { watermark } from "./watermark";
 
-export type RenderedPage = { pageNo: number; jpg: Buffer; width: number; height: number };
+export type RenderedPage = { pageNo: number; jpg: Buffer; width: number; height: number; pageWidthPt?: number; pageHeightPt?: number };
 export type RenderResult =
   | { status: "ready"; pages: RenderedPage[]; totalPages: number }
   | { status: "unsupported"; reason: string }
@@ -48,7 +48,7 @@ async function renderPdf(data: Uint8Array): Promise<RenderResult> {
       const png = Buffer.from(pix.asPNG());
       pix.destroy();
       page.destroy();
-      pages.push({ ...(await finish(png)), pageNo: i + 1 });
+      pages.push({ ...(await finish(png)), pageNo: i + 1, pageWidthPt: x1 - x0, pageHeightPt: y1 - y0 });
     }
     return { status: "ready", pages, totalPages: total };
   } finally {
