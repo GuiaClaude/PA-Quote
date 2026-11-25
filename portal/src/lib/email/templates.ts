@@ -85,3 +85,27 @@ export function quoteReadyEmail(p: { title: string; quoteNo: string; validUntil:
   const text = `Your quote ${p.quoteNo} for ${p.title} is ready${p.validUntil ? ` (valid until ${p.validUntil})` : ""}. Accept it in one tap: ${p.url}`;
   return { subject: `Quote ready: ${p.title}`, text, html: layout(title, `<p>Your quote <b>${esc(p.quoteNo)}</b> for <b>${esc(p.title)}</b> is ready${p.validUntil ? `, valid until <b>${esc(p.validUntil)}</b>` : ""}.</p><p>Review it and accept it in one tap.</p>`, { label: "View quote", url: p.url }) };
 }
+
+export function orderStatusEmail(p: { orderNo: string; status: string; note: string | null; url: string }) {
+  const title = `${p.orderNo}: ${p.status}`;
+  const text = `Your order ${p.orderNo} is now: ${p.status}.${p.note ? `\n\n${p.note}` : ""}\n\nFollow it here: ${p.url}`;
+  return { subject: `Order ${p.orderNo} — ${p.status}`, text, html: layout(title, `<p>Your order <b>${esc(p.orderNo)}</b> is now <b>${esc(p.status)}</b>.</p>${p.note ? `<p>${esc(p.note)}</p>` : ""}`, { label: "Track your order", url: p.url }) };
+}
+
+export function paymentReceivedEmail(p: { orderNo: string; amount: string; balance: string; paid: boolean; url: string }) {
+  const title = p.paid ? `Order ${p.orderNo} is fully paid` : `Payment received for ${p.orderNo}`;
+  const text = `We received ${p.amount} for order ${p.orderNo}. ${p.paid ? "Your order is fully paid. Thank you!" : `Remaining balance: ${p.balance}.`}\n\n${p.url}`;
+  return { subject: title, text, html: layout(title, `<p>We received <b>${esc(p.amount)}</b> for order <b>${esc(p.orderNo)}</b>.</p><p>${p.paid ? "Your order is fully paid. Thank you!" : `Remaining balance: <b>${esc(p.balance)}</b>.`}</p>`, { label: "View order", url: p.url }) };
+}
+
+export function orderCancelledStaffEmail(p: { company: string; orderNo: string; reason: string; url: string }) {
+  const title = `${p.orderNo} cancelled by the client`;
+  const text = `${p.company} cancelled ${p.orderNo}. Reason: ${p.reason}\n\n${p.url}`;
+  return { subject: `${p.company} — ${title}`, text, html: layout(title, `<p><b>${esc(p.company)}</b> cancelled <b>${esc(p.orderNo)}</b>.</p><p>Reason: ${esc(p.reason)}</p>`, { label: "Open order", url: p.url }) };
+}
+
+export function paymentSlipStaffEmail(p: { company: string; orderNo: string; note: string | null; url: string }) {
+  const title = `Payment slip for ${p.orderNo}`;
+  const text = `${p.company} attached a deposit slip or cheque photo for ${p.orderNo}.${p.note ? ` Note: ${p.note}` : ""} Please check it and record the payment.\n\n${p.url}`;
+  return { subject: `${p.company} — ${title}`, text, html: layout(title, `<p><b>${esc(p.company)}</b> attached a deposit slip or cheque photo for <b>${esc(p.orderNo)}</b>.</p>${p.note ? `<p>Note: ${esc(p.note)}</p>` : ""}<p>Please check it and record the payment.</p>`, { label: "Open order", url: p.url }) };
+}

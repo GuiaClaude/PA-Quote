@@ -4,7 +4,7 @@ The app where Print Amplified's clients **reorder in one tap, place new orders, 
 
 This guide is written for the **management and sales team**. You don't need to be a developer for anything in the "Day-to-day" part. The "Set-up" part is done once (or by whoever looks after the app technically).
 
-> **Build status:** Phases 1–5 of 7 are complete (foundation; file archive and Print Items; review & revise; catalog, new orders and quotes; past estimates and one-click reorder with instant quotes). Screens marked **“Coming soon”** or with a 🔨 note are built in later phases. See [What's built](#whats-built-so-far).
+> **Build status:** Phases 1–6 of 7 are complete (foundation; file archive and Print Items; review & revise; catalog, new orders and quotes; past estimates and one-click reorder; order tracking and payments). Phase 7 (phone install, push notifications, launch) is next. Screens marked **“Coming soon”** or with a 🔨 note are built in later phases. See [What's built](#whats-built-so-far).
 
 ---
 
@@ -34,6 +34,10 @@ This guide is written for the **management and sales team**. You don't need to b
   - [Update an agreed price or change an instant quote](#update-an-agreed-price-or-change-an-instant-quote)
   - [How clients reorder](#how-clients-reorder)
   - [Optional: AI auto-fill (paid, off by default)](#optional-ai-auto-fill-paid-off-by-default)
+  - [Confirm and update orders](#confirm-and-update-orders)
+  - [Record payments](#record-payments)
+  - [What clients see while an order is in progress](#what-clients-see-while-an-order-is-in-progress)
+  - [Who gets emails and notifications](#who-gets-emails-and-notifications)
   - [Change the logo, colours and payment instructions](#change-the-logo-colours-and-payment-instructions)
   - [Sign-in security settings](#sign-in-security-settings)
   - [The audit log](#the-audit-log)
@@ -285,6 +289,65 @@ AI auto-fill reads an uploaded estimate (PDF or photo) and fills the form **for 
 - **To turn it on:** (1) create an API key at console.anthropic.com and add it as `ANTHROPIC_API_KEY` in Vercel → Settings → Environment Variables; (2) in **Settings → Optional paid features**, switch on **AI auto-fill**. The **Auto-fill from file** button then appears on estimates that have a file.
 - Excel and Word files can't be auto-filled yet; save them as PDF first.
 
+### Confirm and update orders
+
+Open **Orders** and click an order. Use the chips to filter: **New** for orders to confirm, or **Unpaid or partly paid**.
+
+**Confirm a new order** (management and sales):
+
+1. Check the items, the artwork and the price.
+2. To change a price (for example a rush fee), type the **new total** next to that item. Leave the box empty to keep the price. Items without a price (a "design help" order, for example) need one before you can confirm.
+3. Add a note for the client if you like, then press **Confirm order**. The client gets an email. If you changed the price, the email asks them to check the new total.
+
+**Update the status** (management, sales **and production**):
+
+1. Under **Update status**, choose the next step. The app suggests the usual next one. You can skip steps; small jobs often go straight from Confirmed to Printing.
+2. Add a note if helpful (e.g. *Truck left 8:40 AM, driver Jun*).
+3. Press **Add photos** to take or choose production or delivery photos. For the **signed delivery receipt**, switch on *These files are the signed delivery receipt* (a photo or PDF).
+4. Switch off **Show this update to the client** for an internal note (e.g. *reprinting sheet 3*). The status itself always shows to the client.
+5. Press **Update to …**.
+
+Rules: **Delivered** can only become **Closed**. Cancelled and Closed orders can't be changed. Production can't confirm or cancel orders and never sees prices or payments.
+
+**Add a receipt later.** On a delivered order, use **Add a receipt or photos**.
+
+**Cancel.** Management and sales can cancel any order that isn't delivered yet (a reason is required, and the client is told). Clients can cancel their own order only while it is **Submitted**. After that they're asked to contact you.
+
+**After delivery: save the final price.** A delivered order shows *Save as agreed prices*. Press it to make the order's final prices the item's new agreed prices, dated today, so future instant reorder quotes start from them. The old prices stay in the price history.
+
+### Record payments
+
+Clients pay by bank transfer or cheque outside the app. You record what arrived:
+
+1. Open the order. In **Payment**, open **Record a payment**.
+2. Choose **Bank transfer** or **Cheque**, then type the reference or cheque number, the bank, the amount (the balance is pre-filled) and the date received.
+3. Press **Record payment**. The status updates by itself: **Unpaid → Partially Paid → Paid**. The client gets an email with the amount and the remaining balance.
+
+**Made a mistake, or a cheque bounced?** Press 🗑 next to the payment and give a reason. It is removed from the total but kept in the audit log; payments are never truly deleted.
+
+**Payment slips.** Clients can send a photo of their deposit slip or cheque from their order page. You get an email and a notice, and the photo appears under *Slips from the client*. A slip is **not** a payment: check your bank first, then record the payment.
+
+To find money still owed, press **Unpaid** on the dashboard or choose **Unpaid or partly paid** on the Orders list.
+
+### What clients see while an order is in progress
+
+- A five-step progress bar: **Submitted → Confirmed → In production → Ready / on the way → Delivered**, with a red banner if the order is **On Hold**.
+- The full timeline with the date and time of every step, your notes and the photos and receipts (photo links expire after 10 minutes).
+- For admins and buyers: the total with VAT, what's been paid, the balance, each payment recorded, your payment instructions, and **Send slip photo**. Viewers see the status and photos but no money.
+
+### Who gets emails and notifications
+
+| Event | Client (admins + buyers; viewers for status) | Your staff assigned to the client |
+|---|---|---|
+| Order placed / quote requested | — | email + notice |
+| Order confirmed (or price changed) | email + notice | — |
+| Status changed | notice for every visible change; **email** for Approved for Print, Printing, Ready for Pickup, Out for Delivery, Delivered, On Hold | — |
+| Order cancelled | email + notice (if you cancel) | email + notice (if the client cancels) |
+| Payment recorded | email + notice | — |
+| Payment slip sent | — | email + notice |
+
+The person who placed the order always gets their order's emails. Internal steps (Prepress, Finishing, Quality Check) only appear as notices, to avoid too many emails.
+
 ### Change the logo, colours and payment instructions
 
 **Settings** (only management can save changes):
@@ -305,13 +368,14 @@ AI auto-fill reads an uploaded estimate (PDF or photo) and fills the form **for 
 
 ### The audit log
 
-**Audit log** (management only) records sign-ins (including failed ones and lockouts), invites, deactivations, role changes, client changes and settings changes, with who, when and from which IP address. **Nobody can edit or delete entries**, not even management.
+**Audit log** (management only) records sign-ins (including failed ones and lockouts), invites, deactivations, role changes, uploads, preview views, high-res downloads, revisions, approvals, price and pricing-rule changes, order status changes, payments (recorded and voided), cancellations, removals and settings changes, with who, when and from which IP address. **Nobody can edit or delete entries**, not even management.
+
+Filter by **area** (e.g. Payments), **person** (part of an email) and **dates**, then press **Export CSV** to open it in Excel (up to 20,000 rows; the export itself is logged).
 
 ### Coming in later phases
 
 | Guide topic | Phase |
 |---|---|
-| Update orders; record payments; email notifications | 6 |
 | How clients install the app on their phones; push notifications | 7 |
 
 ---
@@ -412,6 +476,15 @@ Password for all of them: **`Demo-Print-2026!`**
 ---
 
 ## What's built so far
+
+**Phase 6 — Order tracking and payments ✅**
+- Staff order page: confirm, with an optional price change (VAT and totals recomputed); status updates with notes, client or internal visibility, and production and delivery photos and signed receipts; cancel with a reason.
+- Production can move orders along but can't confirm or cancel, and never sees prices or payments. All of this is enforced in the database.
+- Payments by bank transfer or cheque with reference, bank, amount, date and notes. Status rolls up automatically (Unpaid → Partially Paid → Paid). Wrong entries are voided with a reason, never deleted.
+- Client order page: a five-step progress bar, a timeline with photos, payment history and balance, an optional deposit-slip photo, and cancel while Submitted.
+- "Save as agreed prices" after delivery, so the next instant reorder quote starts from the latest price.
+- Emails and in-app notices for confirmation, status changes, delivery, cancellations, payments and slips.
+- Audit log: filter by area, person and dates, and export to CSV.
 
 **Phase 5 — Past estimates and one-click reorder ✅**
 - Past estimates: upload the original (PDF, Excel, Word, scan), a side-by-side check-and-confirm form, a "charge again on reorder" flag, Print Item link or create, and CSV bulk import with originals matched by estimate number.

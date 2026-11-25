@@ -13,6 +13,11 @@ export async function sha256Hex(file: File): Promise<string> {
  * Large files never pass through our web server.
  */
 export async function uploadToPrintFiles(path: string, file: File, onProgress: (pct: number) => void): Promise<void> {
+  return uploadToBucket("print-files", path, file, onProgress);
+}
+
+/** Same, for any private bucket the user may write to (e.g. "attachments"). */
+export async function uploadToBucket(bucket: "print-files" | "attachments", path: string, file: File, onProgress: (pct: number) => void): Promise<void> {
   const sb = supabaseBrowser();
   const { data } = await sb.auth.getSession();
   const token = data.session?.access_token;
@@ -21,7 +26,7 @@ export async function uploadToPrintFiles(path: string, file: File, onProgress: (
   const key = (process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)!;
   await new Promise<void>((resolve, reject) => {
     const xhr = new XMLHttpRequest();
-    xhr.open("POST", `${base}/storage/v1/object/print-files/${path.split("/").map(encodeURIComponent).join("/")}`);
+    xhr.open("POST", `${base}/storage/v1/object/${bucket}/${path.split("/").map(encodeURIComponent).join("/")}`);
     xhr.setRequestHeader("Authorization", `Bearer ${token}`);
     xhr.setRequestHeader("apikey", key);
     xhr.setRequestHeader("x-upsert", "false");

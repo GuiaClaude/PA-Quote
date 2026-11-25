@@ -10,6 +10,10 @@ import { optionValue, type CatalogOption } from "@/lib/catalog/options";
 import { ReorderFlow } from "@/components/reorder/reorder-flow";
 import { CartView } from "@/components/reorder/cart-view";
 import { EstimateEditor } from "@/components/estimates/estimate-editor";
+import { StatusTimeline } from "@/components/data/status-timeline";
+import { OrderProgress } from "@/components/orders/order-progress";
+import { ConfirmPanel, PaymentsPanel, StatusPanel } from "@/components/orders/staff-order-panels";
+import { PaymentSlipUpload } from "@/components/orders/payment-slip-upload";
 
 const OPTS: CatalogOption[] = [
   { id: "s1", kind: "size", label: '2" x 3.5"', value: optionValue("size", "2x3.5in") },
@@ -34,7 +38,7 @@ export function LabClient({ card, card2, brochure, template }: {
   const [view, setView] = useState<string>("review");
   return (
     <main className="mx-auto max-w-5xl space-y-4 p-4">
-      <nav className="flex flex-wrap gap-2 text-sm">{["review", "compare", "designer", "brochure", "order", "quote", "builder", "reorder", "cart", "estimate"].map((v) => (
+      <nav className="flex flex-wrap gap-2 text-sm">{["review", "compare", "designer", "brochure", "order", "quote", "builder", "reorder", "cart", "estimate", "track", "staff-order"].map((v) => (
         <button key={v} data-view={v} onClick={() => setView(v)} className={`rounded border px-2 py-1 ${view === v ? "bg-primary text-white" : ""}`}>{v}</button>
       ))}</nav>
       {view === "review" ? <ReviewClient printItemId="lab" organizationId="lab" itemName="Business Card – Liza Mendoza" baseVersionId="lab" pages={card} template={template} maxMb={50} /> : null}
@@ -63,6 +67,22 @@ export function LabClient({ card, card2, brochure, template }: {
             spec: { size: "A4 trifold", material: "Gloss art", gsm: 150, colors: "4/4", finishing: ["fold"] },
             lines: [{ quantity: "1000", unitPrice: "20.1600", total: "20160.00" }, { quantity: "2000", unitPrice: "16.9600", total: "33920.00" }],
             charges: [{ label: "Plates", amount: "3500.00", recharge: false }] }} /></div> : null}
+      {view === "track" ? <div className="space-y-4"><OrderProgress status="out_for_delivery" />
+        <div className="grid gap-6 md:grid-cols-[1fr_320px]"><StatusTimeline events={[
+          { id: "e1", to_status: "submitted", note: null, created_at: "2026-11-18T01:10:00Z" },
+          { id: "e2", to_status: "confirmed", note: "Same artwork as the 2025 run.", created_at: "2026-11-18T03:00:00Z" },
+          { id: "e3", to_status: "printing", note: null, created_at: "2026-11-20T00:30:00Z", photos: [{ id: "p1", url: brochure[0]?.url ?? null, name: "press.jpg", kind: "production_photo", isImage: true }] },
+          { id: "e4", to_status: "out_for_delivery", note: "Truck left the plant 8:40 AM. Driver: Jun, 0917 555 0101", created_at: "2026-11-24T00:40:00Z",
+            photos: [{ id: "p2", url: brochure[0]?.url ?? null, name: "boxes.jpg", kind: "delivery_photo", isImage: true }, { id: "p3", url: "#", name: "dr.pdf", kind: "delivery_receipt", isImage: false }] },
+        ]} />
+        <div className="rounded-xl border bg-surface p-4"><PaymentsPanel orderId="o" today="2026-11-25" canRecord={false} cancelled={false} totalCentavos={4_698_400} paidCentavos={2_349_200}
+          payments={[{ id: "pay1", method: "cheque", reference: "CHK 004512", bank: "Metrobank", amountCentavos: 2_349_200, receivedOn: "2026-11-20", notes: null }]} />
+          <PaymentSlipUpload orderId="o" organizationId="org" /></div></div></div> : null}
+      {view === "staff-order" ? <div className="grid gap-6 md:grid-cols-[1fr_380px]">
+        <ConfirmPanel orderId="o" items={[{ id: "i1", title: "Business Cards – Ramon Garcia", quantity: 200, totalCentavos: 85_000 }, { id: "i2", title: "Shelf Price Tag", quantity: 5000, totalCentavos: null }]} />
+        <div className="space-y-6"><StatusPanel orderId="o" organizationId="org" status="printing" />
+          <div className="rounded-xl border bg-surface p-4"><PaymentsPanel orderId="o" today="2026-11-25" canRecord cancelled={false} totalCentavos={4_698_400} paidCentavos={2_349_200}
+            payments={[{ id: "pay1", method: "cheque", reference: "CHK 004512", bank: "Metrobank", amountCentavos: 2_349_200, receivedOn: "2026-11-20", notes: "50% down payment" }]} /></div></div></div> : null}
       {view === "designer" ? <TemplateDesigner printItemId="lab" pages={card} fonts={[]} initial={{ renditionId: card[0]!.id, fields: template.fields }} /> : null}
     </main>
   );

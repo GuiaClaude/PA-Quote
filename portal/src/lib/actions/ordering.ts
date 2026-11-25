@@ -110,6 +110,7 @@ export async function deleteDraft(draftId: string): Promise<ActionState> {
   if (!me || !uuid.safeParse(draftId).success) return { error: "Not allowed." };
   const sb = await supabaseServer();
   await sb.from("draft_orders").update({ deleted_at: new Date().toISOString() }).eq("id", draftId);
+  await audit({ action: "order.draft_deleted", actorId: me.id, actorEmail: me.email, organizationId: me.organizationId, entityType: "draft_order", entityId: draftId });
   revalidatePath("/app/order/new");
   return { message: "Draft deleted." };
 }

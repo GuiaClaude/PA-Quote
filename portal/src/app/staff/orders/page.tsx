@@ -51,9 +51,12 @@ export default async function StaffOrders({ searchParams }: { searchParams: Prom
 
   return (
     <>
-      <PageHeader title={t.orders.staffTitle} description="Confirming orders, updating status and recording payments arrive in Phase 6." />
+      <PageHeader title={t.orders.staffTitle} description="Confirm new orders, update their status with photos, and record payments. Click an order to work on it." />
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <FilterChips options={chips} active={status} param="status" base="/staff/orders" />
+        <div className="flex flex-wrap gap-2">
+          <FilterChips options={chips} active={status} param="status" base="/staff/orders" />
+          {prices ? <FilterChips options={[{ value: "", label: "Any payment" }, { value: "open", label: "Unpaid or partly paid" }]} active={sp.payment === "open" ? "open" : undefined} param="payment" base="/staff/orders" /> : null}
+        </div>
         <form role="search"><input name="q" defaultValue={search} placeholder="Search order no." aria-label="Search order number"
           className="h-9 w-full rounded-lg border border-input bg-surface px-3 text-sm sm:w-56" /></form>
       </div>
@@ -80,7 +83,7 @@ export default async function StaffOrders({ searchParams }: { searchParams: Prom
           </Table>
         </Card>
       )}
-      <Pager page={page} total={count ?? 0} size={PAGE} base={`/staff/orders${status ? `?status=${status}` : ""}`} />
+      <Pager page={page} total={count ?? 0} size={PAGE} base={`/staff/orders?${new URLSearchParams(Object.entries({ status: status ?? "", payment: sp.payment === "open" ? "open" : "", q: search }).filter(([, v]) => v)).toString()}`} />
     </>
   );
 }
