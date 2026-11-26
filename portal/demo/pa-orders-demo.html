@@ -354,7 +354,7 @@ function vHome() {
   <div class="grid2">
     <section class="card"><h2>Orders in progress</h2><p class="sub">Tap one to see where it is.</p>
       <ul class="list">${active.length ? active.map((o) => `<li style="cursor:pointer" data-open="${o.id}"><div class="grow"><b>${o.no}</b><div class="muted small">${esc(o.lines.map((l) => l.title).join(", "))}</div></div>${badge(o.status)}</li>`).join("") : '<li class="muted">Nothing in progress.</li>'}</ul></section>
-    <section class="card"><h2>Your account manager</h2><p class="sub">Ana Reyes · Sales</p><p class="muted small" style="margin:0">Mobile 0917 555 0123 · ana.reyes@printamplified.example</p></section>
+    <section class="card"><h2>Your account manager</h2><p class="sub">Ana Reyes · Sales</p><p class="muted small" style="margin:0">Call, Viber or email buttons appear here in the real app.</p></section>
   </div>`;
 }
 function vItems() {
@@ -431,7 +431,7 @@ function moneyCard(o, staff) {
   <dl class="money tab" style="margin-top:10px"><div><dt>Amount (VAT-exclusive)</dt><dd>${peso(t - vatOf(t))}</dd></div><div><dt>12% VAT</dt><dd>${peso(vatOf(t))}</dd></div>
   <div class="tot"><dt>Total</dt><dd>${peso(t)}</dd></div><div><dt>Paid so far</dt><dd>${peso(p)}</dd></div>${p < t ? `<div><dt><b>Balance</b></dt><dd><b>${peso(t - p)}</b></dd></div>` : ""}</dl>
   ${o.payments.length ? `<ul class="list" style="margin-top:8px">${o.payments.map((x) => `<li class="small"><span class="grow">${esc(x.method)} ${esc(x.ref)}${x.bank ? " · " + esc(x.bank) : ""}<br><span class="muted">Received ${fdate(x.on)}</span></span><b class="tab">${peso(x.amount)}</b></li>`).join("")}</ul>` : ""}
-  ${!staff ? `<div class="notice n-info small" style="margin-top:10px"><b>How to pay:</b> BDO · Print Amplified Corp. · 0012-3456-7890. Cheques payable to <b>Print Amplified Corp.</b> (Pretend details for the demo.)</div>` : ""}
+  ${!staff ? `<div class="notice n-info small" style="margin-top:10px"><b>How to pay:</b> your bank accounts and cheque payee appear here, exactly as management enters them in Settings. (No real payment details in this demo.)</div>` : ""}
   ${staff && me === "sales" && o.status !== "cancelled" ? payForm(o) : ""}</section>`;
 }
 function vOrder() {
