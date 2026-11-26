@@ -343,12 +343,12 @@ To find money still owed, press **Unpaid** on the dashboard or choose **Unpaid o
 |---|---|---|
 | Order placed / quote requested | — | email + notice |
 | Order confirmed (or price changed) | email + notice | — |
-| Status changed | notice for every visible change; **email** for Approved for Print, Printing, Ready for Pickup, Out for Delivery, Delivered, On Hold | — |
+| Status changed | **email + notice for every status change shown to the client** (internal notes send nothing) | — |
 | Order cancelled | email + notice (if you cancel) | email + notice (if the client cancels) |
 | Payment recorded | email + notice | — |
 | Payment slip sent | — | email + notice |
 
-The person who placed the order always gets their order's emails. Internal steps (Prepress, Finishing, Quality Check) only appear as notices, to avoid too many emails.
+The person who placed the order always gets their order's emails. To update an order **without** emailing the client (e.g. a small correction), switch off **Show this update to the client**. An order usually sends 8–12 emails per client user from start to finish, so watch the Resend free limit (100 a day, 3,000 a month) once many orders are moving.
 
 ### Change the logo, colours and payment instructions
 
@@ -450,7 +450,7 @@ Supabase Free has **no automatic backups**, so please do these:
 
 ### 1. Create the Supabase project
 1. Create a free account at supabase.com, then **New project**. Region: **Southeast Asia (Singapore)**. Save the database password somewhere safe.
-2. **Load the database.** Install the [Supabase CLI](https://supabase.com/docs/guides/cli), then from the `portal` folder:
+2. **Load the database.** *Easiest (no installs):* open Supabase → **SQL Editor → New query**, paste the whole of [`supabase/setup/1-database.sql`](supabase/setup/1-database.sql), press **Run** and wait for "Success". On a **demo** project only, do the same with [`supabase/setup/2-demo-data.sql`](supabase/setup/2-demo-data.sql). *Or*, with the [Supabase CLI](https://supabase.com/docs/guides/cli), from the `portal` folder:
    ```bash
    npx supabase link --project-ref <your-project-ref>
    ```

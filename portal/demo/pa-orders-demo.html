@@ -226,7 +226,7 @@ const STATUS = {
 const STAGES = [["Submitted", ["submitted"]], ["Confirmed", ["confirmed", "prepress", "waiting_for_client_approval", "approved_for_print"]],
   ["In production", ["printing", "finishing", "quality_check"]], ["Ready / on the way", ["ready_for_pickup", "out_for_delivery"]], ["Delivered", ["delivered", "closed"]]];
 const FLOW = ["confirmed", "prepress", "approved_for_print", "printing", "finishing", "quality_check", "out_for_delivery", "delivered", "closed"];
-const EMAILED = new Set(["confirmed", "approved_for_print", "printing", "ready_for_pickup", "out_for_delivery", "delivered", "on_hold"]);
+const EMAILED = { has: () => true };   // every client-visible status change is emailed
 
 function seed() {
   const d = (days, h = 9) => { const t = new Date(); t.setDate(t.getDate() - days); t.setHours(h, 10, 0, 0); return t.toISOString(); };

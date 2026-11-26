@@ -17,7 +17,8 @@
     "e2e": "playwright test --trace off",
     "push:keys": "web-push generate-vapid-keys",
     "icons": "node scripts/make-icons.mjs",
-    "preflight": "tsx scripts/preflight.ts"
+    "preflight": "tsx scripts/preflight.ts",
+    "db:bundle": "bash scripts/db/bundle-for-sql-editor.sh"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.14.0",

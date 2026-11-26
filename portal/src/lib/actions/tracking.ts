@@ -25,8 +25,8 @@ import type { ActionState } from "./account";
 const uuid = z.uuid();
 const STATUSES = ["prepress", "waiting_for_revisions", "waiting_for_client_approval", "approved_for_print", "printing", "finishing", "quality_check",
   "ready_for_pickup", "out_for_delivery", "delivered", "closed", "on_hold"] as const;
-/** Clients get an email for these; every client-visible change also appears in their in-app notifications. */
-const EMAIL_STATUSES = new Set(["approved_for_print", "printing", "ready_for_pickup", "out_for_delivery", "delivered", "on_hold"]);
+// Every status change shown to the client is emailed to them (management's choice) and also
+// appears in their in-app notifications. Internal notes (client_visible = false) send nothing.
 const ALL_CLIENT_ROLES = ["client_admin", "client_buyer", "client_viewer"];
 const label = (s: string) => (t.status as Record<string, string>)[s] ?? s;
 const site = () => env().NEXT_PUBLIC_SITE_URL;
@@ -79,7 +79,7 @@ export async function updateOrderStatus(raw: z.input<typeof statusInput>): Promi
   if (error) return { error: error.message };
   const o = await orderInfo(d.orderId);
   await audit({ action: "order.status_changed", actorId: me.id, actorEmail: me.email, organizationId: o?.organization_id, entityType: "order", entityId: d.orderId, meta: { to: d.to, note: d.note, client_visible: d.clientVisible, files: d.fileIds.length } });
-  if (o && d.clientVisible && EMAIL_STATUSES.has(d.to)) {
+  if (o && d.clientVisible) {
     after(() => emailClientUsers(o.organization_id, ALL_CLIENT_ROLES, orderStatusEmail({ orderNo: o.order_no, status: label(d.to), note: d.note || null, url: `${site()}/app/orders/${o.id}` }), o.placed_by));
   }
   refresh(d.orderId);
