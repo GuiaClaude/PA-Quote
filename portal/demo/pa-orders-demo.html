@@ -1,0 +1,648 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PA Orders Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+/* Layout: app frame = top bar (demo role switcher) + sidebar on desktop / bottom tabs on phones, matching the real app. */
+:root {
+  --bg: #f6f7f9; --surface: #ffffff; --muted: #eef1f4; --border: #dde3e9; --fg: #0f1b2d; --fg-2: #536173;
+  --primary: #007c89; --primary-soft: #e3f4f6; --accent: #c81e4e; --nav: #0f1b2d; --nav-fg: #c9d4e0;
+  --ok: #157a46; --ok-soft: #e4f5ec; --warn: #a15c00; --warn-soft: #fdf1df; --bad: #c0262d; --bad-soft: #fdebec; --info: #2459b8; --info-soft: #e7eefb;
+  --font: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0c1420; --surface: #132033; --muted: #1a2a40; --border: #26384f; --fg: #e8eef5; --fg-2: #9fb0c3;
+  --primary: #2bb3c2; --primary-soft: #0f3640; --accent: #f0587f; --nav: #08101a; --nav-fg: #a9b8c8;
+  --ok: #4fcf8a; --ok-soft: #12301f; --warn: #f0ad4e; --warn-soft: #3a2a10; --bad: #ff7a7f; --bad-soft: #3d1517; --info: #7fa8ff; --info-soft: #18264a; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0c1420; --surface: #132033; --muted: #1a2a40; --border: #26384f; --fg: #e8eef5; --fg-2: #9fb0c3;
+  --primary: #2bb3c2; --primary-soft: #0f3640; --accent: #f0587f; --nav: #08101a; --nav-fg: #a9b8c8;
+  --ok: #4fcf8a; --ok-soft: #12301f; --warn: #f0ad4e; --warn-soft: #3a2a10; --bad: #ff7a7f; --bad-soft: #3d1517; --info: #7fa8ff; --info-soft: #18264a; color-scheme: dark; }
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+html, body { overflow-x: hidden; }
+body { background: var(--bg); color: var(--fg); font: 14px/1.5 var(--font); -webkit-font-smoothing: antialiased; }
+button, input, select, textarea { font: inherit; color: inherit; }
+.tab { font-variant-numeric: tabular-nums; }
+h1, h2, h3 { margin: 0; text-wrap: balance; letter-spacing: -0.01em; }
+a { color: var(--primary); }
+
+.demo-bar { background: var(--nav); color: #fff; padding-block: 8px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; font-size: 13px; }
+.demo-bar .tag { background: var(--accent); color: #fff; border-radius: 999px; padding: 2px 9px; font-weight: 700; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; }
+.demo-bar label { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.demo-bar select { background: #1d2c43; color: #fff; border: 1px solid #36506e; border-radius: 8px; padding: 6px 8px; max-width: 100%; min-width: 0; }
+.demo-bar .sp { flex: 1; }
+.demo-bar button { background: transparent; border: 1px solid #36506e; color: #dbe6f2; border-radius: 8px; padding: 5px 10px; cursor: pointer; }
+
+.frame { display: grid; grid-template-columns: 232px minmax(0, 1fr); min-height: calc(100vh - 44px); }
+.side { background: var(--nav); color: var(--nav-fg); padding: 18px 12px; display: flex; flex-direction: column; gap: 4px; }
+.brand { display: flex; align-items: center; gap: 10px; padding: 4px 8px 16px; color: #fff; font-weight: 800; }
+.logo { width: 30px; height: 30px; border-radius: 8px; background: #0f1b2d; border: 1px solid #2b3d57; position: relative; flex: none; }
+.logo::before { content: ""; position: absolute; left: 8px; top: 7px; width: 14px; height: 4px; border-radius: 2px; background: #00AEBF; }
+.logo::after { content: ""; position: absolute; left: 8px; top: 14px; width: 9px; height: 4px; border-radius: 2px; background: #E0295A; }
+.company { background: #16253a; border-radius: 10px; padding: 8px 10px; margin: 0 4px 10px; }
+.company small { display: block; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: #8193a8; font-weight: 600; }
+.company b { color: #fff; font-weight: 600; }
+.navbtn { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; background: none; border: 0; color: var(--nav-fg); padding: 9px 12px; border-radius: 8px; cursor: pointer; font-weight: 500; }
+.navbtn:hover { background: #16253a; color: #fff; }
+.navbtn[aria-current="page"] { background: #1c3048; color: #fff; box-shadow: inset 3px 0 0 #00AEBF; }
+.navbtn .count { margin-left: auto; background: var(--accent); color: #fff; border-radius: 999px; font-size: 11px; padding: 0 7px; font-weight: 700; }
+.main { min-width: 0; display: flex; flex-direction: column; }
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: color-mix(in srgb, var(--surface) 94%, transparent); backdrop-filter: blur(6px); border-bottom: 1px solid var(--border); height: 56px; display: flex; align-items: center; gap: 12px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.top .who { margin-left: auto; text-align: right; line-height: 1.2; }
+.top .who small { color: var(--fg-2); display: block; }
+.bell { position: relative; width: 38px; height: 38px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; display: grid; place-items: center; }
+.bell span { position: absolute; top: -3px; right: -3px; background: var(--accent); color: #fff; font-size: 10px; font-weight: 700; border-radius: 999px; min-width: 17px; height: 17px; display: grid; place-items: center; padding: 0 4px; }
+.content { padding-block: 22px 96px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); max-width: 1180px; width: 100%; display: grid; gap: 20px; align-content: start; }
+.bottom { display: none; }
+
+.page-h { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: end; justify-content: space-between; }
+.page-h h1 { font-size: 24px; }
+.page-h p { margin: 2px 0 0; color: var(--fg-2); }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px; min-width: 0; }
+.card h2 { font-size: 16px; margin-bottom: 4px; }
+.card .sub { color: var(--fg-2); margin: 0 0 12px; font-size: 13px; }
+.grid2 { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 20px; align-items: start; }
+.grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.kpi { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; cursor: pointer; text-align: left; }
+.kpi b { display: block; font-size: 26px; line-height: 1.2; }
+.kpi span { color: var(--fg-2); font-size: 13px; }
+.kpi.alert b { color: var(--bad); }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 10px; border: 1px solid transparent; padding: 9px 14px; font-weight: 600; cursor: pointer; background: var(--primary); color: #fff; }
+.btn:hover { filter: brightness(1.06); }
+.btn:disabled { opacity: .45; cursor: not-allowed; filter: none; }
+.btn.lg { padding: 12px 18px; font-size: 15px; }
+.btn.out { background: var(--surface); color: var(--fg); border-color: var(--border); }
+.btn.ghost { background: transparent; color: var(--primary); padding: 6px 8px; }
+.content > .btn.ghost { justify-self: start; margin-bottom: -10px; }
+.btn.danger { background: var(--bad); }
+:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+.badge { display: inline-flex; align-items: center; gap: 5px; border-radius: 999px; padding: 2px 9px; font-size: 12px; font-weight: 600; white-space: nowrap; background: var(--muted); color: var(--fg-2); }
+.b-info { background: var(--info-soft); color: var(--info); } .b-ok { background: var(--ok-soft); color: var(--ok); } .b-warn { background: var(--warn-soft); color: var(--warn); }
+.b-bad { background: var(--bad-soft); color: var(--bad); } .b-brand { background: var(--primary-soft); color: var(--primary); }
+
+.list { list-style: none; margin: 0; padding: 0; }
+.list > li { border-top: 1px solid var(--border); padding: 12px 0; display: flex; gap: 12px; align-items: center; }
+.list > li:first-child { border-top: 0; }
+.grow { flex: 1; min-width: 0; }
+.muted { color: var(--fg-2); }
+.small { font-size: 12px; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+
+table { width: 100%; border-collapse: collapse; }
+th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+th { font-size: 12px; color: var(--fg-2); font-weight: 600; background: var(--muted); }
+tr.click { cursor: pointer; } tr.click:hover td { background: var(--muted); }
+.tablewrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 14px; background: var(--surface); }
+
+.action-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.tile { border: 0; border-radius: 16px; padding: 18px; text-align: left; cursor: pointer; color: #fff; display: grid; gap: 6px; }
+.tile b { font-size: 18px; } .tile span { opacity: .85; font-size: 13px; }
+.tile.t1 { background: var(--primary); } .tile.t2 { background: #2c3e57; } .tile.t3 { background: var(--accent); }
+
+.item-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+.thumb { aspect-ratio: 4/3; border-radius: 10px; background: var(--muted); display: grid; place-items: center; overflow: hidden; margin-bottom: 10px; max-width: 100%; }
+.sheet { width: 54%; aspect-ratio: 3/4; background: #fff; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,.18); padding: 9% 8%; display: grid; gap: 7%; align-content: start; }
+.sheet i { display: block; height: 9px; border-radius: 3px; }
+.sheet i:nth-child(1) { background: #00AEBF; width: 80%; } .sheet i:nth-child(2) { background: #E0295A; width: 55%; } .sheet i:nth-child(3), .sheet i:nth-child(4) { background: #c9d2dc; height: 4px; }
+
+.choice { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.opt { border: 1px solid var(--border); background: var(--surface); border-radius: 12px; padding: 12px 14px; text-align: left; cursor: pointer; }
+.opt b { display: block; } .opt span { color: var(--fg-2); font-size: 12px; }
+.opt[aria-pressed="true"], .opt[aria-checked="true"] { border-color: var(--primary); background: var(--primary-soft); box-shadow: inset 0 0 0 1px var(--primary); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chips .opt { min-width: 130px; }
+
+label.f { display: grid; gap: 4px; font-weight: 500; font-size: 13px; }
+input[type=text], input[type=date], input[type=number], select.in, textarea { width: 100%; border: 1px solid var(--border); background: var(--surface); border-radius: 10px; padding: 9px 11px; }
+.fgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.switch { display: flex; align-items: center; justify-content: space-between; gap: 12px; border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; }
+
+.price-box { border: 1px solid color-mix(in srgb, var(--primary) 45%, var(--border)); }
+.big { font-size: 32px; font-weight: 800; letter-spacing: -0.02em; }
+
+.progress { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 2px; }
+.progress li { list-style: none; display: grid; justify-items: center; gap: 6px; text-align: center; font-size: 12px; color: var(--fg-2); }
+.progress .dot { width: 28px; height: 28px; border-radius: 999px; border: 2px solid var(--border); background: var(--surface); display: grid; place-items: center; font-weight: 700; font-size: 12px; }
+.progress .done .dot { background: var(--primary); border-color: var(--primary); color: #fff; }
+.progress .now .dot { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+.progress .now { color: var(--fg); font-weight: 600; }
+.progress ol { display: contents; }
+
+.timeline { list-style: none; margin: 0; padding: 0 0 0 22px; border-left: 2px solid var(--border); display: grid; gap: 16px; }
+.timeline li { position: relative; }
+.timeline li::before { content: ""; position: absolute; left: -29px; top: 3px; width: 12px; height: 12px; border-radius: 999px; background: var(--border); border: 2px solid var(--surface); }
+.timeline li:first-child::before { background: var(--primary); }
+.timeline b { display: block; }
+
+dl.money { margin: 0; display: grid; gap: 4px; }
+dl.money div { display: flex; justify-content: space-between; gap: 12px; }
+dl.money dt { color: var(--fg-2); } dl.money dd { margin: 0; }
+dl.money .tot { border-top: 1px solid var(--border); padding-top: 6px; font-weight: 800; font-size: 16px; }
+dl.money .tot dt { color: var(--fg); }
+
+.notice { border-radius: 10px; padding: 10px 12px; }
+.n-ok { background: var(--ok-soft); color: var(--ok); } .n-warn { background: var(--warn-soft); color: var(--warn); } .n-info { background: var(--info-soft); color: var(--info); } .n-bad { background: var(--bad-soft); color: var(--bad); }
+
+.toast { position: fixed; left: 50%; bottom: calc(88px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,.25); z-index: 30; max-width: calc(100% - 32px); }
+.drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(380px, 100%); background: var(--surface); border-left: 1px solid var(--border); z-index: 25; padding: calc(16px + env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) 16px 16px; overflow-y: auto; box-shadow: -8px 0 24px rgba(0,0,0,.15); }
+.scrim { position: fixed; inset: 0; background: rgba(8,16,26,.4); z-index: 24; }
+
+@media (max-width: 900px) {
+  .grid2 { grid-template-columns: minmax(0, 1fr); }
+  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 760px) {
+  .frame { grid-template-columns: minmax(0, 1fr); }
+  .side { display: none; }
+  .bottom { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; background: var(--surface); border-top: 1px solid var(--border); padding-bottom: env(safe-area-inset-bottom, 0px); padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px); }
+  .bottom button { background: none; border: 0; padding: 9px 2px 8px; font-size: 11px; color: var(--fg-2); display: grid; justify-items: center; gap: 2px; cursor: pointer; }
+  .bottom button[aria-current="page"] { color: var(--primary); font-weight: 700; }
+  .bottom svg { width: 22px; height: 22px; }
+  .action-tiles, .grid3 { grid-template-columns: minmax(0, 1fr); }
+  .fgrid, .choice { grid-template-columns: minmax(0, 1fr); }
+  .hide-sm { display: none; }
+  .demo-bar { gap: 6px 10px; }
+  .demo-bar .sp { display: none; }
+  .demo-bar label { flex: 1; }
+  .demo-bar label select { flex: 1; width: 100%; }
+  .top .who small { display: none; }
+}
+@media (prefers-reduced-motion: no-preference) { .toast { animation: up .2s ease-out; } @keyframes up { from { transform: translate(-50%, 8px); opacity: 0; } } }
+</style>
+</head>
+<body>
+<div class="demo-bar" role="region" aria-label="Demo controls">
+  <span class="tag">Demo</span>
+  <span class="hide-sm">Pretend data in your browser. Nothing is real or sent anywhere.</span>
+  <span class="sp"></span>
+  <label for="who">Viewing as
+    <select id="who">
+      <option value="buyer">Client buyer (Liza)</option>
+      <option value="viewer">Client viewer (Paolo)</option>
+      <option value="sales">PA sales (Ana)</option>
+      <option value="production">PA production (Jun)</option>
+    </select>
+  </label>
+  <button type="button" id="reset">Reset demo</button>
+</div>
+<div class="frame">
+  <nav class="side" aria-label="Main" id="side"></nav>
+  <div class="main">
+    <header class="top" id="top"></header>
+    <main class="content" id="view" tabindex="-1"></main>
+  </div>
+</div>
+<nav class="bottom" aria-label="Main" id="bottom"></nav>
+<div id="overlay"></div>
+
+<script>
+"use strict";
+/* ============================================================= pretend database */
+const STORE_KEY = "pa-orders-demo-v1";
+const VAT = 0.12, ROUND_STEP = 5, MAX_AGE_YEARS = 3, MAX_ADJ = 20, VALID_DAYS = 15;
+const INFLATION = { 2022: 5.8, 2023: 6.0, 2024: 3.2, 2025: 2.0, 2026: 2.0 };
+const USERS = {
+  buyer: { name: "Liza Mendoza", role: "client_buyer", label: "Buyer", side: "client" },
+  viewer: { name: "Paolo Cruz", role: "client_viewer", label: "Viewer", side: "client" },
+  sales: { name: "Ana Reyes", role: "pa_sales", label: "Sales · ABC Corporation", side: "staff" },
+  production: { name: "Jun Santos", role: "pa_production", label: "Production", side: "staff" },
+};
+const STATUS = {
+  submitted: ["Submitted", "b-info"], confirmed: ["Confirmed", "b-brand"], prepress: ["Prepress", "b-brand"],
+  waiting_for_client_approval: ["Waiting for Your Approval", "b-warn"], approved_for_print: ["Approved for Print", "b-brand"],
+  printing: ["Printing", "b-brand"], finishing: ["Finishing", "b-brand"], quality_check: ["Quality Check", "b-brand"],
+  ready_for_pickup: ["Ready for Pickup", "b-ok"], out_for_delivery: ["Out for Delivery", "b-ok"], delivered: ["Delivered", "b-ok"],
+  closed: ["Closed", ""], on_hold: ["On Hold", "b-bad"], cancelled: ["Cancelled", ""],
+};
+const STAGES = [["Submitted", ["submitted"]], ["Confirmed", ["confirmed", "prepress", "waiting_for_client_approval", "approved_for_print"]],
+  ["In production", ["printing", "finishing", "quality_check"]], ["Ready / on the way", ["ready_for_pickup", "out_for_delivery"]], ["Delivered", ["delivered", "closed"]]];
+const FLOW = ["confirmed", "prepress", "approved_for_print", "printing", "finishing", "quality_check", "out_for_delivery", "delivered", "closed"];
+const EMAILED = new Set(["confirmed", "approved_for_print", "printing", "ready_for_pickup", "out_for_delivery", "delivered", "on_hold"]);
+
+function seed() {
+  const d = (days, h = 9) => { const t = new Date(); t.setDate(t.getDate() - days); t.setHours(h, 10, 0, 0); return t.toISOString(); };
+  return {
+    seq: { order: 205, qr: 5 },
+    items: [
+      { id: "br", name: "Product Brochure A4 Trifold", code: "ABC-BR-01", version: 3, lead: "5–7 working days",
+        spec: [["Size", "A4 open, trifold"], ["Paper", "Gloss Art 150gsm"], ["Colours", "4/4 full colour"], ["Finishing", "Folding"]],
+        tiers: [{ q: 1000, total: 2016000, date: "2025-03-10", inc: true, ref: "CE-2025-0142" }, { q: 2000, total: 3392000, date: "2025-03-10", inc: true, ref: "CE-2025-0142" }, { q: 5000, total: 6000000, date: "2022-05-18", inc: true, ref: "CE-2022-0310" }] },
+      { id: "bc", name: "Business Card – Liza Mendoza", code: null, version: 2, lead: "3–5 working days",
+        spec: [["Size", "2 × 3.5 in"], ["Paper", "Carolina C2S 300gsm"], ["Colours", "4/4"], ["Finishing", "Matte lamination both sides"]],
+        tiers: [{ q: 200, total: 85000, date: "2026-02-01", inc: true, ref: "Standard price" }, { q: 500, total: 130000, date: "2026-02-01", inc: true, ref: "Standard price" }] },
+      { id: "bx", name: "Shipping Box Medium", code: "ABC-BX-02", version: 1, lead: "7–10 working days",
+        spec: [["Size", "12 × 10 × 8 in"], ["Material", "SBS Board 300gsm"], ["Colours", "1/0 black"], ["Finishing", "Die-cut, glued"]],
+        tiers: [{ q: 1000, total: 4195000, date: "2025-09-01", inc: false, ref: "CE-2025-0420" }] },
+    ],
+    orders: [
+      { id: "o101", no: "PA-2026-000101", kind: "Reorder", status: "closed", placed: d(268), by: "buyer", po: "PO-ABC-8812", address: "Head office, Makati City",
+        lines: [{ item: "br", title: "Product Brochure A4 Trifold", q: 2000, total: 2620000 }], payments: [{ method: "Bank transfer", ref: "BDO-TRX-558812", bank: "BDO", amount: 2620000, on: d(245).slice(0, 10) }],
+        events: [["submitted", d(268), "", true], ["confirmed", d(268, 11), "Same artwork as 2025 run.", true], ["printing", d(264), "", true], ["delivered", d(252), "Received by reception.", true], ["closed", d(240), "", true]] },
+      { id: "o187", no: "PA-2026-000187", kind: "Reorder", status: "printing", placed: d(6), by: "buyer", po: "PO-ABC-9120", address: "Warehouse – Laguna, Cabuyao",
+        lines: [{ item: "bx", title: "Shipping Box Medium", q: 1000, total: 4698400 }], payments: [{ method: "Cheque", ref: "CHK 004512", bank: "Metrobank", amount: 2349200, on: d(5).slice(0, 10) }],
+        events: [["submitted", d(6), "", true], ["confirmed", d(6, 11), "50% down payment, balance on delivery.", true], ["printing", d(2), "", true], ["printing", d(1, 15), "Die-cutter set up again after a blade change.", false]] },
+      { id: "o203", no: "PA-2026-000203", kind: "New order", status: "submitted", placed: d(0, 8), by: "buyer", po: "", address: "Head office, Makati City",
+        lines: [{ item: null, title: "Business Cards – Ramon Garcia", q: 200, total: 85000 }], payments: [], events: [["submitted", d(0, 8), "", true]] },
+    ],
+    quoteRequests: [],
+    notes: { buyer: [], viewer: [], sales: [{ t: "New order to confirm", b: "PA-2026-000203 · Business Cards – Ramon Garcia", at: d(0, 8), order: "o203", read: false }], production: [] },
+  };
+}
+let db, me = "buyer", view = { name: "home" }, ui = {};
+function load() { try { const s = localStorage.getItem(STORE_KEY); if (s) { const v = JSON.parse(s); db = v.db; me = v.me || me; return; } } catch (e) { /* private mode */ } db = seed(); }
+function save() { try { localStorage.setItem(STORE_KEY, JSON.stringify({ db, me })); } catch (e) { /* ignore */ } }
+
+/* ============================================================= helpers */
+const $ = (s, r = document) => r.querySelector(s);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+const peso = (c) => "₱" + (c / 100).toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const today = () => new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Manila" }).format(new Date());
+const fdate = (iso) => new Date(iso.length === 10 ? iso + "T00:00:00+08:00" : iso).toLocaleDateString("en-PH", { month: "short", day: "numeric", year: "numeric", timeZone: "Asia/Manila" });
+const ftime = (iso) => new Date(iso).toLocaleString("en-PH", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit", timeZone: "Asia/Manila" });
+const U = () => USERS[me];
+const isClient = () => U().side === "client";
+const canOrder = () => me === "buyer";
+const seesMoney = () => me === "buyer" || me === "sales";
+const order = (id) => db.orders.find((o) => o.id === id);
+const item = (id) => db.items.find((i) => i.id === id);
+const badge = (s) => `<span class="badge ${STATUS[s]?.[1] ?? ""}">${esc(STATUS[s]?.[0] ?? s)}</span>`;
+const paid = (o) => o.payments.reduce((s, p) => s + p.amount, 0);
+const total = (o) => o.lines.reduce((s, l) => s + l.total, 0);
+const payStatus = (o) => { const p = paid(o); return p <= 0 ? "unpaid" : p >= total(o) ? "paid" : "partially_paid"; };
+const payBadge = (o) => ({ unpaid: '<span class="badge b-bad">Unpaid</span>', partially_paid: '<span class="badge b-warn">Partially Paid</span>', paid: '<span class="badge b-ok">Paid</span>' })[payStatus(o)];
+const vatOf = (c) => Math.round(c - c / (1 + VAT));
+function toast(msg) { document.querySelectorAll(".toast").forEach((x) => x.remove()); const t = document.createElement("div"); t.className = "toast"; t.setAttribute("role", "status"); t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 3600); }
+function notify(who, t, b, orderId) { for (const w of who) db.notes[w].unshift({ t, b, at: new Date().toISOString(), order: orderId, read: false }); }
+
+/* ============================================================= instant quote engine (same rules as the real app) */
+function inflationFactor(from, to) {
+  const s = Date.parse(from + "T00:00:00Z"), e = Date.parse(to + "T00:00:00Z");
+  let f = 1; const years = [];
+  for (let y = new Date(s).getUTCFullYear(); y <= new Date(e).getUTCFullYear(); y++) {
+    const ys = Math.max(s, Date.UTC(y, 0, 1)), ye = Math.min(e, Date.UTC(y + 1, 0, 1));
+    const days = Math.round((ye - ys) / 864e5); if (days <= 0) continue;
+    const known = Object.keys(INFLATION).map(Number).filter((k) => k <= y);
+    const rate = INFLATION[y] ?? INFLATION[Math.max(...known)] ?? 0;
+    const diy = (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0 ? 366 : 365;
+    f *= Math.pow(1 + rate / 100, days / diy); years.push({ y, rate, frac: days / diy });
+  }
+  return { f, years };
+}
+function quote(it, q) {
+  const tier = it.tiers.find((t) => t.q === q);
+  if (!tier) return { status: "blocked", reasons: ["quantity_not_in_tiers"] };
+  const baseNet = tier.inc ? tier.total / 100 / (1 + VAT) : tier.total / 100;
+  const age = (Date.parse(today()) - Date.parse(tier.date)) / 864e5 / 365.25;
+  const { f } = inflationFactor(tier.date, today());
+  const net = Math.max(baseNet, baseNet * f);
+  const adj = (net / baseNet - 1) * 100;
+  const gross = net * (1 + VAT);
+  const totalC = Math.ceil(gross / ROUND_STEP - 1e-9) * ROUND_STEP * 100;
+  const reasons = []; if (age > MAX_AGE_YEARS) reasons.push("estimate_too_old"); if (adj > MAX_ADJ) reasons.push("adjustment_over_limit");
+  const valid = new Date(Date.parse(today()) + VALID_DAYS * 864e5).toISOString().slice(0, 10);
+  return { status: reasons.length ? "blocked" : "offered", reasons, total: totalC, vat: vatOf(totalC), unit: totalC / 100 / q, adj, base: tier, valid };
+}
+const WHY = { estimate_too_old: "our last price for this quantity is over 3 years old, so we'll re-check it", adjustment_over_limit: "costs changed more than usual since your last order",
+  quantity_not_in_tiers: "this quantity hasn't been priced before", specs_changed: "the specs differ from the last price we gave" };
+
+/* ============================================================= icons */
+const I = {
+  home: '<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>', box: '<path d="M21 8l-9-5-9 5 9 5 9-5zM3 8v8l9 5 9-5V8"/>',
+  layers: '<path d="M12 3l9 5-9 5-9-5 9-5zM3 13l9 5 9-5"/>', bell: '<path d="M6 8a6 6 0 1 1 12 0c0 7 3 8 3 8H3s3-1 3-8M10 21h4"/>',
+  chart: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>', truck: '<path d="M3 6h11v10H3zM14 10h4l3 3v3h-7M7 19a2 2 0 1 0 0-.1M18 19a2 2 0 1 0 0-.1"/>',
+  quote: '<path d="M4 4h16v12H8l-4 4z"/>', refresh: '<path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/>', plus: '<path d="M12 5v14M5 12h14"/>',
+};
+const icon = (n, s = 18) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${I[n]}</svg>`;
+
+/* ============================================================= navigation */
+function navItems() {
+  if (isClient()) return [["home", "Home", "home"], ["items", "My Items", "layers"], ["orders", "My Orders", "box"]];
+  const openQR = db.quoteRequests.filter((q) => q.status === "open").length;
+  return [["dash", "Dashboard", "chart"], ["sorders", "Orders", "truck"], ...(me === "sales" ? [["qrs", `Quote requests${openQR ? `<span class="count">${openQR}</span>` : ""}`, "quote"]] : [])];
+}
+function go(name, extra = {}) { view = { name, ...extra }; ui = {}; render(); $("#view").focus({ preventScroll: true }); window.scrollTo(0, 0); }
+function renderChrome() {
+  const active = (n) => view.name === n || (n === "orders" && view.name === "order") || (n === "items" && (view.name === "item" || view.name === "reorder")) || (n === "sorders" && view.name === "sorder");
+  $("#side").innerHTML = `<div class="brand"><span class="logo" aria-hidden="true"></span><span>Print Amplified</span></div>
+    ${isClient() ? `<div class="company"><small>Company</small><b>ABC Corporation</b></div>` : `<div class="company"><small>Staff</small><b>${esc(U().label)}</b></div>`}
+    ${navItems().map(([n, l, ic]) => `<button class="navbtn" data-go="${n}" ${active(n) ? 'aria-current="page"' : ""}>${icon(ic)}<span style="display:contents">${l}</span></button>`).join("")}`;
+  $("#bottom").innerHTML = navItems().map(([n, l, ic]) => `<button data-go="${n}" ${active(n) ? 'aria-current="page"' : ""}>${icon(ic, 22)}<span>${l.replace(/<[^>]+>.*$/, "")}</span></button>`).join("");
+  const unread = db.notes[me].filter((n) => !n.read).length;
+  $("#top").innerHTML = `<strong class="hide-sm" style="display:none"></strong>
+    <div class="who"><b>${esc(U().name)}</b><small>${isClient() ? "ABC Corporation · " : ""}${esc(U().label)}</small></div>
+    <button class="bell" id="bell" aria-label="Notifications${unread ? `, ${unread} unread` : ""}">${icon("bell")}${unread ? `<span>${unread}</span>` : ""}</button>`;
+}
+
+/* ============================================================= client views */
+function vHome() {
+  const active = db.orders.filter((o) => !["closed", "cancelled", "delivered"].includes(o.status));
+  return `<div class="page-h"><div><h1>Good day, ${esc(U().name.split(" ")[0])}!</h1><p>ABC Corporation</p></div></div>
+  ${canOrder() ? `<section class="action-tiles" aria-label="Quick actions">
+    <button class="tile t1" data-go="items">${icon("refresh", 26)}<b>Reorder</b><span>Print again, same as before</span></button>
+    <button class="tile t2" data-toast="New orders from the catalogue are in the real app (4-step form with instant prices).">${icon("plus", 26)}<b>New order</b><span>Something new from our catalogue</span></button>
+    <button class="tile t3" data-go="orders">${icon("truck", 26)}<b>Track my orders</b><span>${active.length} in progress</span></button></section>`
+  : `<div class="notice n-info">You have <b>view-only</b> access: you can see files and follow orders, but not order or see prices.</div>`}
+  <div class="grid2">
+    <section class="card"><h2>Orders in progress</h2><p class="sub">Tap one to see where it is.</p>
+      <ul class="list">${active.length ? active.map((o) => `<li style="cursor:pointer" data-open="${o.id}"><div class="grow"><b>${o.no}</b><div class="muted small">${esc(o.lines.map((l) => l.title).join(", "))}</div></div>${badge(o.status)}</li>`).join("") : '<li class="muted">Nothing in progress.</li>'}</ul></section>
+    <section class="card"><h2>Your account manager</h2><p class="sub">Ana Reyes · Sales</p><p class="muted small" style="margin:0">Mobile 0917 555 0123 · ana.reyes@printamplified.example</p></section>
+  </div>`;
+}
+function vItems() {
+  return `<div class="page-h"><div><h1>My Print Items</h1><p>Your approved files, ready to print again.</p></div></div>
+  <div class="item-cards">${db.items.map((it) => `<article class="card">
+    <div class="thumb"><div class="sheet"><i></i><i></i><i></i><i></i></div></div>
+    <b>${esc(it.name)}</b><div class="muted small">${it.code ? esc(it.code) + " · " : ""}Approved v${it.version}</div>
+    <div class="row" style="margin-top:12px">${canOrder() ? `<button class="btn" data-reorder="${it.id}">${icon("refresh", 16)}Reorder</button>` : ""}<button class="btn out" data-item="${it.id}">Details</button></div></article>`).join("")}</div>`;
+}
+function vItem() {
+  const it = item(view.id);
+  return `<button class="btn ghost" data-go="items">‹ My Print Items</button>
+  <div class="page-h"><div><h1>${esc(it.name)}</h1><p>${it.code ? esc(it.code) + " · " : ""}<span class="badge b-ok">Approved for Print · v${it.version}</span></p></div>${canOrder() ? `<button class="btn" data-reorder="${it.id}">${icon("refresh", 16)}Reorder</button>` : ""}</div>
+  <div class="grid2"><section class="card"><h2>Approved artwork</h2><p class="sub">Low-res, watermarked preview. Print files never reach the browser.</p><div class="thumb" style="aspect-ratio:16/10"><div class="sheet" style="width:34%"><i></i><i></i><i></i><i></i></div></div></section>
+  <section class="card"><h2>Specs</h2><dl class="money">${it.spec.map(([k, v]) => `<div><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>
+  ${seesMoney() ? `<h2 style="margin-top:16px">Agreed prices</h2><ul class="list">${it.tiers.map((t) => `<li><span class="grow tab">${t.q.toLocaleString("en-PH")} pcs</span><span class="tab">${peso(t.total)}</span></li>`).join("")}</ul><p class="muted small">Reorders are priced from these, adjusted for today's costs.</p>` : ""}</section></div>`;
+}
+function vReorder() {
+  const it = item(view.id);
+  ui.art ??= null; ui.qty ??= it.tiers.find((t) => quote(it, t.q).status === "offered")?.q ?? "other"; ui.addr ??= "Head office, Makati City"; ui.changes ??= false;
+  const last = db.orders.filter((o) => o.lines.some((l) => l.item === it.id) && o.status !== "cancelled").sort((a, b) => b.placed.localeCompare(a.placed))[0];
+  const q = typeof ui.qty === "number" ? quote(it, ui.qty) : null;
+  const instant = ui.art === true && q && q.status === "offered" && !ui.changes;
+  const needs = ui.art === true && (!instant);
+  const reasons = ui.qty === "other" ? [WHY.quantity_not_in_tiers] : ui.changes ? [WHY.specs_changed] : (q?.reasons ?? []).map((r) => WHY[r]);
+  return `<button class="btn ghost" data-item="${it.id}">‹ ${esc(it.name)}</button>
+  <div class="page-h"><div><h1>Reorder: ${esc(it.name)}</h1><p>Same artwork and specs as before, priced at today's rates.</p></div></div>
+  ${last ? `<div class="card row" style="padding:12px 14px"><span class="grow">Last ordered <b>${last.lines[0].q.toLocaleString("en-PH")} pcs</b> on ${fdate(last.placed)} (${last.no}).</span><button class="btn out" id="same">Same as last order</button></div>` : ""}
+  <section class="card"><h2>1. Is the artwork still correct?</h2><p class="sub">We'll print exactly the approved version (v${it.version}).</p>
+    <div class="choice"><button class="opt" data-art="yes" aria-pressed="${ui.art === true}"><b>Yes, print as is</b><span>Same artwork as last time.</span></button>
+    <button class="opt" data-art="no" aria-pressed="${ui.art === false}"><b>I have changes</b><span>Mark up the artwork first.</span></button></div>
+    ${ui.art === false ? `<div class="notice n-info" style="margin-top:12px">In the real app this opens the markup screen: pins and boxes on the preview, comments and attachments. Prepress sends a revised proof, you approve it, then we quote the reprint.</div>` : ""}</section>
+  ${ui.art === true ? `<section class="card"><h2>2. How many?</h2><p class="sub">Quantities with a price can be ordered instantly. Any other quantity gets a quote from us.</p>
+    <div class="chips" role="radiogroup" aria-label="Quantity">${it.tiers.map((t) => { const x = quote(it, t.q); return `<button class="opt" role="radio" data-qty="${t.q}" aria-checked="${ui.qty === t.q}"><b class="tab">${t.q.toLocaleString("en-PH")} pcs</b><span class="tab">${x.status === "offered" ? peso(x.total) : "Quote needed"}</span></button>`; }).join("")}
+    <button class="opt" role="radio" data-qty="other" aria-checked="${ui.qty === "other"}" style="border-style:dashed"><b>Other quantity</b><span>Get a quote</span></button></div>
+    ${ui.qty === "other" ? `<label class="f" style="max-width:280px;margin-top:12px" for="otherq">Quantity<input type="number" id="otherq" min="1" value="${esc(ui.other ?? "")}" placeholder="e.g. 1500"></label>` : ""}
+    <label class="row small" style="margin-top:12px"><input type="checkbox" id="chg" ${ui.changes ? "checked" : ""}> I need different specs (paper, size, finishing…)</label></section>
+  <section class="card"><h2>3. Delivery</h2><div class="fgrid">
+    <label class="f" for="addr">Deliver to<select class="in" id="addr">${["Head office, Makati City", "Warehouse – Laguna, Cabuyao"].map((a) => `<option ${a === ui.addr ? "selected" : ""}>${a}</option>`).join("")}</select></label>
+    <label class="f" for="po">Your PO number (optional)<input type="text" id="po" value="${esc(ui.po ?? "")}"></label></div></section>
+  <section class="card price-box" aria-live="polite">
+    ${instant ? `<div class="row" style="justify-content:space-between;align-items:end"><div><div class="muted">${q.base.q.toLocaleString("en-PH")} pcs · ₱${q.unit.toFixed(2)} each</div><div class="big tab">${peso(q.total)}</div>
+      <div class="muted small">VAT inclusive (12% VAT ${peso(q.vat)}) · price good until ${fdate(q.valid)}</div></div><div>Ready in about <b>${esc(it.lead)}</b></div></div>
+      <p class="muted" style="margin:10px 0">Based on your previous order/estimate of ${fdate(q.base.date)}, adjusted for current costs.</p>
+      <details class="small muted" style="margin-bottom:12px"><summary>How this price was worked out (staff see this; clients only if management allows)</summary>
+      <p style="margin:6px 0 0">Past price ${peso(q.base.total)} ${q.base.inc ? "VAT-inclusive" : "+ VAT"} on ${fdate(q.base.date)} (${esc(q.base.ref)}) → VAT-exclusive, then inflation since then: ${inflationFactor(q.base.date, today()).years.map((y) => `${y.y} at ${y.rate}% for ${Math.round(y.frac * 100)}% of the year`).join(", ")} = <b>+${q.adj.toFixed(2)}%</b>. Plus 12% VAT, rounded up to the next ₱5.</p></details>
+      <div class="row"><button class="btn lg" id="placeNow">⚡ Reorder now · ${peso(q.total)}</button></div>
+      <p class="muted small" style="margin:10px 0 0">The order is confirmed right away. To change or cancel it, contact Print Amplified.</p>`
+    : needs ? `<b>We'll send you a quote</b><p class="muted" style="margin:6px 0 12px">Because ${esc(reasons.join("; "))}. Usually within one working day.</p><button class="btn lg" id="askQuote">Ask for a quote</button>`
+    : `<span class="muted">Answer question 1 to see your price.</span>`}
+  </section>` : ""}`;
+}
+function vOrders() {
+  const rows = [...db.orders].sort((a, b) => b.placed.localeCompare(a.placed));
+  return `<div class="page-h"><div><h1>My Orders</h1><p>Every order your company has placed.</p></div></div>
+  <div class="tablewrap"><table><thead><tr><th>Order</th><th class="hide-sm">Items</th><th>Placed</th><th>Status</th>${seesMoney() ? "<th>Total</th>" : ""}</tr></thead><tbody>
+  ${rows.map((o) => `<tr class="click" data-open="${o.id}"><td><b>${o.no}</b></td><td class="hide-sm">${esc(o.lines.map((l) => l.title).join(", "))}</td><td>${fdate(o.placed)}</td><td>${badge(o.status)}</td>${seesMoney() ? `<td class="tab">${peso(total(o))}<br>${payBadge(o)}</td>` : ""}</tr>`).join("")}
+  </tbody></table></div>`;
+}
+function progress(o) {
+  if (o.status === "cancelled") return `<div class="notice n-bad">This order was cancelled.</div>`;
+  const cur = STAGES.findIndex(([, s]) => s.includes(o.status));
+  return `${o.status === "on_hold" ? `<div class="notice n-bad">On hold. Your account manager will contact you.</div>` : ""}
+  <ol class="progress" aria-label="Order progress">${STAGES.map(([l], i) => { const done = cur > i || (cur === i && i === 4); const now = cur === i && !done;
+    return `<li class="${done ? "done" : now ? "now" : ""}" ${now ? 'aria-current="step"' : ""}><span class="dot">${done ? "✓" : i + 1}</span>${l}</li>`; }).join("")}</ol>`;
+}
+function timeline(o, staff) {
+  const ev = [...o.events].filter((e) => staff || e[3]).reverse();
+  return `<ol class="timeline">${ev.map(([s, at, note, vis], i) => `<li><b>${i > 0 && ev[i - 1] && false ? "" : STATUS[s][0]}${staff && !vis ? ' <span class="badge">internal</span>' : ""}</b><span class="muted small">${ftime(at)}</span>${note ? `<div>${esc(note)}</div>` : ""}</li>`).join("")}</ol>`;
+}
+function moneyCard(o, staff) {
+  const t = total(o), p = paid(o);
+  return `<section class="card"><div class="row" style="justify-content:space-between"><h2>Payment</h2>${payBadge(o)}</div>
+  <dl class="money tab" style="margin-top:10px"><div><dt>Amount (VAT-exclusive)</dt><dd>${peso(t - vatOf(t))}</dd></div><div><dt>12% VAT</dt><dd>${peso(vatOf(t))}</dd></div>
+  <div class="tot"><dt>Total</dt><dd>${peso(t)}</dd></div><div><dt>Paid so far</dt><dd>${peso(p)}</dd></div>${p < t ? `<div><dt><b>Balance</b></dt><dd><b>${peso(t - p)}</b></dd></div>` : ""}</dl>
+  ${o.payments.length ? `<ul class="list" style="margin-top:8px">${o.payments.map((x) => `<li class="small"><span class="grow">${esc(x.method)} ${esc(x.ref)}${x.bank ? " · " + esc(x.bank) : ""}<br><span class="muted">Received ${fdate(x.on)}</span></span><b class="tab">${peso(x.amount)}</b></li>`).join("")}</ul>` : ""}
+  ${!staff ? `<div class="notice n-info small" style="margin-top:10px"><b>How to pay:</b> BDO · Print Amplified Corp. · 0012-3456-7890. Cheques payable to <b>Print Amplified Corp.</b> (Pretend details for the demo.)</div>` : ""}
+  ${staff && me === "sales" && o.status !== "cancelled" ? payForm(o) : ""}</section>`;
+}
+function vOrder() {
+  const o = order(view.id);
+  return `<button class="btn ghost" data-go="orders">‹ My Orders</button>
+  <div class="page-h"><div><h1>${o.no}</h1><p>Placed ${fdate(o.placed)}${o.po ? ` · PO ${esc(o.po)}` : ""}</p></div>${badge(o.status)}</div>
+  ${view.placed ? `<div class="notice n-ok"><b>Thank you! Your order ${o.no} is in.</b> Your account manager has been notified. Payment instructions are below.</div>` : ""}
+  ${progress(o)}
+  <div class="grid2"><div style="display:grid;gap:20px;min-width:0">
+    <section class="card"><h2>Items</h2><ul class="list">${o.lines.map((l) => `<li><div class="grow"><b>${esc(l.title)}</b><div class="muted tab">${l.q.toLocaleString("en-PH")} pcs</div></div>${seesMoney() ? `<b class="tab">${peso(l.total)}</b>` : ""}</li>`).join("")}</ul></section>
+    <section class="card"><h2>Order progress</h2><p class="sub">Every step with its date and time.</p>${timeline(o, false)}</section>
+    ${canOrder() && o.status === "submitted" ? `<div class="card row"><span class="grow muted">Need to cancel? You can until Print Amplified confirms the order.</span><button class="btn out" id="cancelOrder">Cancel order</button></div>` : ""}
+  </div><div style="display:grid;gap:20px">
+    <section class="card"><h2>Delivery</h2><p style="margin:0">${esc(o.address)}</p></section>
+    ${seesMoney() ? moneyCard(o, false) : `<div class="notice n-info small">Prices and payments are hidden for view-only users.</div>`}
+  </div></div>`;
+}
+
+/* ============================================================= staff views */
+function vDash() {
+  const toConfirm = db.orders.filter((o) => o.status === "submitted");
+  const prodNow = db.orders.filter((o) => ["confirmed", "prepress", "approved_for_print", "printing", "finishing", "quality_check"].includes(o.status));
+  const unpaid = db.orders.filter((o) => o.status !== "cancelled" && payStatus(o) !== "paid");
+  const qr = db.quoteRequests.filter((q) => q.status === "open");
+  const sales = me === "sales";
+  return `<div class="page-h"><div><h1>Dashboard</h1><p>${sales ? "Your clients: ABC Corporation" : "All orders in production"}</p></div></div>
+  <div class="kpis">
+    <button class="kpi ${toConfirm.length ? "alert" : ""}" data-go="sorders"><b class="tab">${toConfirm.length}</b><span>New orders to confirm</span></button>
+    <button class="kpi" data-go="sorders"><b class="tab">${prodNow.length}</b><span>In production</span></button>
+    ${sales ? `<button class="kpi ${unpaid.length ? "alert" : ""}" data-go="sorders"><b class="tab">${unpaid.length}</b><span>Unpaid or partly paid · ${peso(unpaid.reduce((s, o) => s + total(o) - paid(o), 0))} owed</span></button>
+    <button class="kpi" data-go="qrs"><b class="tab">${qr.length}</b><span>Quote requests waiting</span></button>`
+    : `<div class="kpi"><b class="tab">${db.orders.filter((o) => o.status === "out_for_delivery").length}</b><span>Out for delivery</span></div><div class="kpi"><b>—</b><span>Prices and payments hidden for production</span></div>`}
+  </div>
+  <section class="card"><h2>Work queue</h2><p class="sub">Oldest first.</p><ul class="list">
+    ${[...toConfirm.map((o) => [o, sales ? "Confirm the order" : "Waiting for sales to confirm"]), ...prodNow.map((o) => [o, "Update the status"])].map(([o, what]) => `<li style="cursor:pointer" data-sorder="${o.id}"><div class="grow"><b>${o.no}</b> · ABC Corporation<div class="muted small">${esc(o.lines.map((l) => l.title).join(", "))}</div></div><span class="muted small hide-sm">${what}</span>${badge(o.status)}</li>`).join("") || '<li class="muted">All caught up.</li>'}
+  </ul></section>`;
+}
+function vSOrders() {
+  const rows = [...db.orders].sort((a, b) => b.placed.localeCompare(a.placed));
+  return `<div class="page-h"><div><h1>Orders</h1><p>Confirm new orders, update their status and record payments.</p></div></div>
+  <div class="tablewrap"><table><thead><tr><th>Order</th><th>Client</th><th class="hide-sm">Items</th><th>Placed</th><th>Status</th>${me === "sales" ? "<th>Total</th>" : ""}</tr></thead><tbody>
+  ${rows.map((o) => `<tr class="click" data-sorder="${o.id}"><td><b>${o.no}</b></td><td>ABC Corporation</td><td class="hide-sm">${esc(o.lines.map((l) => l.title).join(", "))}</td><td>${fdate(o.placed)}</td><td>${badge(o.status)}</td>${me === "sales" ? `<td class="tab">${peso(total(o))}<br>${payBadge(o)}</td>` : ""}</tr>`).join("")}
+  </tbody></table></div>`;
+}
+function allowed(from) {
+  if (["cancelled", "closed"].includes(from)) return [];
+  if (from === "delivered") return ["closed"];
+  if (from === "submitted") return ["on_hold"];
+  return ["prepress", "waiting_for_client_approval", "approved_for_print", "printing", "finishing", "quality_check", "ready_for_pickup", "out_for_delivery", "delivered", "closed", "on_hold"].filter((s) => s !== from);
+}
+function nextOf(from) { const i = FLOW.indexOf(from); const n = i >= 0 ? FLOW[i + 1] : null; const a = allowed(from); return n && a.includes(n) ? n : from === "quality_check" ? "out_for_delivery" : a[0]; }
+function payForm(o) {
+  const bal = Math.max(0, total(o) - paid(o));
+  ui.method ??= "Bank transfer";
+  return `<details style="margin-top:12px;border:1px solid var(--border);border-radius:10px;padding:10px 12px" ${bal > 0 ? "open" : ""}><summary><b>Record a payment</b></summary>
+  <div class="fgrid" style="margin-top:10px"><div class="row" role="radiogroup" aria-label="Method" style="grid-column:1/-1">${["Bank transfer", "Cheque"].map((m) => `<button class="opt" role="radio" data-method="${m}" aria-checked="${ui.method === m}" style="padding:6px 12px">${m}</button>`).join("")}</div>
+  <label class="f" for="pref">${ui.method === "Cheque" ? "Cheque number" : "Reference number"}<input type="text" id="pref"></label>
+  <label class="f" for="pbank">Bank<input type="text" id="pbank" placeholder="BDO, BPI, Metrobank…"></label>
+  <label class="f" for="pamt">Amount ₱<input type="text" id="pamt" inputmode="decimal" value="${(bal / 100).toFixed(2)}"></label>
+  <label class="f" for="pdate">Date received<input type="date" id="pdate" value="${today()}" max="${today()}"></label></div>
+  <button class="btn" id="recordPay" style="margin-top:10px">Record payment</button></details>`;
+}
+function vSOrder() {
+  const o = order(view.id); const sales = me === "sales"; const opts = allowed(o.status);
+  ui.to ??= nextOf(o.status); ui.visible ??= true;
+  return `<button class="btn ghost" data-go="sorders">‹ Orders</button>
+  <div class="page-h"><div><h1>${o.no}</h1><p>ABC Corporation · ${o.kind} · placed ${ftime(o.placed)}${o.po ? ` · PO ${esc(o.po)}` : ""}</p></div><div class="row">${sales ? payBadge(o) : ""}${badge(o.status)}</div></div>
+  <div class="grid2"><div style="display:grid;gap:20px;min-width:0">
+    ${o.status === "submitted" && sales ? `<section class="card" style="border-color:var(--info)"><h2>Confirm this order</h2><p class="sub">Change a price only if needed. The client is told and sees the new total.</p>
+      ${o.lines.map((l, i) => `<div class="row" style="border:1px solid var(--border);border-radius:10px;padding:10px 12px"><span class="grow"><b>${esc(l.title)}</b><br><span class="muted tab">${l.q} pcs · ${peso(l.total)}</span></span><label class="f" for="np${i}" style="width:150px">New total ₱ (optional)<input type="text" id="np${i}" inputmode="decimal" placeholder="${(l.total / 100).toFixed(2)}"></label></div>`).join("")}
+      <label class="f" for="cnote" style="margin-top:10px">Note to the client (optional)<input type="text" id="cnote" placeholder="e.g. Rush fee added for the 3-day deadline"></label>
+      <div class="row" style="margin-top:12px"><button class="btn" id="confirmOrder">Confirm order</button><button class="btn out" id="staffCancel">Cancel order</button></div></section>` : ""}
+    ${o.status === "submitted" && !sales ? `<div class="notice n-info">Waiting for sales to confirm the price. Production can only put it On Hold.</div>` : ""}
+    <section class="card"><h2>Items</h2><ul class="list">${o.lines.map((l) => `<li><div class="grow"><b>${esc(l.title)}</b><div class="muted tab">${l.q.toLocaleString("en-PH")} pcs</div></div>${sales ? `<b class="tab">${peso(l.total)}</b>` : ""}</li>`).join("")}</ul></section>
+    <section class="card"><h2>Timeline</h2><p class="sub">Staff also see internal notes.</p>${timeline(o, true)}</section>
+    ${["delivered", "closed"].includes(o.status) && sales && o.lines.some((l) => l.item) ? `<div class="card row" style="background:var(--primary-soft)"><span class="grow">Save this order's final prices as the items' <b>new agreed prices</b>, dated today? Future instant quotes start from them.</span><button class="btn" id="saveAgreed">Save as agreed prices</button></div>` : ""}
+  </div><div style="display:grid;gap:20px;min-width:0">
+    ${opts.length && !(o.status === "submitted" && sales) ? `<section class="card"><h2>Update status</h2><p class="sub">Now: <b>${STATUS[o.status][0]}</b>. You can skip steps.</p>
+      <label class="f" for="to">New status<select class="in" id="to">${opts.map((s) => `<option value="${s}" ${s === ui.to ? "selected" : ""}>${STATUS[s][0]}</option>`).join("")}</select></label>
+      <label class="f" for="snote" style="margin-top:10px">Note (optional)<textarea id="snote" rows="2" placeholder="${["delivered", "out_for_delivery"].includes(ui.to) ? "e.g. Truck left 8:40 AM, driver Jun" : "e.g. Lamination started"}"></textarea></label>
+      <div class="switch" style="margin-top:10px"><span><b>Show this update to the client</b><br><span class="muted small">Off: an internal note only staff see.</span></span><input type="checkbox" id="vis" ${ui.visible ? "checked" : ""} aria-label="Show this update to the client" style="width:20px;height:20px"></div>
+      <p class="muted small">In the real app you can also attach production or delivery photos and the signed delivery receipt here.</p>
+      <button class="btn" id="updStatus">Update to ${STATUS[ui.to]?.[0] ?? ""}</button></section>` : ""}
+    ${sales ? moneyCard(o, true) : `<div class="notice n-info small">Prices and payments are hidden for production.</div>`}
+    <section class="card"><h2>Delivery</h2><p style="margin:0">${esc(o.address)}</p></section>
+  </div></div>`;
+}
+function vQrs() {
+  return `<div class="page-h"><div><h1>Quote requests</h1><p>Reorders that need a manual quote, with the reason and a suggested price.</p></div></div>
+  <section class="card"><ul class="list">${db.quoteRequests.length ? db.quoteRequests.map((q) => `<li><div class="grow"><b>${q.no}</b> · ABC Corporation<div class="muted small">Reorder: ${esc(q.title)} · ${q.qty.toLocaleString("en-PH")} pcs · ${esc(q.reason)}</div>${q.suggested ? `<div class="small">Suggested price: <b>${peso(q.suggested)}</b></div>` : ""}</div><span class="badge b-warn">Needs quote</span></li>`).join("")
+    : '<li class="muted">None yet. As the buyer, ask for a quote on 5,000 brochures (that price is over 3 years old) and it appears here.</li>'}</ul>
+  <p class="muted small">In the real app you reply with prices per quantity, lead time and validity, and the client accepts in one tap.</p></section>`;
+}
+
+/* ============================================================= actions */
+function addEvent(o, s, note, vis = true) { o.events.push([s, new Date().toISOString(), note || "", vis]); }
+function placeReorder() {
+  const it = item(view.id); const q = quote(it, ui.qty);
+  const no = `PA-2026-${String(++db.seq.order).padStart(6, "0")}`; const id = "o" + db.seq.order;
+  const o = { id, no, kind: "Reorder", status: "confirmed", placed: new Date().toISOString(), by: "buyer", po: $("#po")?.value ?? "", address: $("#addr")?.value ?? ui.addr,
+    lines: [{ item: it.id, title: it.name, q: ui.qty, total: q.total }], payments: [], events: [] };
+  addEvent(o, "submitted", ""); addEvent(o, "confirmed", "Instant reorder at today's price.");
+  db.orders.push(o);
+  notify(["sales"], `New reorder ${no}`, `${it.name} × ${ui.qty.toLocaleString("en-PH")} · ${peso(q.total)}`, id);
+  notify(["production"], `New job ${no}`, `${it.name} × ${ui.qty.toLocaleString("en-PH")}`, id);
+  save(); go("order", { id, placed: true }); toast("Order placed. Sales and production were notified (switch roles to see).");
+}
+function askQuote() {
+  const it = item(view.id);
+  const qty = ui.qty === "other" ? Number($("#otherq")?.value) : ui.qty;
+  if (!qty || qty <= 0) return toast("Type the quantity you need.");
+  const q = typeof ui.qty === "number" ? quote(it, ui.qty) : null;
+  const reason = ui.qty === "other" ? "quantity not priced before" : ui.changes ? "specs changed" : (q?.reasons ?? []).map((r) => r.replace(/_/g, " ")).join(", ");
+  const no = `QR-2026-${String(++db.seq.qr).padStart(4, "0")}`;
+  db.quoteRequests.unshift({ no, title: it.name, qty, reason, suggested: q?.total ?? null, status: "open" });
+  notify(["sales"], `New quote request ${no}`, `${it.name} × ${qty.toLocaleString("en-PH")} (${reason})`, null);
+  save(); go("home"); toast(`Quote request ${no} sent. Ana in sales was notified.`);
+}
+function updateStatus() {
+  const o = order(view.id); const to = $("#to").value; const note = $("#snote").value.trim(); const vis = $("#vis").checked;
+  const from = o.status; o.status = to; addEvent(o, to, note, vis);
+  if (vis) notify(["buyer", "viewer"], `${o.no}: ${STATUS[to][0]}`, note || (EMAILED.has(to) ? "We also sent you an email." : ""), o.id);
+  if (from !== to && me === "production") notify(["sales"], `${o.no}: ${STATUS[to][0]}`, `Updated by ${U().name}`, o.id);
+  save(); ui = {}; render(); toast(`Status changed to ${STATUS[to][0]}.${vis ? " The client was notified" + (EMAILED.has(to) ? " (in-app + email)." : " (in-app).") : " Internal note only."}`);
+}
+function parsePeso(v) { const n = Number(String(v).replace(/[₱,\s]/g, "")); return Number.isFinite(n) && n > 0 ? Math.round(n * 100) : null; }
+function confirmOrder() {
+  const o = order(view.id); let changed = false;
+  o.lines.forEach((l, i) => { const v = $("#np" + i)?.value; if (v && v.trim()) { const c = parsePeso(v); if (c) { l.total = c; changed = true; } } });
+  const note = $("#cnote").value.trim() || (changed ? "Confirmed with an updated price." : "");
+  o.status = "confirmed"; addEvent(o, "confirmed", note);
+  notify(["buyer"], `Order ${o.no} confirmed`, changed ? "The price was updated. Please check the new total." : "", o.id);
+  notify(["production"], `New job ${o.no}`, o.lines.map((l) => l.title).join(", "), o.id);
+  save(); ui = {}; render(); toast("Order confirmed. The client was notified.");
+}
+function recordPay() {
+  const o = order(view.id); const ref = $("#pref").value.trim(); const amt = parsePeso($("#pamt").value); const on = $("#pdate").value;
+  if (!ref) return toast(ui.method === "Cheque" ? "Enter the cheque number." : "Enter the bank reference number.");
+  if (!amt) return toast("Enter the amount received.");
+  if (!on || on > today()) return toast("Enter the date received (not in the future).");
+  o.payments.push({ method: ui.method, ref, bank: $("#pbank").value.trim(), amount: amt, on });
+  const st = payStatus(o);
+  notify(["buyer"], `Payment received for ${o.no}`, st === "paid" ? "Your order is fully paid. Thank you!" : `Balance ${peso(total(o) - paid(o))}`, o.id);
+  save(); ui = {}; render(); toast(`Payment recorded. The order is now ${st === "paid" ? "Paid" : "Partially Paid"}.`);
+}
+function cancel(staff) {
+  const o = order(view.id);
+  ui.cancel = true; overlay(`<h2>Cancel ${o.no}?</h2><p class="muted">${staff ? "The client is told, with your reason." : "Print Amplified is told, with your reason. You can place a new order any time."}</p>
+    <label class="f" for="creason">Reason<textarea id="creason" rows="3"></textarea></label><div class="row" style="margin-top:12px;justify-content:flex-end"><button class="btn out" data-close>Keep order</button><button class="btn danger" id="doCancel">Cancel order</button></div>`,
+  () => { $("#doCancel").onclick = () => { const r = $("#creason").value.trim(); if (r.length < 3) return toast("Please give a reason.");
+    o.status = "cancelled"; addEvent(o, "cancelled", r); notify(staff ? ["buyer"] : ["sales"], `Order ${o.no} cancelled${staff ? "" : " by the client"}`, r, o.id); save(); closeOverlay(); ui = {}; render(); toast("Order cancelled."); }; });
+}
+function overlay(html, after) { $("#overlay").innerHTML = `<div class="scrim" data-close></div><div class="drawer" role="dialog" aria-modal="true">${html}</div>`; after?.(); $("#overlay .drawer button, #overlay .drawer textarea")?.focus(); }
+function closeOverlay() { $("#overlay").innerHTML = ""; }
+function showNotes() {
+  const list = db.notes[me];
+  overlay(`<div class="row" style="justify-content:space-between"><h2>Notifications</h2><button class="btn ghost" data-close>Close</button></div>
+  <p class="muted small">On an installed phone these also arrive as push notifications.</p>
+  <ul class="list">${list.length ? list.map((n, i) => `<li style="cursor:pointer;align-items:flex-start" data-note="${i}"><span style="width:8px;height:8px;border-radius:9px;margin-top:7px;background:${n.read ? "transparent" : "var(--accent)"}"></span><div class="grow"><b>${esc(n.t)}</b>${n.b ? `<div class="small">${esc(n.b)}</div>` : ""}<div class="muted small">${ftime(n.at)}</div></div></li>`).join("") : '<li class="muted">Nothing yet. Place or update an order, then switch roles.</li>'}</ul>`);
+  list.forEach((n) => (n.read = true)); save(); renderChrome();
+}
+
+/* ============================================================= render + events */
+function render() {
+  const allowedViews = isClient() ? ["home", "items", "item", "reorder", "orders", "order"] : ["dash", "sorders", "sorder", "qrs"];
+  if (!allowedViews.includes(view.name) || (view.name === "reorder" && !canOrder()) || (view.name === "qrs" && me !== "sales")) view = { name: isClient() ? "home" : "dash" };
+  renderChrome();
+  const V = { home: vHome, items: vItems, item: vItem, reorder: vReorder, orders: vOrders, order: vOrder, dash: vDash, sorders: vSOrders, sorder: vSOrder, qrs: vQrs };
+  $("#view").innerHTML = V[view.name]();
+  $("#who").value = me;
+}
+document.addEventListener("click", (e) => {
+  const t = e.target.closest("button, [data-open], [data-sorder], [data-note], [data-close], tr");
+  if (!t) return;
+  const d = t.dataset;
+  if (d.close !== undefined) return closeOverlay();
+  if (d.go) return go(d.go);
+  if (d.toast) return toast(d.toast);
+  if (d.open) return go("order", { id: d.open });
+  if (d.sorder) return go("sorder", { id: d.sorder });
+  if (d.item) return go("item", { id: d.item });
+  if (d.reorder) return go("reorder", { id: d.reorder });
+  if (d.note !== undefined) { const n = db.notes[me][+d.note]; closeOverlay(); if (n?.order) go(isClient() ? "order" : "sorder", { id: n.order }); return; }
+  if (d.art) { ui.art = d.art === "yes"; return render(); }
+  if (d.qty) { ui.qty = d.qty === "other" ? "other" : Number(d.qty); return render(); }
+  if (d.method) { ui.method = d.method; return render(); }
+  switch (t.id) {
+    case "bell": return showNotes();
+    case "placeNow": return placeReorder();
+    case "askQuote": return askQuote();
+    case "updStatus": return updateStatus();
+    case "confirmOrder": return confirmOrder();
+    case "recordPay": return recordPay();
+    case "cancelOrder": return cancel(false);
+    case "staffCancel": return cancel(true);
+    case "saveAgreed": { const o = order(view.id); for (const l of o.lines) { const it = item(l.item); if (!it) continue; it.tiers = it.tiers.filter((x) => x.q !== l.q).concat({ q: l.q, total: l.total, date: today(), inc: true, ref: o.no }).sort((a, b) => a.q - b.q); } save(); return toast("Saved. The next instant reorder of this item starts from this price, dated today."); }
+    case "same": { const it = item(view.id); const last = db.orders.filter((o) => o.lines.some((l) => l.item === it.id)).sort((a, b) => b.placed.localeCompare(a.placed))[0]; ui.art = true; ui.qty = last.lines[0].q; ui.addr = last.address.startsWith("Warehouse") ? "Warehouse – Laguna, Cabuyao" : "Head office, Makati City"; if (!it.tiers.some((x) => x.q === ui.qty)) { ui.other = ui.qty; ui.qty = "other"; } return render(); }
+  }
+});
+document.addEventListener("change", (e) => {
+  if (e.target.id === "who") { me = e.target.value; save(); go(isClient() ? "home" : "dash"); toast(`Now viewing as ${U().name} (${U().label}).`); }
+  if (e.target.id === "chg") { ui.changes = e.target.checked; render(); }
+  if (e.target.id === "addr") ui.addr = e.target.value;
+  if (e.target.id === "to") { ui.to = e.target.value; const b = $("#updStatus"); if (b) b.textContent = `Update to ${STATUS[ui.to][0]}`; }
+  if (e.target.id === "vis") ui.visible = e.target.checked;
+});
+document.addEventListener("input", (e) => { if (e.target.id === "otherq") ui.other = e.target.value; if (e.target.id === "po") ui.po = e.target.value; });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeOverlay(); });
+$("#reset").onclick = () => { db = seed(); me = "buyer"; save(); go("home"); toast("Demo reset to the starting data."); };
+
+load(); view = { name: isClient() ? "home" : "dash" }; render();
+</script>
+</body>
+</html>
